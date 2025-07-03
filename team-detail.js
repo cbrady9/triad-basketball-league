@@ -33,7 +33,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Standings Data for Record and Rank ---
     if (currentSeason) {
         const standingsGID = getGID('STANDINGS_GID', currentSeason);
-        if (!standingsGID) {
+        if (!standingsGID && standingsGID !== 0) { // Check for null/undefined, but allow 0
             console.error("Standings GID not found for current season:", currentSeason);
             document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Standings data not configured.</p>';
             document.getElementById('team-rankings').innerHTML = '';
@@ -83,7 +83,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Players Data for Roster ---
     if (currentSeason) {
         const playersGID = getGID('PLAYERS_GID', currentSeason);
-        if (!playersGID) {
+        if (!playersGID && playersGID !== 0) { // Check for null/undefined, but allow 0
             console.error("Players GID not found for current season:", currentSeason);
             document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
         } else {
@@ -140,7 +140,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Schedule Data ---
     if (currentSeason) {
         const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
-        if (!scheduleGID) {
+        if (!scheduleGID && scheduleGID !== 0) { // Check for null/undefined, but allow 0
             console.error("Schedule GID not found for current season:", currentSeason);
             document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Schedule data not configured.</p>';
         } else {

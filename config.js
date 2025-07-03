@@ -29,7 +29,20 @@ const SEASON_CONFIGS = {
     }
     // Add more seasons as you create them
 };
-// config.js
-// ... (your existing code) ...
+// Function to get the current season from localStorage or default
+function getCurrentSeason() {
+    return localStorage.getItem('currentSeason') || 'S01'; // Default to S01
+}
+
+// UPDATED getGID function to correctly handle GID 0
+function getGID(type, season) {
+    const config = SEASON_CONFIGS[season];
+    // Check if the property exists on the config object, allowing 0 as a valid GID
+    if (config && Object.prototype.hasOwnProperty.call(config, type)) {
+        return config[type];
+    }
+    console.warn(`GID not found for type: ${type}, season: ${season}. Configuration:`, config);
+    return null;
+}
 
 console.log('config.js loaded. SHEET_ID defined:', typeof SHEET_ID !== 'undefined', 'SEASON_CONFIGS defined:', typeof SEASON_CONFIGS !== 'undefined');

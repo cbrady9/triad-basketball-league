@@ -14,7 +14,7 @@ const SEASON_CONFIGS = {
         "STANDINGS_GID": "770406970",
         "PLAYERS_GID": "0",
         "TEAMS_GID": "2001178505",
-        "GAME_LOG_GID": "Y306053944",
+        "GAME_LOG_GID": "306053944",
         "TRANSACTIONS_GID": "548202372"
     },
     "So2": { // Your newly duplicated second season

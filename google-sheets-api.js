@@ -29,6 +29,15 @@ async function fetchGoogleSheetData(sheetId, gid, query) {
 
         const data = JSON.parse(jsonString);
 
+        console.log("DEBUG: Raw Google API 'data' object received:", data);
+        if (data.table) {
+            console.log("DEBUG: Raw Google API 'data.table.cols' array:", data.table.cols);
+            console.log("DEBUG: Raw Google API 'data.table.rows' array:", data.table.rows);
+            console.log("DEBUG: Raw Google API 'data.table.rows' length:", data.table.rows.length);
+        } else {
+            console.log("DEBUG: 'data.table' not found in Google API response or response is malformed.");
+        }
+
         if (data.status === 'ok' && data.table) {
             const columns = data.table.cols.map(col => col.label || col.id); // Use label if available, otherwise id
             const rows = data.table.rows;

@@ -26,6 +26,7 @@ async function initializeTeamDetailPage() {
     if (!standingsGID) {
         console.error("Standings GID not found for current season:", currentSeason);
         document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Standings data not configured.</p>';
+        document.getElementById('team-rankings').innerHTML = ''; // Clear rankings if error
         return;
     }
 
@@ -35,22 +36,19 @@ async function initializeTeamDetailPage() {
     // C: Wins
     // D: Losses
     // E: Win %
-    const STANDINGS_QUERY = 'SELECT A,B,C,D,E'; // Adjusted to include Rank (Column A)
+    const STANDINGS_QUERY = 'SELECT A,B,C,D,E';
 
     const standingsData = await fetchGoogleSheetData(SHEET_ID, standingsGID, STANDINGS_QUERY);
 
     if (standingsData && standingsData.length > 0) {
         let teamStandings = null;
-        // No need for teamsWithRecords array or custom sorting now that rank comes from the sheet directly.
 
-        // Find the specific team's record and rank
         standingsData.forEach(row => {
-            // Ensure these indices match the columns in your STANDINGS_QUERY (A=0, B=1, C=2, D=3, E=4)
-            const rank = Object.values(row)[0];           // Column A: Rank
-            const recordTeamName = Object.values(row)[1]; // Column B: Team Name
-            const wins = parseFloat(Object.values(row)[2]);      // Column C: Wins
-            const losses = parseFloat(Object.values(row)[3]);    // Column D: Losses
-            const winPct = parseFloat(Object.values(row)[4]);    // Column E: Win %
+            const rank = Object.values(row)[0];
+            const recordTeamName = Object.values(row)[1];
+            const wins = parseFloat(Object.values(row)[2]);
+            const losses = parseFloat(Object.values(row)[3]);
+            const winPct = parseFloat(Object.values(row)[4]);
 
             if (recordTeamName === decodeURIComponent(teamName)) {
                 teamStandings = { rank: rank, wins: wins, losses: losses, winPct: winPct };
@@ -61,7 +59,24 @@ async function initializeTeamDetailPage() {
             document.getElementById('team-record-stats').innerHTML = `
                 <p>Record: <span id="record-display" class="font-bold">${teamStandings.wins}-${teamStandings.losses}</span></p>
                 <p>Win %: <span id="win-pct-display" class="font-bold">${(teamStandings.winPct * 100).toFixed(1)}%</span></p>
-                `;
-            // UPDATED LEAGUE RANKING DISPLAY:
+            `; // <-- Correctly closed backtick here.
+            
             document.getElementById('team-rankings').innerHTML = `
                 <p>League Rank: <span id="league-rank-display" class="font-bold">${teamStandings.rank}</span></p>
+            `; // <-- Correctly closed backtick here.
+        } else {
+            // If teamStandings is null (team not found in standings data)
+            document.getElementById('team-record-stats').innerHTML = '<p class="text-gray-700">Team standings not found for this team.</p>';
+            document.getElementById('team-rankings').innerHTML = '<p class="text-gray-700">Rankings not available.</p>';
+        }
+    } else {
+        // If standingsData is empty or null (data fetch failed or no data)
+        document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Failed to load standings data.</p>';
+        document.getElementById('team-rankings').innerHTML = '<p class="text-red-500">Failed to load rankings.</p>';
+    }
+
+    console.log(`Fetching data for ${decodeURIComponent(teamName)} in Season ${currentSeason}...`);
+    console.log("Next, we will implement data fetching for more stats, roster, and schedule.");
+}
+
+document.addEventListener('DOMContentLoaded', initializeTeamDetailPage);

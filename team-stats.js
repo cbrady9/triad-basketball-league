@@ -97,7 +97,7 @@ function populateTableBody(tbody, rows) {
 
         rowData.c.forEach(cell => {
             const td = document.createElement('td');
-            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+            td.className = 'px-6 py-4 text-sm text-gray-900'; // Removed whitespace-nowrap       
 
             if (cell) {
                 td.textContent = cell.f !== undefined ? cell.f : (cell.v !== undefined ? cell.v : '');

@@ -1,171 +1,102 @@
-// ** Configuration for your Google Sheet **
-const SHEET_ID = '18lQt9cD2icb-K6UQxTWqfbI7R4L84cT_l8lvUtiqGDU'; // Your Master Sheet ID (This should be consistent across all your JS files)
-const TEAMSTATS_GID = '1640890982'; // GID for the 'Team Stats (AUTOMATED)' tab. <--- IMPORTANT: Replace this!
+// team-stats.js
 
-// The Google Visualization API query.
-// Adjust these column letters based on where your data is in the 'Team Stats (AUTOMATED)' sheet.
-const TEAMSTATS_QUERY = 'SELECT A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X'; // Adjust as needed for your Team Stats columns!
+// No need for SHEET_ID or GID here, they come from config.js and utils.js
 
-// Global variables to keep track of sorting state
-let currentSortColumn = -1; // -1 means no column sorted
-let currentSortDirection = 'asc'; // 'asc' or 'desc'
-let originalTableData = null; // Store the original fetched data for re-sorting
+const TEAMSTATS_QUERY = 'SELECT *'; // Select all columns for team stats
 
-async function fetchGoogleSheetData(sheetId, gid, query) {
-    const baseUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const queryParams = new URLSearchParams({
-        gid: gid,
-        tq: query
-    });
-    const url = baseUrl + queryParams.toString();
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const data = JSON.parse(jsonString);
-
-        if (data.table && data.table.rows) {
-            return data.table;
-        } else {
-            console.warn('No data table or rows found in response:', data);
-            return null;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null;
+function renderTeamStatsTable(data) {
+    const container = document.getElementById('teamstats-data-container');
+    if (!container) {
+        console.error("Team stats container not found.");
+        return;
     }
-}
+    container.innerHTML = ''; // Clear existing content
 
-function renderTeamStatsTable(tableData) { // <-- Function name changed
-    const container = document.getElementById('team-stats-data-container'); // <-- ID changed
-    if (!container || !tableData || !tableData.rows || tableData.rows.length === 0) {
-        container.innerHTML = '<p class="text-gray-600">No team stats data available.</p>'; // Updated message
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-700">No team stats available for this season.</p>';
         return;
     }
 
-    originalTableData = tableData; // Store original data
+    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
+    const headers = Object.keys(data[0]); // Get headers from the first data object
 
-    container.innerHTML = ''; // Clear previous table if any
-
-    const table = document.createElement('table');
-    table.className = 'min-w-full divide-y divide-gray-200 shadow overflow-hidden sm:rounded-lg';
-
-    const thead = document.createElement('thead');
-    thead.className = 'bg-gray-50';
-    const headerRow = document.createElement('tr');
-
-    const headers = tableData.cols.map(col => col.label || col.id);
-
-    headers.forEach((headerText, index) => {
-        const th = document.createElement('th');
-        th.scope = 'col';
-        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable';
-        th.textContent = headerText;
-        th.dataset.columnIndex = index;
-        
-        th.addEventListener('click', () => {
-            sortTable(table, index, originalTableData.rows); // Pass original data rows
-        });
-
-        headerRow.appendChild(th);
+    headers.forEach(header => {
+        // Add sortable class to headers if they are numeric stats (adjust as needed)
+        const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header) ? '' : 'sortable';
+        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
     });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
-    const tbody = document.createElement('tbody');
-    tbody.className = 'bg-white divide-y divide-gray-200';
-    tbody.id = 'team-stats-tbody'; // <-- ID changed
-    table.appendChild(tbody);
-
-    populateTableBody(tbody, originalTableData.rows); // Initial population
-    
-    container.appendChild(table);
-}
-
-// Helper function to populate/re-populate tbody
-function populateTableBody(tbody, rows) {
-    tbody.innerHTML = ''; // Clear existing rows
-
-    rows.forEach(rowData => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50';
-
-        rowData.c.forEach(cell => {
-            const td = document.createElement('td');
-            td.className = 'px-6 py-4 text-sm text-gray-900'; // Removed whitespace-nowrap       
-
-            if (cell) {
-                td.textContent = cell.f !== undefined ? cell.f : (cell.v !== undefined ? cell.v : '');
-                td.dataset.sortValue = cell.v !== undefined ? cell.v : (cell.f !== undefined ? cell.f : '');
-            } else {
-                td.textContent = '';
-                td.dataset.sortValue = '';
-            }
-            row.appendChild(td);
+    data.forEach(row => {
+        tableHTML += '<tr>';
+        headers.forEach(header => {
+            const value = row[header] !== undefined ? row[header] : '';
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
         });
-        tbody.appendChild(row);
+        tableHTML += '</tr>';
+    });
+    tableHTML += '</tbody></table>';
+    container.innerHTML = tableHTML;
+
+    // Add sorting functionality
+    const sortableHeaders = container.querySelectorAll('th.sortable');
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', () => sortTable(header, container));
     });
 }
 
-// Sorting function
-function sortTable(table, columnIndex, dataRows) {
-    const tbody = document.getElementById('team-stats-tbody'); // <-- ID changed
-    if (!tbody || !dataRows) return;
+// Basic sorting function (you might have a more complex one already)
+function sortTable(header, container) {
+    const table = container.querySelector('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const column = header.dataset.column;
+    const isAsc = header.classList.contains('asc');
 
-    const headers = Array.from(table.querySelectorAll('th.sortable'));
+    rows.sort((a, b) => {
+        const aText = a.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
+        const bText = b.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
 
-    if (currentSortColumn === columnIndex) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSortDirection = 'asc';
-        currentSortColumn = columnIndex;
-    }
+        // Try to convert to number for numeric sorting, otherwise do string comparison
+        const aValue = parseFloat(aText);
+        const bValue = parseFloat(bText);
 
-    headers.forEach(th => {
-        th.classList.remove('asc', 'desc');
-    });
-
-    const currentHeader = headers[columnIndex];
-    if (currentHeader) {
-        currentHeader.classList.add(currentSortDirection);
-    }
-
-    dataRows.sort((rowA, rowB) => {
-        const cellA = rowA.c[columnIndex];
-        const cellB = rowB.c[columnIndex];
-
-        let valA = cellA ? (cellA.v !== undefined ? cellA.v : (cellA.f !== undefined ? cellA.f : '')) : '';
-        let valB = cellB ? (cellB.v !== undefined ? cellB.v : (cellB.f !== undefined ? cellB.f : '')) : '';
-
-        const numA = parseFloat(valA);
-        const numB = parseFloat(valB);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return currentSortDirection === 'asc' ? numA - numB : numB - numA;
+        if (!isNaN(aValue) && !isNaN(bValue)) {
+            return isAsc ? aValue - bValue : bValue - aValue;
         } else {
-            valA = String(valA).toLowerCase();
-            valB = String(valB).toLowerCase();
-            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
-            return 0;
+            return isAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
         }
     });
 
-    populateTableBody(tbody, dataRows); // Re-populate with sorted data
+    // Clear existing sort classes
+    sortableHeaders.forEach(h => {
+        h.classList.remove('asc', 'desc');
+    });
+
+    // Apply new sort class
+    header.classList.toggle(isAsc ? 'desc' : 'asc');
+
+    rows.forEach(row => tbody.appendChild(row));
 }
 
-// Function to run when the DOM is fully loaded
-async function initializeTeamStatsPage() { // <-- Function name changed
-    const tableData = await fetchGoogleSheetData(SHEET_ID, TEAMSTATS_GID, TEAMSTATS_QUERY);
-    if (tableData) {
-        renderTeamStatsTable(tableData); // <-- Function call changed
+async function initializeTeamStatsPage() {
+    const currentSeason = getCurrentSeason();
+    const teamStatsGID = getGID('TEAM_STATS_GID', currentSeason);
+
+    if (!teamStatsGID) {
+        console.error("Team Stats GID not found for current season:", currentSeason);
+        document.getElementById('teamstats-data-container').innerHTML = '<p class="text-red-500">Error: Team stats data not configured for this season. Please ensure the correct GID is in config.js.</p>';
+        return;
     }
+
+    document.getElementById('teamstats-data-container').innerHTML = '<p class="text-gray-600">Loading team stats...</p>';
+
+    const tableData = await fetchGoogleSheetData(SHEET_ID, teamStatsGID, TEAMSTATS_QUERY);
+    if (tableData) {
+        renderTeamStatsTable(tableData);
+    }
+    createSeasonSelector(currentSeason); // Add season selector to header
 }
 
-// Attach the initialization function to the DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', initializeTeamStatsPage);
+window.initializePage = initializeTeamStatsPage; // Make globally accessible for config.js

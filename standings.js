@@ -1,170 +1,98 @@
-// ** Configuration for your Google Sheet **
-const SHEET_ID = '18lQt9cD2icb-K6UQxTWqfbI7R4L84cT_l8lvUtiqGDU'; // Your Master Sheet ID
-const STANDINGS_GID = '770406970'; // GID for the 'Team Standings (AUTOMATED)' tab (Confirm this is correct!)
+// standings.js
 
-// The Google Visualization API query.
-const STANDINGS_QUERY = 'SELECT A, B, C, D, E, F'; // Adjust as needed for your Standings columns!
+const STANDINGS_QUERY = 'SELECT *'; // Select all columns for standings
 
-// Global variables to keep track of sorting state
-let currentSortColumn = -1;
-let currentSortDirection = 'asc';
-let originalTableData = null;
-
-async function fetchGoogleSheetData(sheetId, gid, query) {
-    const baseUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const queryParams = new URLSearchParams({
-        gid: gid,
-        tq: query
-    });
-    const url = baseUrl + queryParams.toString();
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const data = JSON.parse(jsonString);
-
-        if (data.table && data.table.rows) {
-            return data.table;
-        } else {
-            console.warn('No data table or rows found in response:', data);
-            return null;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null;
+function renderStandingsTable(data) {
+    const container = document.getElementById('standings-data-container');
+    if (!container) {
+        console.error("Standings container not found.");
+        return;
     }
-}
+    container.innerHTML = ''; // Clear existing content
 
-function renderStandingsTable(tableData) { // <-- Function name
-    const container = document.getElementById('standings-data-container'); // <-- ID
-    if (!container || !tableData || !tableData.rows || tableData.rows.length === 0) {
-        container.innerHTML = '<p class="text-gray-600">No standings data available.</p>'; // Updated message
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-gray-700">No team standings available for this season.</p>';
         return;
     }
 
-    originalTableData = tableData;
+    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
+    const headers = Object.keys(data[0]);
 
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.className = 'min-w-full divide-y divide-gray-200 shadow overflow-hidden sm:rounded-lg';
-
-    const thead = document.createElement('thead');
-    thead.className = 'bg-gray-50';
-    const headerRow = document.createElement('tr');
-
-    const headers = tableData.cols.map(col => col.label || col.id);
-
-    headers.forEach((headerText, index) => {
-        const th = document.createElement('th');
-        th.scope = 'col';
-        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable';
-        th.textContent = headerText;
-        th.dataset.columnIndex = index;
-        
-        th.addEventListener('click', () => {
-            sortTable(table, index, originalTableData.rows);
-        });
-
-        headerRow.appendChild(th);
+    headers.forEach(header => {
+        const isSortable = ['TEAM NAME'].includes(header) ? '' : 'sortable'; // Example: make WINS, LOSSES sortable
+        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
     });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
-    const tbody = document.createElement('tbody');
-    tbody.className = 'bg-white divide-y divide-gray-200';
-    tbody.id = 'standings-tbody'; // <-- ID changed
-    table.appendChild(tbody);
-
-    populateTableBody(tbody, originalTableData.rows);
-    
-    container.appendChild(table);
-}
-
-// Helper function to populate/re-populate tbody
-function populateTableBody(tbody, rows) {
-    tbody.innerHTML = '';
-
-    rows.forEach(rowData => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50';
-
-        rowData.c.forEach(cell => {
-            const td = document.createElement('td');
-            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-
-            if (cell) {
-                td.textContent = cell.f !== undefined ? cell.f : (cell.v !== undefined ? cell.v : '');
-                td.dataset.sortValue = cell.v !== undefined ? cell.v : (cell.f !== undefined ? cell.f : '');
-            } else {
-                td.textContent = '';
-                td.dataset.sortValue = '';
-            }
-            row.appendChild(td);
+    data.forEach(row => {
+        tableHTML += '<tr>';
+        headers.forEach(header => {
+            const value = row[header] !== undefined ? row[header] : '';
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
         });
-        tbody.appendChild(row);
+        tableHTML += '</tr>';
+    });
+    tableHTML += '</tbody></table>';
+    container.innerHTML = tableHTML;
+
+    // Add sorting functionality
+    const sortableHeaders = container.querySelectorAll('th.sortable');
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', () => sortTable(header, container));
     });
 }
 
-// Sorting function
-function sortTable(table, columnIndex, dataRows) {
-    const tbody = document.getElementById('standings-tbody'); // <-- ID
-    if (!tbody || !dataRows) return;
+// Re-use or copy the sortTable function from utils.js or team-stats.js if not already global
+// For now, including it here for completeness
+function sortTable(header, container) {
+    const table = container.querySelector('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const column = header.dataset.column;
+    const isAsc = header.classList.contains('asc');
 
-    const headers = Array.from(table.querySelectorAll('th.sortable'));
+    rows.sort((a, b) => {
+        const aText = a.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
+        const bText = b.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
 
-    if (currentSortColumn === columnIndex) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSortDirection = 'asc';
-        currentSortColumn = columnIndex;
-    }
+        const aValue = parseFloat(aText);
+        const bValue = parseFloat(bText);
 
-    headers.forEach(th => {
-        th.classList.remove('asc', 'desc');
-    });
-
-    const currentHeader = headers[columnIndex];
-    if (currentHeader) {
-        currentHeader.classList.add(currentSortDirection);
-    }
-
-    dataRows.sort((rowA, rowB) => {
-        const cellA = rowA.c[columnIndex];
-        const cellB = rowB.c[columnIndex];
-
-        let valA = cellA ? (cellA.v !== undefined ? cellA.v : (cellA.f !== undefined ? cellA.f : '')) : '';
-        let valB = cellB ? (cellB.v !== undefined ? cellB.v : (cellB.f !== undefined ? cellB.f : '')) : '';
-
-        const numA = parseFloat(valA);
-        const numB = parseFloat(valB);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return currentSortDirection === 'asc' ? numA - numB : numB - numA;
+        if (!isNaN(aValue) && !isNaN(bValue)) {
+            return isAsc ? aValue - bValue : bValue - aValue;
         } else {
-            valA = String(valA).toLowerCase();
-            valB = String(valB).toLowerCase();
-            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
-            return 0;
+            return isAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
         }
     });
 
-    populateTableBody(tbody, dataRows);
+    sortableHeaders.forEach(h => {
+        h.classList.remove('asc', 'desc');
+    });
+
+    header.classList.toggle(isAsc ? 'desc' : 'asc');
+
+    rows.forEach(row => tbody.appendChild(row));
 }
 
-// Function to run when the DOM is fully loaded
-async function initializeStandingsPage() { // <-- Function name
-    const tableData = await fetchGoogleSheetData(SHEET_ID, STANDINGS_GID, STANDINGS_QUERY);
-    if (tableData) {
-        renderStandingsTable(tableData); // <-- Function call
+
+async function initializeStandingsPage() {
+    const currentSeason = getCurrentSeason();
+    const standingsGID = getGID('STANDINGS_GID', currentSeason);
+
+    if (!standingsGID) {
+        console.error("Standings GID not found for current season:", currentSeason);
+        document.getElementById('standings-data-container').innerHTML = '<p class="text-red-500">Error: Standings data not configured for this season. Please ensure the correct GID is in config.js.</p>';
+        return;
     }
+
+    document.getElementById('standings-data-container').innerHTML = '<p class="text-gray-600">Loading standings...</p>';
+
+    const tableData = await fetchGoogleSheetData(SHEET_ID, standingsGID, STANDINGS_QUERY);
+    if (tableData) {
+        renderStandingsTable(tableData);
+    }
+    createSeasonSelector(currentSeason);
 }
 
-// Attach the initialization function to the DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', initializeStandingsPage);
+window.initializePage = initializeStandingsPage;

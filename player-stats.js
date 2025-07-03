@@ -1,186 +1,99 @@
-// ** Configuration for your Google Sheet **
-const SHEET_ID = '18lQt9cD2icb-K6UQxTWqfbI7R4L84cT_l8lvUtiqGDU'; // Your Master Sheet ID
-const PLAYERSTATS_GID = '340059940'; // GID for the 'Player Stats (AUTOMATED)' tab
+// player-stats.js
 
-// The Google Visualization API query.
-const PLAYERSTATS_QUERY = 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X'; // Adjust as needed!
+// 1. Remove hardcoded SHEET_ID and GID
+// const SHEET_ID = 'YOUR_MASTER_SHEET_ID_HERE'; // REMOVE THIS LINE
+// const PLAYERSTATS_GID = 'YOUR_PLAYER_STATS_GID_HERE'; // REMOVE THIS LINE
 
+// Keep your specific query as it doesn't change based on season, only the data source does
+const PLAYERSTATS_QUERY = 'SELECT ... FROM A ORDER BY ...'; // **Keep your actual query here**
+
+// Your fetchGoogleSheetData function (this stays the same)
+// It will now use SHEET_ID which is globally available from config.js
+// and the GID passed dynamically.
 async function fetchGoogleSheetData(sheetId, gid, query) {
-    const baseUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const queryParams = new URLSearchParams({
-        gid: gid,
-        tq: query
-    });
-    const url = baseUrl + queryParams.toString();
+    const URL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gid}&tq=${encodeURIComponent(query)}`;
 
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch(URL);
         const text = await response.text();
-        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const data = JSON.parse(jsonString);
+        const json = JSON.parse(text.substring(47, text.length - 2)); // Adjust substring if needed
+        const columns = json.table.cols.map(col => col.label);
+        const rows = json.table.rows.map(row => row.c.map(cell => cell ? cell.v : ''));
 
-        if (data.table && data.table.rows) {
-            return data.table;
-        } else {
-            console.warn('No data table or rows found in response:', data);
-            return null;
-        }
-
+        // Combine columns and rows into an array of objects
+        const data = rows.map(row => {
+            let obj = {};
+            columns.forEach((col, index) => {
+                obj[col] = row[index];
+            });
+            return obj;
+        });
+        return data;
     } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
+        // Display user-friendly error message on the page
+        const container = document.getElementById('playerstats-data-container');
+        if (container) {
+            container.innerHTML = '<p class="text-red-500">Failed to load player stats. Please try again later or select a different season.</p>';
+        }
         return null;
     }
 }
 
-// Global variables to keep track of sorting state
-let currentSortColumn = -1; // -1 means no column sorted
-let currentSortDirection = 'asc'; // 'asc' or 'desc'
-let originalTableData = null; // Store the original fetched data for re-sorting
-
-function renderPlayerStatsTable(tableData) {
+// Your renderPlayerStatsTable function (this stays the same)
+function renderPlayerStatsTable(data) {
+    // ... (your existing render function code) ...
+    // Make sure this function clears previous content before rendering new data
     const container = document.getElementById('playerstats-data-container');
-    if (!container || !tableData || !tableData.rows || tableData.rows.length === 0) {
-        container.innerHTML = '<p class="text-gray-600">No player stats data available.</p>';
-        return;
-    }
-
-    // Store the original data globally for sorting
-    originalTableData = tableData;
-
-    // Clear previous table if any
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.className = 'min-w-full divide-y divide-gray-200 shadow overflow-hidden sm:rounded-lg';
-
-    // Create table header
-    const thead = document.createElement('thead');
-    thead.className = 'bg-gray-50';
-    const headerRow = document.createElement('tr');
-
-    const headers = tableData.cols.map(col => col.label || col.id);
-
-    headers.forEach((headerText, index) => {
-        const th = document.createElement('th');
-        th.scope = 'col';
-        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable';
-        th.textContent = headerText;
-        th.dataset.columnIndex = index;
-        
-        // Add click event listener for sorting
-        th.addEventListener('click', () => {
-            // Pass the original tableData.rows to sortTable
-            sortTable(table, index, originalTableData.rows);
-        });
-
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    tbody.className = 'bg-white divide-y divide-gray-200';
-    tbody.id = 'player-stats-tbody';
-    table.appendChild(tbody);
-
-    // Initial population of the table body with original data
-    populateTableBody(tbody, originalTableData.rows);
-    
-    container.appendChild(table);
-}
-
-// Helper function to populate/re-populate tbody
-function populateTableBody(tbody, rows) {
-    tbody.innerHTML = ''; // Clear existing rows
-
-    rows.forEach(rowData => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50';
-
-        // Assuming rowData.c contains the cells for the row
-        rowData.c.forEach(cell => {
-            const td = document.createElement('td');
-            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-
-            if (cell) {
-                td.textContent = cell.f !== undefined ? cell.f : (cell.v !== undefined ? cell.v : '');
-                // Store raw value for sorting, preferring raw 'v' then formatted 'f'
-                td.dataset.sortValue = cell.v !== undefined ? cell.v : (cell.f !== undefined ? cell.f : '');
-            } else {
-                td.textContent = '';
-                td.dataset.sortValue = '';
-            }
-            row.appendChild(td);
-        });
-        tbody.appendChild(row);
-    });
-}
-
-// Sorting function (corrected)
-function sortTable(table, columnIndex, dataRows) {
-    const tbody = document.getElementById('player-stats-tbody');
-    if (!tbody || !dataRows) return;
-
-    const headers = Array.from(table.querySelectorAll('th.sortable'));
-
-    // Determine sort direction
-    if (currentSortColumn === columnIndex) {
-        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSortDirection = 'asc'; // Default to ascending for new column
-        currentSortColumn = columnIndex;
-    }
-
-    // Remove existing sort indicators
-    headers.forEach(th => {
-        th.classList.remove('asc', 'desc');
-    });
-
-    // Add sort indicator to current column
-    const currentHeader = headers[columnIndex];
-    if (currentHeader) {
-        currentHeader.classList.add(currentSortDirection);
-    }
-
-    // Sort the original dataRows array
-    dataRows.sort((rowA, rowB) => {
-        const cellA = rowA.c[columnIndex];
-        const cellB = rowB.c[columnIndex];
-
-        let valA = cellA ? (cellA.v !== undefined ? cellA.v : (cellA.f !== undefined ? cellA.f : '')) : '';
-        let valB = cellB ? (cellB.v !== undefined ? cellB.v : (cellB.f !== undefined ? cellB.f : '')) : '';
-
-        // Attempt to convert to number for numerical sorting
-        const numA = parseFloat(valA);
-        const numB = parseFloat(valB);
-
-        if (!isNaN(numA) && !isNaN(numB)) {
-            // Numeric comparison
-            return currentSortDirection === 'asc' ? numA - numB : numB - numA;
+    if (container) {
+        container.innerHTML = ''; // Clear existing content
+        // ... then build and append the table
+        // For example:
+        if (data && data.length > 0) {
+            let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
+            // Assuming your first data object has the headers
+            Object.keys(data[0]).forEach(key => {
+                tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">${key}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                Object.values(row).forEach(value => {
+                    tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
         } else {
-            // String comparison (case-insensitive)
-            valA = String(valA).toLowerCase();
-            valB = String(valB).toLowerCase();
-            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
-            return 0;
+            container.innerHTML = '<p class="text-gray-700">No player stats available for this season.</p>';
         }
-    });
-
-    // Re-populate the table body with the now sorted dataRows
-    populateTableBody(tbody, dataRows);
+    }
 }
 
-// Function to run when the DOM is fully loaded
+// 2. Create an initialization function that uses the config.js GIDs
 async function initializePlayerStatsPage() {
-    const tableData = await fetchGoogleSheetData(SHEET_ID, PLAYERSTATS_GID, PLAYERSTATS_QUERY);
+    // Use the global SHEET_ID (from config.js) and dynamically get the GID for player stats
+    const currentSeason = getCurrentSeason(); // Function from config.js
+    const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason); // Function from config.js
+
+    if (!playerStatsGID) {
+        console.error("Player Stats GID not found for current season:", currentSeason);
+        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Error: Player stats data not configured for this season.</p>';
+        return; // Stop execution if GID is missing
+    }
+
+    // Clear previous data before loading new data
+    document.getElementById('playerstats-data-container').innerHTML = '<p class="text-gray-600">Loading player stats...</p>';
+
+    const tableData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, PLAYERSTATS_QUERY);
     if (tableData) {
         renderPlayerStatsTable(tableData);
     }
 }
 
-// Attach the initialization function to the DOMContentLoaded event
+// 3. Call the initialization function when the DOM is loaded AND when the season changes
 document.addEventListener('DOMContentLoaded', initializePlayerStatsPage);
+
+// Make this function globally accessible so config.js can call it on season change
+window.initializePage = initializePlayerStatsPage; // Assign it to window.initializePage for config.js to use

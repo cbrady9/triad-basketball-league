@@ -44,7 +44,8 @@ async function initializeTeamDetailPage() {
             console.log("Standings Data fetched:", standingsData);
 
             if (standingsData && standingsData.length > 0) {
-                const teamStanding = standingsData.find(row => row['Team Name'] === decodeURIComponent(teamName));
+                const decodedTeamName = decodeURIComponent(teamName).trim().toLowerCase();
+                const teamStanding = standingsData.find(row => (row['Team Name'] && row['Team Name'].trim().toLowerCase()) === decodedTeamName);
 
                 console.log("Team Standing for", decodeURIComponent(teamName), ":", teamStanding);
 
@@ -57,10 +58,10 @@ async function initializeTeamDetailPage() {
                     const pointDifferential = parseFloat(teamStanding['Point Differential']) || 0;
 
                     let recordStatsHtml = `
-    <p><strong>Record:</strong> ${wins} - ${losses}</p>
-    <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
-    <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
-`;
+                        <p><strong>Record:</strong> ${wins} - ${losses}</p>
+                        <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
+                        <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
+                    `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
                     // Rank display remains separate as it's not part of the core "stats" block requested for simplification
@@ -91,21 +92,20 @@ async function initializeTeamDetailPage() {
             console.error("Players GID not found for current season:", currentSeason);
             document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
         } else {
-            const PLAYERS_QUERY = 'SELECT A,B';
-
+            const PLAYERS_QUERY = 'SELECT *'; // Fetch all columns to ensure we get Player Name and Team Name
             const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
 
             console.log("Players Data fetched:", playersData);
-            const decodedTeamName = decodeURIComponent(teamName).trim(); // Trim the target team name
-            console.log("Target Team Name for Roster Filter (trimmed):", decodedTeamName);
+            const decodedTeamName = decodeURIComponent(teamName).trim().toLowerCase(); // Trim and lowercase for robust comparison
+            console.log("Target Team Name for Roster Filter (trimmed & lowercased):", decodedTeamName);
 
 
             if (playersData && playersData.length > 0) {
                 const teamRoster = playersData.filter(player => {
-                    const playerTeamName = player['Team ']; // Use the key with the trailing space
-                    // Trim both values before comparison for robustness
-                    const isMatch = playerTeamName && playerTeamName.trim() === decodedTeamName;
-                    console.log(`Roster Compare: "${playerTeamName}" (trimmed: "${playerTeamName?.trim()}") === "${decodedTeamName}" ? ${isMatch}`);
+                    // CORRECTED COLUMN NAME: 'Team Name' from CSV
+                    const playerTeamName = player['Team Name'];
+                    const isMatch = (playerTeamName && playerTeamName.trim().toLowerCase()) === decodedTeamName;
+                    console.log(`Roster Compare: "${playerTeamName}" (trimmed & lowercased: "${playerTeamName?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isMatch}`);
                     return isMatch;
                 });
 
@@ -123,7 +123,7 @@ async function initializeTeamDetailPage() {
                     `;
 
                     teamRoster.forEach(player => {
-                        const playerName = player['Player Name'];
+                        const playerName = player['Player Name']; // Column 'Player Name' from CSV
 
                         rosterHtml += `
                             <tr class="hover:bg-gray-50">
@@ -136,7 +136,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
-                    document.getElementById('team-roster-container').innerHTML = rosterHtml; // CORRECTED TYPO HERE
+                    document.getElementById('team-roster-container').innerHTML = rosterHtml;
                 } else {
                     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
                 }
@@ -159,23 +159,24 @@ async function initializeTeamDetailPage() {
             const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
 
             console.log("Schedule Data fetched:", scheduleData);
-            const decodedTeamName = decodeURIComponent(teamName).trim(); // Trim the target team name
-            console.log("Target Team Name for Schedule Filter (trimmed):", decodedTeamName);
+            const decodedTeamName = decodeURIComponent(teamName).trim().toLowerCase(); // Trim and lowercase for robust comparison
+            console.log("Target Team Name for Schedule Filter (trimmed & lowercased):", decodedTeamName);
 
 
             if (scheduleData && scheduleData.length > 0) {
                 const teamSchedule = scheduleData.filter(game => {
-                    const homeTeamName = game['Home Team'];
-                    const awayTeamName = game['Away Team'];
+                    // CORRECTED COLUMN NAMES: 'Team 1' and 'Team 2' from CSV
+                    const team1Name = game['Team 1'];
+                    const team2Name = game['Team 2'];
 
-                    // Trim both values before comparison for robustness
-                    const isHomeMatch = homeTeamName && homeTeamName.trim() === decodedTeamName;
-                    const isAwayMatch = awayTeamName && awayTeamName.trim() === decodedTeamName;
+                    // Trim and lowercase both values before comparison for robustness
+                    const isTeam1Match = (team1Name && team1Name.trim().toLowerCase()) === decodedTeamName;
+                    const isTeam2Match = (team2Name && team2Name.trim().toLowerCase()) === decodedTeamName;
 
-                    console.log(`Schedule Compare: Home:"${homeTeamName}" (trimmed: "${homeTeamName?.trim()}") === "${decodedTeamName}" ? ${isHomeMatch}`);
-                    console.log(`Schedule Compare: Away:"${awayTeamName}" (trimmed: "${awayTeamName?.trim()}") === "${decodedTeamName}" ? ${isAwayMatch}`);
+                    console.log(`Schedule Compare: Team 1:"${team1Name}" (trimmed & lowercased: "${team1Name?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isTeam1Match}`);
+                    console.log(`Schedule Compare: Team 2:"${team2Name}" (trimmed & lowercased: "${team2Name?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isTeam2Match}`);
 
-                    return isHomeMatch || isAwayMatch;
+                    return isTeam1Match || isTeam2Match;
                 });
 
                 console.log("Team Schedule for", decodeURIComponent(teamName), ":", teamSchedule);
@@ -198,12 +199,13 @@ async function initializeTeamDetailPage() {
                     `;
 
                     teamSchedule.forEach(game => {
-                        const homeTeam = game['Home Team'] || 'N/A';
-                        const awayTeam = game['Away Team'] || 'N/A';
-                        const homeScore = game['Home Score'] !== undefined ? game['Home Score'] : '-';
-                        const awayScore = game['Away Score'] !== undefined ? game['Away Score'] : '-';
-                        const scoreDisplay = (game.Status === 'Completed') ? `${homeScore} - ${awayScore}` : 'Upcoming';
-                        const location = game.Location || 'N/A';
+                        // Use Team 1 and Team 2 from the sheet, not Home/Away Team
+                        const homeTeam = game['Team 1'] || 'N/A';
+                        const awayTeam = game['Team 2'] || 'N/A';
+                        const homeScore = game['Team 1 Score'] !== undefined ? game['Team 1 Score'] : '-'; // Corrected column name
+                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Score'] : '-'; // Corrected column name
+                        const scoreDisplay = (game.Winner !== undefined && game.Winner !== '') ? `${homeScore} - ${awayScore}` : 'Upcoming'; // Use Winner to determine if completed
+                        const location = game.Location || 'N/A'; // Assuming a 'Location' column exists
 
                         scheduleHtml += `
                             <tr class="hover:bg-gray-50">
@@ -221,7 +223,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
-                    document.getElementById('team-schedule-container').innerHTML = scheduleHtml; // CORRECTED TYPO HERE
+                    document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
                 } else {
                     document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-700">No schedule found for this team.</p>';
                 }

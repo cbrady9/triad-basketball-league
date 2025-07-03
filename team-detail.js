@@ -57,10 +57,10 @@ async function initializeTeamDetailPage() {
                     const pointDifferential = parseFloat(teamStanding['Point Differential']) || 0;
 
                     let recordStatsHtml = `
-                        <p><strong>Record:</strong> ${wins} - ${losses}</p>
-                        <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
-                        <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
-                    `;
+    <p><strong>Record:</strong> ${wins} - ${losses}</p>
+    <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
+    <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
+`;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
                     // Rank display remains separate as it's not part of the core "stats" block requested for simplification

@@ -2,7 +2,6 @@
 console.log('team-detail.js loaded and executing.');
 
 async function initializeTeamDetailPage() {
-    // Add this line just before calling getCurrentSeason
     console.log('Inside initializeTeamDetailPage. About to call getCurrentSeason. typeof getCurrentSeason:', typeof getCurrentSeason);
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,7 +20,6 @@ async function initializeTeamDetailPage() {
     document.getElementById('page-title').textContent = `${decodeURIComponent(teamName)} - Team Details`;
     document.getElementById('team-name-display').textContent = decodeURIComponent(teamName);
 
-    // This line was missing or misplaced. It needs to be here to define currentSeason.
     const currentSeason = getCurrentSeason();
     console.log('currentSeason in team-detail.js:', currentSeason);
 
@@ -33,19 +31,25 @@ async function initializeTeamDetailPage() {
 
 
     // --- Fetch Standings Data for Record and Rank ---
-    // Ensure currentSeason is defined before passing to getGID
     if (currentSeason) {
         const standingsGID = getGID('STANDINGS_GID', currentSeason);
         if (!standingsGID) {
             console.error("Standings GID not found for current season:", currentSeason);
             document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Standings data not configured.</p>';
-            document.getElementById('team-rankings').innerHTML = ''; // Clear ranking if no standings data
+            document.getElementById('team-rankings').innerHTML = '';
         } else {
-            const STANDINGS_QUERY = 'SELECT *'; // Fetch all columns for standings
+            const STANDINGS_QUERY = 'SELECT *';
             const standingsData = await fetchGoogleSheetData(SHEET_ID, standingsGID, STANDINGS_QUERY);
+
+            // *** DEBUGGING: Check what fetchGoogleSheetData returns for standings ***
+            console.log("Standings Data fetched:", standingsData);
 
             if (standingsData && standingsData.length > 0) {
                 const teamStanding = standingsData.find(row => row['Team Name'] === decodeURIComponent(teamName));
+
+                // *** DEBUGGING: Check the specific team's standing object ***
+                console.log("Team Standing for", decodeURIComponent(teamName), ":", teamStanding);
+
 
                 if (teamStanding) {
                     let recordStatsHtml = `
@@ -58,7 +62,6 @@ async function initializeTeamDetailPage() {
                     `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
-                    // Assuming 'Rank' column exists for rankings
                     if (teamStanding.Rank !== undefined) {
                         document.getElementById('team-rankings').innerHTML = `<p><strong>Rank:</strong> ${teamStanding.Rank}</p>`;
                     } else {
@@ -80,20 +83,26 @@ async function initializeTeamDetailPage() {
     }
 
     // --- Fetch Players Data for Roster ---
-    if (currentSeason) { // Ensure currentSeason is defined
+    if (currentSeason) {
         const playersGID = getGID('PLAYERS_GID', currentSeason);
         if (!playersGID) {
             console.error("Players GID not found for current season:", currentSeason);
             document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
         } else {
-            // UPDATED QUERY: Only fetching Player Name (A) and Team (B)
             const PLAYERS_QUERY = 'SELECT A,B';
 
             const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
 
+            // *** DEBUGGING: Check what fetchGoogleSheetData returns for players ***
+            console.log("Players Data fetched:", playersData);
+            console.log("Target Team Name for Roster Filter:", decodeURIComponent(teamName));
+
+
             if (playersData && playersData.length > 0) {
-                // Filter players for the current team based on the 'Team Name' column (which is the label/key)
                 const teamRoster = playersData.filter(player => player['Team Name'] === decodeURIComponent(teamName));
+
+                // *** DEBUGGING: Check the filtered team roster ***
+                console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
 
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
@@ -107,7 +116,6 @@ async function initializeTeamDetailPage() {
                     `;
 
                     teamRoster.forEach(player => {
-                        // Player Name is accessible directly by its column name 'Player Name'
                         const playerName = player['Player Name'];
 
                         rosterHtml += `
@@ -134,13 +142,12 @@ async function initializeTeamDetailPage() {
     }
 
     // --- Fetch Schedule Data ---
-    if (currentSeason) { // Ensure currentSeason is defined
+    if (currentSeason) {
         const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
         if (!scheduleGID) {
             console.error("Schedule GID not found for current season:", currentSeason);
             document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Schedule data not configured.</p>';
         } else {
-            // Fetch all columns for schedule; filter by team name client-side
             const SCHEDULE_QUERY = 'SELECT *';
             const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
 
@@ -169,7 +176,7 @@ async function initializeTeamDetailPage() {
                     teamSchedule.forEach(game => {
                         const homeTeam = game['Home Team'] || 'N/A';
                         const awayTeam = game['Away Team'] || 'N/A';
-                        const homeScore = game['Home Score'] !== undefined ? game['Home Score'] : '-'; // Corrected line
+                        const homeScore = game['Home Score'] !== undefined ? game['Home Score'] : '-';
                         const awayScore = game['Away Score'] !== undefined ? game['Away Score'] : '-';
                         const scoreDisplay = (game.Status === 'Completed') ? `${homeScore} - ${awayScore}` : 'Upcoming';
                         const location = game.Location || 'N/A';

@@ -5,7 +5,7 @@
 // const PLAYERSTATS_GID = 'YOUR_PLAYER_STATS_GID_HERE'; // REMOVE THIS LINE
 
 // Keep your specific query as it doesn't change based on season, only the data source does
-const PLAYERSTATS_QUERY = 'SELECT ... FROM A ORDER BY ...'; // **Keep your actual query here**
+const PLAYERSTATS_QUERY = 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X'; // <--- Change 'u' to 'U' // **Keep your actual query here**
 
 // Your fetchGoogleSheetData function (this stays the same)
 // It will now use SHEET_ID which is globally available from config.js

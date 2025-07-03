@@ -33,7 +33,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Standings Data for Record and Rank ---
     if (currentSeason) {
         const standingsGID = getGID('STANDINGS_GID', currentSeason);
-        if (!standingsGID && standingsGID !== 0) { // Check for null/undefined, but allow 0
+        if (standingsGID === null) { // Check for null explicitly as 0 is now a valid GID
             console.error("Standings GID not found for current season:", currentSeason);
             document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Standings data not configured.</p>';
             document.getElementById('team-rankings').innerHTML = '';
@@ -50,16 +50,15 @@ async function initializeTeamDetailPage() {
 
 
                 if (teamStanding) {
+                    // --- Customized Stats Display ---
                     let recordStatsHtml = `
-                        <p><strong>Wins:</strong> ${parseFloat(teamStanding.Wins) || 0}</p>
-                        <p><strong>Losses:</strong> ${parseFloat(teamStanding.Losses) || 0}</p>
+                        <p><strong>Record:</strong> ${parseFloat(teamStanding.Wins) || 0} - ${parseFloat(teamStanding.Losses) || 0}</p>
                         <p><strong>Win %:</strong> ${(parseFloat(teamStanding['Win %']) || 0).toFixed(3)}</p>
-                        <p><strong>Points For:</strong> ${parseFloat(teamStanding['Points For']) || 0}</p>
-                        <p><strong>Points Against:</strong> ${parseFloat(teamStanding['Points Against']) || 0}</p>
                         <p><strong>Point Differential:</strong> ${parseFloat(teamStanding['Point Differential']) || 0}</p>
                     `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
+                    // Rank display remains separate as it's not part of the core "stats" block requested for simplification
                     if (teamStanding.Rank !== undefined) {
                         document.getElementById('team-rankings').innerHTML = `<p><strong>Rank:</strong> ${teamStanding.Rank}</p>`;
                     } else {
@@ -83,7 +82,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Players Data for Roster ---
     if (currentSeason) {
         const playersGID = getGID('PLAYERS_GID', currentSeason);
-        if (!playersGID && playersGID !== 0) { // Check for null/undefined, but allow 0
+        if (playersGID === null) { // Check for null explicitly
             console.error("Players GID not found for current season:", currentSeason);
             document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
         } else {
@@ -92,11 +91,18 @@ async function initializeTeamDetailPage() {
             const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
 
             console.log("Players Data fetched:", playersData);
-            console.log("Target Team Name for Roster Filter:", decodeURIComponent(teamName));
+            const decodedTeamName = decodeURIComponent(teamName).trim(); // Trim the target team name
+            console.log("Target Team Name for Roster Filter (trimmed):", decodedTeamName);
 
 
             if (playersData && playersData.length > 0) {
-                const teamRoster = playersData.filter(player => player['Team '] === decodeURIComponent(teamName)); // Adjusted key for 'Team '
+                const teamRoster = playersData.filter(player => {
+                    const playerTeamName = player['Team ']; // Use the key with the trailing space
+                    // Trim both values before comparison for robustness
+                    const isMatch = playerTeamName && playerTeamName.trim() === decodedTeamName;
+                    console.log(`Roster Compare: "${playerTeamName}" (trimmed: "${playerTeamName?.trim()}") === "${decodedTeamName}" ? ${isMatch}`);
+                    return isMatch;
+                });
 
                 console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
 
@@ -140,7 +146,7 @@ async function initializeTeamDetailPage() {
     // --- Fetch Schedule Data ---
     if (currentSeason) {
         const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
-        if (!scheduleGID && scheduleGID !== 0) { // Check for null/undefined, but allow 0
+        if (scheduleGID === null) { // Check for null explicitly
             console.error("Schedule GID not found for current season:", currentSeason);
             document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Schedule data not configured.</p>';
         } else {
@@ -148,14 +154,24 @@ async function initializeTeamDetailPage() {
             const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
 
             console.log("Schedule Data fetched:", scheduleData);
-            console.log("Target Team Name for Schedule Filter:", decodeURIComponent(teamName));
+            const decodedTeamName = decodeURIComponent(teamName).trim(); // Trim the target team name
+            console.log("Target Team Name for Schedule Filter (trimmed):", decodedTeamName);
 
 
             if (scheduleData && scheduleData.length > 0) {
-                const teamSchedule = scheduleData.filter(game =>
-                    game['Home Team'] === decodeURIComponent(teamName) ||
-                    game['Away Team'] === decodeURIComponent(teamName)
-                );
+                const teamSchedule = scheduleData.filter(game => {
+                    const homeTeamName = game['Home Team'];
+                    const awayTeamName = game['Away Team'];
+
+                    // Trim both values before comparison for robustness
+                    const isHomeMatch = homeTeamName && homeTeamName.trim() === decodedTeamName;
+                    const isAwayMatch = awayTeamName && awayTeamName.trim() === decodedTeamName;
+
+                    console.log(`Schedule Compare: Home:"${homeTeamName}" (trimmed: "${homeTeamName?.trim()}") === "${decodedTeamName}" ? ${isHomeMatch}`);
+                    console.log(`Schedule Compare: Away:"${awayTeamName}" (trimmed: "${awayTeamName?.trim()}") === "${decodedTeamName}" ? ${isAwayMatch}`);
+
+                    return isHomeMatch || isAwayMatch;
+                });
 
                 console.log("Team Schedule for", decodeURIComponent(teamName), ":", teamSchedule);
 

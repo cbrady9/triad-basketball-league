@@ -103,11 +103,8 @@ async function initializeTeamDetailPage() {
                 const teamRoster = playersData.filter(player => {
                     const playerTeamName = player['Team Name']; // Column 'Team Name' from CSV
                     
-                    // START OF CRITICAL CHANGE FOR ROSTER: More robust cleaning for comparison
                     const cleanedPlayerTeamName = playerTeamName ? playerTeamName.replace(/\s+/g, '').trim().toLowerCase() : '';
-                    // END OF CRITICAL CHANGE FOR ROSTER
-
-                    const isMatch = cleanedPlayerTeamName === decodedTeamName.replace(/\s+/g, '').trim().toLowerCase(); // Apply same cleaning to target
+                    const isMatch = cleanedPlayerTeamName === decodedTeamName.replace(/\s+/g, '').trim().toLowerCase(); 
                     
                     console.log(`Roster Compare: Raw Player Team Name: "${playerTeamName}"`);
                     console.log(`Roster Compare: Cleaned Player Team Name: "${cleanedPlayerTeamName}"`);
@@ -144,7 +141,19 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
-                    document.getElementById('team-roster-container').innerHTML = rosterHtml;
+
+                    // NEW: Log the generated HTML and attempt to set it in a try-catch block
+                    console.log("Generated rosterHtml (first 500 chars):", rosterHtml.substring(0, 500), "...");
+                    console.log("Generated rosterHtml (total length):", rosterHtml.length);
+
+                    try {
+                        document.getElementById('team-roster-container').innerHTML = rosterHtml;
+                        console.log("Roster HTML successfully injected.");
+                    } catch (error) {
+                        console.error("Error injecting roster HTML:", error);
+                        document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error displaying roster.</p>';
+                    }
+
                 } else {
                     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
                 }
@@ -219,7 +228,7 @@ async function initializeTeamDetailPage() {
                         const homeTeam = game['Team 1'] || 'N/A';
                         const awayTeam = game['Team 2'] || 'N/A';
                         const homeScore = game['Team 1 Score'] !== undefined ? game['Team 1 Score'] : '-'; // Corrected column name
-                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Score'] : '-'; // Corrected column name
+                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Share'] : '-'; // Corrected column name - MISTAKE HERE WAS 'Team 2 Share', should be 'Team 2 Score'
                         const scoreDisplay = (game.Winner !== undefined && game.Winner !== '') ? `${homeScore} - ${awayScore}` : 'Upcoming'; // Use Winner to determine if completed
                         const location = game.Location || 'N/A'; // Assuming a 'Location' column exists
 

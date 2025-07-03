@@ -9,6 +9,27 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans leading-normal tracking-normal">
 
+    <script>
+        // This runs immediately as the script tag is encountered during HTML parsing
+        const rosterContainerImmediate = document.getElementById('team-roster-container');
+        console.log('DEBUG (Immediate Parse): team-roster-container element:', rosterContainerImmediate);
+        if (rosterContainerImmediate) {
+            console.log('DEBUG (Immediate Parse): team-roster-container ID is PRESENT after initial HTML parse.');
+        } else {
+            console.log('DEBUG (Immediate Parse): team-roster-container ID is MISSING after initial HTML parse.');
+        }
+
+        // This runs once the entire DOM content is loaded and parsed
+        document.addEventListener('DOMContentLoaded', function() {
+            const rosterContainerDOMReady = document.getElementById('team-roster-container');
+            console.log('DEBUG (DOMContentLoaded): team-roster-container element:', rosterContainerDOMReady);
+            if (rosterContainerDOMReady) {
+                console.log('DEBUG (DOMContentLoaded): team-roster-container ID is PRESENT after DOMContentLoaded.');
+            } else {
+                console.log('DEBUG (DOMContentLoaded): team-roster-container ID is MISSING after DOMContentLoaded.');
+            }
+        });
+    </script>
     <header class="bg-blue-600 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold">Triad 2v2 League</a>

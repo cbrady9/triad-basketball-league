@@ -29,3 +29,7 @@ const SEASON_CONFIGS = {
     }
     // Add more seasons as you create them
 };
+// config.js
+// ... (your existing code) ...
+
+console.log('config.js loaded. SHEET_ID defined:', typeof SHEET_ID !== 'undefined', 'SEASON_CONFIGS defined:', typeof SEASON_CONFIGS !== 'undefined');

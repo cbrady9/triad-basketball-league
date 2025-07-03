@@ -1,64 +1,172 @@
 // team-detail.js
+console.log('team-detail.js loaded and executing.');
 
 async function initializeTeamDetailPage() {
-    // ... (rest of the initializeTeamDetailPage function before players section) ...
+    // Add this line just before calling getCurrentSeason
+    console.log('Inside initializeTeamDetailPage. About to call getCurrentSeason. typeof getCurrentSeason:', typeof getCurrentSeason);
 
-    // --- Fetch Players Data for Roster ---
-    const playersGID = getGID('PLAYERS_GID', currentSeason);
-    if (!playersGID) {
-        console.error("Players GID not found for current season:", currentSeason);
-        document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
-    } else {
-        // UPDATED QUERY: Only fetching Player Name (A) and Team (B)
-        const PLAYERS_QUERY = 'SELECT A,B';
+    const urlParams = new URLSearchParams(window.location.search);
+    const teamName = urlParams.get('teamName');
 
-        const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
-
-        if (playersData && playersData.length > 0) {
-            const teamRoster = playersData.filter(player => {
-                // Team Name is still at index 1 (Column B)
-                const playerTeamName = Object.values(player)[1];
-                return playerTeamName === decodeURIComponent(teamName);
-            });
-
-            if (teamRoster.length > 0) {
-                let rosterHtml = `
-                    <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
-                                </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                teamRoster.forEach(player => {
-                    // UPDATED parsing: Player Name is at index 0 (Column A)
-                    const playerName = Object.values(player)[0];
-                    // Removed parsing for jerseyNumber and position as they don't exist
-
-                    rosterHtml += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="py-2 px-4 border-b text-sm">${playerName}</td>
-                            </tr>
-                    `;
-                });
-
-                rosterHtml += `
-                        </tbody>
-                    </table>
-                `;
-                document.getElementById('team-roster-container').innerHTML = rosterHtml;
-            } else {
-                document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
-            }
-        } else {
-            document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Failed to load player data for roster.</p>';
-        }
+    if (!teamName) {
+        document.getElementById('team-name-display').textContent = 'Error: Team name not found in URL.';
+        document.getElementById('page-title').textContent = 'Error - Team Details';
+        document.getElementById('team-record-stats').innerHTML = '';
+        document.getElementById('team-rankings').innerHTML = '';
+        document.getElementById('team-roster-container').innerHTML = '';
+        document.getElementById('team-schedule-container').innerHTML = '';
+        return;
     }
 
-    console.log(`Fetching data for ${decodeURIComponent(teamName)} in Season ${currentSeason}...`);
-    console.log("Next, we will implement data fetching for more stats and schedule.");
-}
+    document.getElementById('page-title').textContent = `${decodeURIComponent(teamName)} - Team Details`;
+    document.getElementById('team-name-display').textContent = decodeURIComponent(teamName);
 
-document.addEventListener('DOMContentLoaded', initializeTeamDetailPage);
+    // This line was missing or misplaced. It needs to be here to define currentSeason.
+    const currentSeason = getCurrentSeason();
+    console.log('currentSeason in team-detail.js:', currentSeason);
+
+    // Initial loading messages for UX
+    document.getElementById('team-record-stats').innerHTML = '<p class="text-gray-600">Loading record and stats...</p>';
+    document.getElementById('team-rankings').innerHTML = '<p class="text-gray-600">Loading rankings...</p>';
+    document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-600">Loading roster...</p>';
+    document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-600">Loading schedule...</p>';
+
+
+    // --- Fetch Standings Data for Record and Rank ---
+    // Ensure currentSeason is defined before passing to getGID
+    if (currentSeason) {
+        const standingsGID = getGID('STANDINGS_GID', currentSeason);
+        if (!standingsGID) {
+            console.error("Standings GID not found for current season:", currentSeason);
+            document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Standings data not configured.</p>';
+            document.getElementById('team-rankings').innerHTML = ''; // Clear ranking if no standings data
+        } else {
+            const STANDINGS_QUERY = 'SELECT *'; // Fetch all columns for standings
+            const standingsData = await fetchGoogleSheetData(SHEET_ID, standingsGID, STANDINGS_QUERY);
+
+            if (standingsData && standingsData.length > 0) {
+                const teamStanding = standingsData.find(row => row['Team Name'] === decodeURIComponent(teamName));
+
+                if (teamStanding) {
+                    let recordStatsHtml = `
+                        <p><strong>Wins:</strong> ${teamStanding.Wins || 0}</p>
+                        <p><strong>Losses:</strong> ${teamStanding.Losses || 0}</p>
+                        <p><strong>Win %:</strong> ${teamStanding['Win %'] || 'N/A'}</p>
+                        <p><strong>Points For:</strong> ${teamStanding['Points For'] || 0}</p>
+                        <p><strong>Points Against:</strong> ${teamStanding['Points Against'] || 0}</p>
+                        <p><strong>Point Differential:</strong> ${teamStanding['Point Differential'] || 0}</p>
+                    `;
+                    document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
+
+                    // Assuming 'Rank' column exists for rankings
+                    if (teamStanding.Rank !== undefined) {
+                        document.getElementById('team-rankings').innerHTML = `<p><strong>Rank:</strong> ${teamStanding.Rank}</p>`;
+                    } else {
+                        document.getElementById('team-rankings').innerHTML = '<p class="text-gray-700">Rank data not available.</p>';
+                    }
+
+                } else {
+                    document.getElementById('team-record-stats').innerHTML = '<p class="text-gray-700">Team record and stats not found for this team.</p>';
+                    document.getElementById('team-rankings').innerHTML = '<p class="text-gray-700">Team rank not found for this team.</p>';
+                }
+            } else {
+                document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Failed to load standings data.</p>';
+                document.getElementById('team-rankings').innerHTML = '';
+            }
+        }
+    } else {
+        document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Current season not determined for standings data.</p>';
+        document.getElementById('team-rankings').innerHTML = '';
+    }
+
+    // --- Fetch Players Data for Roster ---
+    if (currentSeason) { // Ensure currentSeason is defined
+        const playersGID = getGID('PLAYERS_GID', currentSeason);
+        if (!playersGID) {
+            console.error("Players GID not found for current season:", currentSeason);
+            document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Player data not configured.</p>';
+        } else {
+            // UPDATED QUERY: Only fetching Player Name (A) and Team (B)
+            const PLAYERS_QUERY = 'SELECT A,B';
+
+            const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
+
+            if (playersData && playersData.length > 0) {
+                // Filter players for the current team based on the 'Team Name' column (which is the label/key)
+                const teamRoster = playersData.filter(player => player['Team Name'] === decodeURIComponent(teamName));
+
+                if (teamRoster.length > 0) {
+                    let rosterHtml = `
+                        <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
+                                    </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    teamRoster.forEach(player => {
+                        // Player Name is accessible directly by its column name 'Player Name'
+                        const playerName = player['Player Name'];
+
+                        rosterHtml += `
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-2 px-4 border-b text-sm">${playerName}</td>
+                                </tr>
+                        `;
+                    });
+
+                    rosterHtml += `
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('team-roster-container').innerHTML = rosterHtml;
+                } else {
+                    document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
+                }
+            } else {
+                document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Failed to load player data for roster.</p>';
+            }
+        }
+    } else {
+        document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Current season not determined for player data.</p>';
+    }
+
+    // --- Fetch Schedule Data ---
+    if (currentSeason) { // Ensure currentSeason is defined
+        const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
+        if (!scheduleGID) {
+            console.error("Schedule GID not found for current season:", currentSeason);
+            document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Schedule data not configured.</p>';
+        } else {
+            // Fetch all columns for schedule; filter by team name client-side
+            const SCHEDULE_QUERY = 'SELECT *';
+            const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
+
+            if (scheduleData && scheduleData.length > 0) {
+                const teamSchedule = scheduleData.filter(game =>
+                    game['Home Team'] === decodeURIComponent(teamName) ||
+                    game['Away Team'] === decodeURIComponent(teamName)
+                );
+
+                if (teamSchedule.length > 0) {
+                    let scheduleHtml = `
+                        <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Date</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Time</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Home Team</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Away Team</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Score</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    teamSchedule.forEach(game => {
+                        const homeTeam = game['Home Team'] || 'N/A';
+                        const awayTeam = game['Away Team'] || 'N/A';
+                        const homeScore = game['Home Score']

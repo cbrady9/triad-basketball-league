@@ -1,4 +1,5 @@
 // utils.js
+console.log('utils.js loaded and executing.');
 
 // fetchGoogleSheetData: Fetches data from a Google Sheet and parses it into an array of objects.
 async function fetchGoogleSheetData(sheetId, gid, query) {
@@ -41,7 +42,7 @@ async function fetchGoogleSheetData(sheetId, gid, query) {
 
 // getCurrentSeason: Gets the current season from local storage or defaults to the latest configured season.
 function getCurrentSeason() {
-    // Access the global SEASON_CONFIGS object
+    console.log('Inside getCurrentSeason. Checking SEASON_CONFIGS...');
     if (typeof SEASON_CONFIGS === 'undefined') {
         console.error("SEASON_CONFIGS is not defined. Ensure config.js is loaded before utils.js.");
         return null;
@@ -53,6 +54,7 @@ function getCurrentSeason() {
         selectedSeason = seasons[seasons.length - 1]; // Default to the latest season
         localStorage.setItem('selectedSeason', selectedSeason);
     }
+    console.log('getCurrentSeason returning:', selectedSeason);
     return selectedSeason;
 }
 

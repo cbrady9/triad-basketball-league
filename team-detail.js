@@ -82,7 +82,6 @@ async function initializeTeamDetailPage() {
         }
     } else {
         document.getElementById('team-record-stats').innerHTML = '<p class="text-red-500">Error: Current season not determined for standings data.</p>';
-        document.getElementById('team-rankings').innerHTML = '';
     }
 
     // --- Fetch Players Data for Roster ---
@@ -102,10 +101,19 @@ async function initializeTeamDetailPage() {
 
             if (playersData && playersData.length > 0) {
                 const teamRoster = playersData.filter(player => {
-                    // CORRECTED COLUMN NAME: 'Team Name' from CSV
-                    const playerTeamName = player['Team Name'];
-                    const isMatch = (playerTeamName && playerTeamName.trim().toLowerCase()) === decodedTeamName;
-                    console.log(`Roster Compare: "${playerTeamName}" (trimmed & lowercased: "${playerTeamName?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isMatch}`);
+                    const playerTeamName = player['Team Name']; // Column 'Team Name' from CSV
+                    
+                    // START OF CRITICAL CHANGE FOR ROSTER: More robust cleaning for comparison
+                    const cleanedPlayerTeamName = playerTeamName ? playerTeamName.replace(/\s+/g, '').trim().toLowerCase() : '';
+                    // END OF CRITICAL CHANGE FOR ROSTER
+
+                    const isMatch = cleanedPlayerTeamName === decodedTeamName.replace(/\s+/g, '').trim().toLowerCase(); // Apply same cleaning to target
+                    
+                    console.log(`Roster Compare: Raw Player Team Name: "${playerTeamName}"`);
+                    console.log(`Roster Compare: Cleaned Player Team Name: "${cleanedPlayerTeamName}"`);
+                    console.log(`Roster Compare: Target Team Name (fully cleaned): "${decodedTeamName.replace(/\s+/g, '').trim().toLowerCase()}"`);
+                    console.log(`Roster Compare: Match result? ${isMatch}`);
+
                     return isMatch;
                 });
 
@@ -169,12 +177,20 @@ async function initializeTeamDetailPage() {
                     const team1Name = game['Team 1'];
                     const team2Name = game['Team 2'];
 
-                    // Trim and lowercase both values before comparison for robustness
-                    const isTeam1Match = (team1Name && team1Name.trim().toLowerCase()) === decodedTeamName;
-                    const isTeam2Match = (team2Name && team2Name.trim().toLowerCase()) === decodedTeamName;
+                    // Apply same robust cleaning to schedule team names before comparison
+                    const cleanedTeam1Name = team1Name ? team1Name.replace(/\s+/g, '').trim().toLowerCase() : '';
+                    const cleanedTeam2Name = team2Name ? team2Name.replace(/\s+/g, '').trim().toLowerCase() : '';
+                    const cleanedDecodedTeamName = decodedTeamName.replace(/\s+/g, '').trim().toLowerCase();
 
-                    console.log(`Schedule Compare: Team 1:"${team1Name}" (trimmed & lowercased: "${team1Name?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isTeam1Match}`);
-                    console.log(`Schedule Compare: Team 2:"${team2Name}" (trimmed & lowercased: "${team2Name?.trim()?.toLowerCase()}") === "${decodedTeamName}" ? ${isTeam2Match}`);
+
+                    const isTeam1Match = cleanedTeam1Name === cleanedDecodedTeamName;
+                    const isTeam2Match = cleanedTeam2Name === cleanedDecodedTeamName;
+
+                    console.log(`Schedule Compare: Raw Team 1:"${team1Name}", Cleaned:"${cleanedTeam1Name}"`);
+                    console.log(`Schedule Compare: Raw Team 2:"${team2Name}", Cleaned:"${cleanedTeam2Name}"`);
+                    console.log(`Schedule Compare: Target Team (fully cleaned): "${cleanedDecodedTeamName}"`);
+                    console.log(`Schedule Compare: Team 1 match? ${isTeam1Match}, Team 2 match? ${isTeam2Match}`);
+
 
                     return isTeam1Match || isTeam2Match;
                 });

@@ -96,4 +96,51 @@ function getCurrentSeason() {
 // Function to get the GID for a specific data type and season
 function getGID(dataType, season) {
     return SEASON_CONFIGS[season] ? SEASON_CONFIGS[season][dataType] : null;
+
+    // Add this to your utils.js file
+
+function sortTable(header, container) {
+    const table = container.querySelector('table');
+    if (!table) {
+        console.error("Table element not found for sorting.");
+        return;
+    }
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+        console.error("Table body not found for sorting.");
+        return;
+    }
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+    const isAsc = header.classList.contains('asc');
+
+    rows.sort((a, b) => {
+        const aText = a.children[columnIndex].textContent.trim();
+        const bText = b.children[columnIndex].textContent.trim();
+
+        // Try to convert to number for numeric sorting, otherwise do string comparison
+        const aValue = parseFloat(aText);
+        const bValue = parseFloat(bText);
+
+        if (!isNaN(aValue) && !isNaN(bValue)) {
+            // If both are numbers, sort numerically
+            return isAsc ? aValue - bValue : bValue - aValue;
+        } else {
+            // Otherwise, sort alphabetically (case-insensitive for robustness)
+            return isAsc ? aText.localeCompare(bText, undefined, { sensitivity: 'base' }) : bText.localeCompare(aText, undefined, { sensitivity: 'base' });
+        }
+    });
+
+    // Clear existing sort classes from all headers
+    const allSortableHeaders = container.querySelectorAll('th.sortable');
+    allSortableHeaders.forEach(h => {
+        h.classList.remove('asc', 'desc');
+    });
+
+    // Apply new sort class to the clicked header
+    header.classList.toggle(isAsc ? 'desc' : 'asc');
+
+    // Re-append sorted rows to the tbody
+    rows.forEach(row => tbody.appendChild(row));
+}
 }

@@ -45,40 +45,6 @@ function renderTeamStatsTable(data) {
     });
 }
 
-// Basic sorting function (you might have a more complex one already)
-function sortTable(header, container) {
-    const table = container.querySelector('table');
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const column = header.dataset.column;
-    const isAsc = header.classList.contains('asc');
-
-    rows.sort((a, b) => {
-        const aText = a.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
-        const bText = b.querySelector(`td:nth-child(${Array.from(header.parentNode.children).indexOf(header) + 1})`).textContent.trim();
-
-        // Try to convert to number for numeric sorting, otherwise do string comparison
-        const aValue = parseFloat(aText);
-        const bValue = parseFloat(bText);
-
-        if (!isNaN(aValue) && !isNaN(bValue)) {
-            return isAsc ? aValue - bValue : bValue - aValue;
-        } else {
-            return isAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-        }
-    });
-
-    // Clear existing sort classes
-    sortableHeaders.forEach(h => {
-        h.classList.remove('asc', 'desc');
-    });
-
-    // Apply new sort class
-    header.classList.toggle(isAsc ? 'desc' : 'asc');
-
-    rows.forEach(row => tbody.appendChild(row));
-}
-
 async function initializeTeamStatsPage() {
     const currentSeason = getCurrentSeason();
     const teamStatsGID = getGID('TEAM_STATS_GID', currentSeason);

@@ -115,7 +115,8 @@ async function initializeTeamDetailPage() {
                 });
 
                 console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
-
+                console.log('DEBUG: Final teamRoster before display decision:', teamRoster);
+                console.log('DEBUG: Final teamRoster length before display decision:', teamRoster.length);
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
                         <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">

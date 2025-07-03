@@ -87,7 +87,17 @@ function createSeasonSelector(currentSeason) {
         seasons.forEach(season => {
             const option = document.createElement('option');
             option.value = season;
-            option.textContent = `Season ${season}`; // e.g., "Season 2025"
+            // utils.js
+
+// ... inside createSeasonSelector function ...
+seasons.forEach(season => {
+    const option = document.createElement('option');
+    option.value = season; // Keep the internal value as S01, S02 etc.
+    const displaySeason = season.startsWith('S0') ? parseInt(season.substring(2)).toString() : season;
+    option.textContent = `Season ${displaySeason}`; // This will display "Season 1", "Season 2"
+    selector.appendChild(option);
+});
+// ... rest of the function ...
             selector.appendChild(option);
         });
 

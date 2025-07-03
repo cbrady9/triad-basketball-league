@@ -3,7 +3,6 @@ const SHEET_ID = '18lQt9cD2icb-K6UQxTWqfbI7R4L84cT_l8lvUtiqGDU'; // Your Master 
 const PLAYERSTATS_GID = '340059940'; // GID for the 'Player Stats (AUTOMATED)' tab
 
 // The Google Visualization API query.
-// Adjust these column letters based on where your data is in the 'Player Stats (AUTOMATED)' sheet.
 const PLAYERSTATS_QUERY = 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X'; // Adjust as needed!
 
 async function fetchGoogleSheetData(sheetId, gid, query) {
@@ -36,16 +35,20 @@ async function fetchGoogleSheetData(sheetId, gid, query) {
     }
 }
 
-// Global variable to keep track of sorting state
+// Global variables to keep track of sorting state
 let currentSortColumn = -1; // -1 means no column sorted
 let currentSortDirection = 'asc'; // 'asc' or 'desc'
+let originalTableData = null; // Store the original fetched data for re-sorting
 
 function renderPlayerStatsTable(tableData) {
     const container = document.getElementById('playerstats-data-container');
     if (!container || !tableData || !tableData.rows || tableData.rows.length === 0) {
-        container.innerHTML = '<p class="text-gray-600">No player stats data available.</p>'; // Updated message
+        container.innerHTML = '<p class="text-gray-600">No player stats data available.</p>';
         return;
     }
+
+    // Store the original data globally for sorting
+    originalTableData = tableData;
 
     // Clear previous table if any
     container.innerHTML = '';
@@ -63,13 +66,14 @@ function renderPlayerStatsTable(tableData) {
     headers.forEach((headerText, index) => {
         const th = document.createElement('th');
         th.scope = 'col';
-        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable'; // Added 'sortable' class
+        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable';
         th.textContent = headerText;
-        th.dataset.columnIndex = index; // Store column index
+        th.dataset.columnIndex = index;
         
         // Add click event listener for sorting
         th.addEventListener('click', () => {
-            sortTable(table, index);
+            // Pass the original tableData.rows to sortTable
+            sortTable(table, index, originalTableData.rows);
         });
 
         headerRow.appendChild(th);
@@ -79,11 +83,11 @@ function renderPlayerStatsTable(tableData) {
 
     const tbody = document.createElement('tbody');
     tbody.className = 'bg-white divide-y divide-gray-200';
-    tbody.id = 'player-stats-tbody'; // Add an ID to easily access tbody
-    table.appendChild(tbody); // Append tbody early so sortTable can find it
+    tbody.id = 'player-stats-tbody';
+    table.appendChild(tbody);
 
-    // Initial population of the table body
-    populateTableBody(tbody, tableData.rows);
+    // Initial population of the table body with original data
+    populateTableBody(tbody, originalTableData.rows);
     
     container.appendChild(table);
 }
@@ -96,13 +100,15 @@ function populateTableBody(tbody, rows) {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50';
 
+        // Assuming rowData.c contains the cells for the row
         rowData.c.forEach(cell => {
             const td = document.createElement('td');
             td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
 
             if (cell) {
                 td.textContent = cell.f !== undefined ? cell.f : (cell.v !== undefined ? cell.v : '');
-                td.dataset.sortValue = cell.v !== undefined ? cell.v : (cell.f !== undefined ? cell.f : ''); // Store raw value for sorting
+                // Store raw value for sorting, preferring raw 'v' then formatted 'f'
+                td.dataset.sortValue = cell.v !== undefined ? cell.v : (cell.f !== undefined ? cell.f : '');
             } else {
                 td.textContent = '';
                 td.dataset.sortValue = '';
@@ -113,12 +119,11 @@ function populateTableBody(tbody, rows) {
     });
 }
 
-// Sorting function
-function sortTable(table, columnIndex) {
+// Sorting function (corrected)
+function sortTable(table, columnIndex, dataRows) {
     const tbody = document.getElementById('player-stats-tbody');
-    if (!tbody) return;
+    if (!tbody || !dataRows) return;
 
-    const rows = Array.from(tbody.querySelectorAll('tr')); // Get all rows as an array
     const headers = Array.from(table.querySelectorAll('th.sortable'));
 
     // Determine sort direction
@@ -140,13 +145,13 @@ function sortTable(table, columnIndex) {
         currentHeader.classList.add(currentSortDirection);
     }
 
-    // Sort rows
-    rows.sort((rowA, rowB) => {
-        const cellA = rowA.children[columnIndex];
-        const cellB = rowB.children[columnIndex];
+    // Sort the original dataRows array
+    dataRows.sort((rowA, rowB) => {
+        const cellA = rowA.c[columnIndex];
+        const cellB = rowB.c[columnIndex];
 
-        let valA = cellA ? cellA.dataset.sortValue : '';
-        let valB = cellB ? cellB.dataset.sortValue : '';
+        let valA = cellA ? (cellA.v !== undefined ? cellA.v : (cellA.f !== undefined ? cellA.f : '')) : '';
+        let valB = cellB ? (cellB.v !== undefined ? cellB.v : (cellB.f !== undefined ? cellB.f : '')) : '';
 
         // Attempt to convert to number for numerical sorting
         const numA = parseFloat(valA);
@@ -165,23 +170,8 @@ function sortTable(table, columnIndex) {
         }
     });
 
-    // Re-append sorted rows
-    populateTableBody(tbody, rows.map(row => {
-        // Reconstruct a simplified rowData.c for populateTableBody if needed
-        // For simplicity, directly append the sorted DOM rows, as populateTableBody expects data not DOM elements.
-        // A better approach would be to sort the original tableData.rows and then re-render,
-        // but for quick implementation, sorting DOM elements is common.
-        // Let's modify populateTableBody to accept DOM rows for re-appending.
-
-        // Simpler for now: remove all, then append sorted ones
-        return row; // Return the DOM element
-    }));
-
-    // The populateTableBody function currently expects tableData.rows (the raw sheet data).
-    // To sort directly by DOM elements, we need a slight adjustment to how rows are re-appended.
-    // Let's change this part to directly append the sorted DOM rows after clearing.
-    tbody.innerHTML = ''; // Clear all current rows
-    rows.forEach(row => tbody.appendChild(row)); // Append sorted rows
+    // Re-populate the table body with the now sorted dataRows
+    populateTableBody(tbody, dataRows);
 }
 
 // Function to run when the DOM is fully loaded

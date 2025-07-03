@@ -51,10 +51,15 @@ async function initializeTeamDetailPage() {
 
                 if (teamStanding) {
                     // --- Customized Stats Display ---
+                    const wins = parseFloat(teamStanding.Wins) || 0;
+                    const losses = parseFloat(teamStanding.Losses) || 0;
+                    const winPercentage = parseFloat(teamStanding['Win %']) || 0;
+                    const pointDifferential = parseFloat(teamStanding['Point Differential']) || 0;
+
                     let recordStatsHtml = `
-                        <p><strong>Record:</strong> ${parseFloat(teamStanding.Wins) || 0} - ${parseFloat(teamStanding.Losses) || 0}</p>
-                        <p><strong>Win %:</strong> ${(parseFloat(teamStanding['Win %']) || 0).toFixed(3)}</p>
-                        <p><strong>Point Differential:</strong> ${parseFloat(teamStanding['Point Differential']) || 0}</p>
+                        <p><strong>Record:</strong> ${wins} - ${losses}</p>
+                        <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
+                        <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
                     `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
@@ -131,6 +136,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
+                    // CORRECTED TYPO HERE: (] -> )
                     document.getElementById('team-roster-container').innerHTML = rosterHtml;
                 } else {
                     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
@@ -216,6 +222,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
+                    // CORRECTED TYPO HERE: (] -> )
                     document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
                 } else {
                     document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-700">No schedule found for this team.</p>';

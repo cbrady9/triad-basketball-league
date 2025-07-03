@@ -3,72 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Team Details - Triad Basketball League</title>
+    <title id="page-title">Team Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-gray-50 text-gray-800 font-sans leading-normal tracking-normal">
+
     <header class="bg-blue-600 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Triad Basketball League</h1>
+            <a href="index.html" class="text-2xl font-bold">Triad 2v2 League</a>
             <nav>
                 <ul class="flex space-x-4">
-                    <li><a href="index.html" class="hover:underline">Home</a></li>
-                    <li><a href="teams.html" class="hover:underline">Teams</a></li>
-                    <li><a href="schedule.html" class="hover:underline">Schedule & Results</a></li>
-                    <li><a href="player-stats.html" class="hover:underline">Player Stats</a></li>
-                    <li><a href="team-stats.html" class="hover:underline">Team Stats</a></li>
-                    <li><a href="standings.html" class="hover:underline">Standings</a></li>
-                    <li><a href="transactions.html" class="hover:underline">Transactions</a></li>
-                    <li><a href="https://discord.gg/Q6RGpkbMJn" class="hover:underline" target="_blank" rel="noopener noreferrer">Discord</a></li>
-                </ul>
+                    <li><a href="index.html" class="hover:text-blue-200">Teams</a></li>
+                    </ul>
             </nav>
         </div>
     </header>
 
-    <main class="container mx-auto p-4 mt-4">
-        <section class="bg-white p-6 rounded-lg shadow-md">
-            <h2 id="team-name-display" class="text-3xl font-bold mb-4 text-center">Loading Team...</h2>
+    <main class="container mx-auto p-6 mt-4">
+        <h1 class="text-4xl font-extrabold mb-8 text-blue-700" id="team-name-display">Loading Team...</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
-                    <h3 class="text-xl font-semibold mb-3">League Ranking</h3>
-                    <div id="team-rankings" class="text-lg">
-                        <p class="text-gray-600">Loading rankings...</p> </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    <h3 class="text-xl font-semibold mt-4 mb-3">Record & Key Stats</h3>
-                    <div id="team-record-stats" class="text-lg">
-                        <p class="text-gray-600">Loading record and stats...</p> </div>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
-                    <h3 class="text-xl font-semibold mb-3">Current Roster</h3>
-                    <div id="team-roster-container">
-                        <p class="text-gray-600">Loading roster...</p>
-                    </div>
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-600">Record & Stats</h2>
+                <div id="team-record-stats" class="text-lg space-y-2">
+                    <p class="text-gray-600">Loading record and stats...</p>
                 </div>
             </div>
 
-            <div class="bg-gray-50 p-4 rounded-lg shadow-inner mt-6">
-                <h3 class="text-xl font-semibold mb-3">Full Schedule & Results</h3>
-                <div id="team-schedule-container">
-                    <p class="text-gray-600">Loading schedule...</p>
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-600">Rankings</h2>
+                <div id="team-rankings" class="text-lg space-y-2">
+                    <p class="text-gray-600">Loading rankings...</p>
                 </div>
             </div>
 
-        </section>
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-1">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-600">Roster</h2>
+                <div id="team-roster-container" class="mt-4">
+                    <p class="text-gray-600">Loading roster...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mt-6">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-600">Schedule</h2>
+            <div id="team-schedule-container" class="overflow-x-auto">
+                <p class="text-gray-600">Loading schedule...</p>
+            </div>
+        </div>
+
     </main>
 
-    <footer class="bg-gray-200 text-gray-700 p-4 mt-8 text-center text-sm">
+    <footer class="bg-gray-800 text-white p-4 mt-8 text-center">
         <div class="container mx-auto">
-            <p>&copy; 2025 Basketball League. All rights reserved.</p>
+            &copy; 2025 Triad 2v2 Basketball League. All rights reserved.
         </div>
     </footer>
+
+    <script src="google-sheets-api.js"></script>
     <script src="config.js"></script>
-    <script src="utils.js"></script>
-    <script src="team-detail.js"></script> </body>
+    <script src="team-detail.js"></script>
+
+</body>
 </html>

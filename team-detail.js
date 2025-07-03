@@ -136,8 +136,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
-                    // CORRECTED TYPO HERE: (] -> )
-                    document.getElementById('team-roster-container').innerHTML = rosterHtml;
+                    document.getElementById('team-roster-container').innerHTML = rosterHtml; // CORRECTED TYPO HERE
                 } else {
                     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
                 }
@@ -222,8 +221,7 @@ async function initializeTeamDetailPage() {
                             </tbody>
                         </table>
                     `;
-                    // CORRECTED TYPO HERE: (] -> )
-                    document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
+                    document.getElementById('team-schedule-container').innerHTML = scheduleHtml; // CORRECTED TYPO HERE
                 } else {
                     document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-700">No schedule found for this team.</p>';
                 }

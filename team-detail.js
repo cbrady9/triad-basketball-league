@@ -41,24 +41,22 @@ async function initializeTeamDetailPage() {
             const STANDINGS_QUERY = 'SELECT *';
             const standingsData = await fetchGoogleSheetData(SHEET_ID, standingsGID, STANDINGS_QUERY);
 
-            // *** DEBUGGING: Check what fetchGoogleSheetData returns for standings ***
             console.log("Standings Data fetched:", standingsData);
 
             if (standingsData && standingsData.length > 0) {
                 const teamStanding = standingsData.find(row => row['Team Name'] === decodeURIComponent(teamName));
 
-                // *** DEBUGGING: Check the specific team's standing object ***
                 console.log("Team Standing for", decodeURIComponent(teamName), ":", teamStanding);
 
 
                 if (teamStanding) {
                     let recordStatsHtml = `
-                        <p><strong>Wins:</strong> ${teamStanding.Wins || 0}</p>
-                        <p><strong>Losses:</strong> ${teamStanding.Losses || 0}</p>
-                        <p><strong>Win %:</strong> ${teamStanding['Win %'] || 'N/A'}</p>
-                        <p><strong>Points For:</strong> ${teamStanding['Points For'] || 0}</p>
-                        <p><strong>Points Against:</strong> ${teamStanding['Points Against'] || 0}</p>
-                        <p><strong>Point Differential:</strong> ${teamStanding['Point Differential'] || 0}</p>
+                        <p><strong>Wins:</strong> ${parseFloat(teamStanding.Wins) || 0}</p>
+                        <p><strong>Losses:</strong> ${parseFloat(teamStanding.Losses) || 0}</p>
+                        <p><strong>Win %:</strong> ${(parseFloat(teamStanding['Win %']) || 0).toFixed(3)}</p>
+                        <p><strong>Points For:</strong> ${parseFloat(teamStanding['Points For']) || 0}</p>
+                        <p><strong>Points Against:</strong> ${parseFloat(teamStanding['Points Against']) || 0}</p>
+                        <p><strong>Point Differential:</strong> ${parseFloat(teamStanding['Point Differential']) || 0}</p>
                     `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;
 
@@ -93,15 +91,13 @@ async function initializeTeamDetailPage() {
 
             const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
 
-            // *** DEBUGGING: Check what fetchGoogleSheetData returns for players ***
             console.log("Players Data fetched:", playersData);
             console.log("Target Team Name for Roster Filter:", decodeURIComponent(teamName));
 
 
             if (playersData && playersData.length > 0) {
-                const teamRoster = playersData.filter(player => player['Team Name'] === decodeURIComponent(teamName));
+                const teamRoster = playersData.filter(player => player['Team '] === decodeURIComponent(teamName)); // Adjusted key for 'Team '
 
-                // *** DEBUGGING: Check the filtered team roster ***
                 console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
 
                 if (teamRoster.length > 0) {
@@ -151,11 +147,18 @@ async function initializeTeamDetailPage() {
             const SCHEDULE_QUERY = 'SELECT *';
             const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
 
+            console.log("Schedule Data fetched:", scheduleData);
+            console.log("Target Team Name for Schedule Filter:", decodeURIComponent(teamName));
+
+
             if (scheduleData && scheduleData.length > 0) {
                 const teamSchedule = scheduleData.filter(game =>
                     game['Home Team'] === decodeURIComponent(teamName) ||
                     game['Away Team'] === decodeURIComponent(teamName)
                 );
+
+                console.log("Team Schedule for", decodeURIComponent(teamName), ":", teamSchedule);
+
 
                 if (teamSchedule.length > 0) {
                     let scheduleHtml = `

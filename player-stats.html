@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triad Basketball League - Player Statistics</title>
+    <link href="./public/css/tailwind.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <header class="bg-blue-800 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Triad Basketball League</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="index.html" class="hover:text-blue-200">Home</a></li>
+                    <li><a href="teams.html" class="hover:text-blue-200">Teams</a></li>
+                    <li><a href="schedule.html" class="hover:text-blue-200">Schedule/Results</a></li>
+                    <li><a href="player-stats.html" class="hover:text-blue-200">Player Stats</a></li>
+                    <li><a href="team-stats.html" class="hover:text-blue-200">Team Stats</a></li>
+                    <li><a href="standings.html" class="hover:text-blue-200">Standings</a></li>
+                    <li><a href="transactions.html" class="hover:text-blue-200">Transactions</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 p-4">
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4">Player Statistics</h2>
+            <div id="player-stats-data" class="overflow-x-auto">
+                <p>Loading teams data...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-blue-900 text-white p-4 mt-8 text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="./public/js/script.js"></script>
+</body>
+</html>

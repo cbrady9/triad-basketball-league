@@ -1,0 +1,27 @@
+{
+  "name": "triad-basketball-league",
+  "version": "1.0.0",
+  "description": "Triad 2v2 Basketball League Repository",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./input.css -o ./public/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./input.css -o ./public/css/tailwind.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbrady9/triad-basketball-league.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cbrady9/triad-basketball-league/issues"
+  },
+  "homepage": "https://github.com/cbrady9/triad-basketball-league#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  }
+}

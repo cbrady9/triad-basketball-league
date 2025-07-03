@@ -102,7 +102,8 @@ async function initializeTeamDetailPage() {
 
             if (playersData && playersData.length > 0) {
                 const teamRoster = playersData.filter(player => {
-                    const playerTeamName = player['Team Name']; // Column 'Team Name' from CSV
+                    // *** FIX: Changed from player['Team Name'] to player['B'] ***
+                    const playerTeamName = player['B']; // Column 'B' from fetched data
                     
                     const cleanedPlayerTeamName = playerTeamName ? playerTeamName.replace(/\s+/g, '').trim().toLowerCase() : '';
                     const isMatch = cleanedPlayerTeamName === decodedTeamName.replace(/\s+/g, '').trim().toLowerCase(); 
@@ -118,9 +119,7 @@ async function initializeTeamDetailPage() {
                 console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
                 console.log('DEBUG: Final teamRoster before display decision:', teamRoster);
                 console.log('DEBUG: Final teamRoster length before display decision:', teamRoster.length);
-                // NEW LOG ADDED HERE:
                 console.log('DEBUG: Value of teamRoster.length just before the display IF check:', teamRoster.length);
-
 
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
@@ -134,7 +133,8 @@ async function initializeTeamDetailPage() {
                     `;
 
                     teamRoster.forEach(player => {
-                        const playerName = player['Player Name']; // Column 'Player Name' from CSV
+                        // *** FIX: Changed from player['Player Name'] to player['_'] ***
+                        const playerName = player['_']; // Column '_' from fetched data
 
                         // NEW: Escape HTML characters in playerName to prevent malformed HTML
                         const escapedPlayerName = String(playerName || '') // Ensure it's a string, default to empty

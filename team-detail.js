@@ -101,7 +101,7 @@ async function initializeTeamDetailPage() {
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
-                                    </tr>
+                                </tr>
                             </thead>
                             <tbody>
                     `;
@@ -113,7 +113,7 @@ async function initializeTeamDetailPage() {
                         rosterHtml += `
                             <tr class="hover:bg-gray-50">
                                 <td class="py-2 px-4 border-b text-sm">${playerName}</td>
-                                </tr>
+                            </tr>
                         `;
                     });
 
@@ -169,4 +169,40 @@ async function initializeTeamDetailPage() {
                     teamSchedule.forEach(game => {
                         const homeTeam = game['Home Team'] || 'N/A';
                         const awayTeam = game['Away Team'] || 'N/A';
-                        const homeScore = game['Home Score']
+                        const homeScore = game['Home Score'] !== undefined ? game['Home Score'] : '-'; // Corrected line
+                        const awayScore = game['Away Score'] !== undefined ? game['Away Score'] : '-';
+                        const scoreDisplay = (game.Status === 'Completed') ? `${homeScore} - ${awayScore}` : 'Upcoming';
+                        const location = game.Location || 'N/A';
+
+                        scheduleHtml += `
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-2 px-4 border-b text-sm">${game.Date || 'N/A'}</td>
+                                <td class="py-2 px-4 border-b text-sm">${game.Time || 'N/A'}</td>
+                                <td class="py-2 px-4 border-b text-sm">${homeTeam}</td>
+                                <td class="py-2 px-4 border-b text-sm">${awayTeam}</td>
+                                <td class="py-2 px-4 border-b text-sm">${scoreDisplay}</td>
+                                <td class="py-2 px-4 border-b text-sm">${location}</td>
+                            </tr>
+                        `;
+                    });
+
+                    scheduleHtml += `
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
+                } else {
+                    document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-700">No schedule found for this team.</p>';
+                }
+            } else {
+                document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Failed to load schedule data.</p>';
+            }
+        }
+    } else {
+        document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Current season not determined for schedule data.</p>';
+    }
+
+    console.log(`Finished attempting to fetch data for ${decodeURIComponent(teamName)} in Season ${currentSeason}.`);
+}
+
+document.addEventListener('DOMContentLoaded', initializeTeamDetailPage);

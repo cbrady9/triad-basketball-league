@@ -1,5 +1,13 @@
+// config.js
+
+// YOUR GOOGLE SHEET ID (the long string in the URL after /d/ and before /edit)
+// REMOVE 'const' TO MAKE IT GLOBALLY ACCESSIBLE
+SHEET_ID = '18lQt9cD2icb-K6UQxTWqfbI7R4L84cT_l8lvUtiqGDU'; // <--- CHANGE THIS LINE
+
+// Configuration for each season's Google Sheet GIDs
+// ... (rest of your SEASON_CONFIGS object remains the same)
 const SEASON_CONFIGS = {
-    "2025": { // Your first season
+    "S01": { // Your first season
         "PLAYER_STATS_GID": "340059940",
         "TEAM_STATS_GID": "1640890982",
         "SCHEDULE_GID": "1956260076",
@@ -9,7 +17,7 @@ const SEASON_CONFIGS = {
         "GAME_LOG_GID": "Y306053944",
         "TRANSACTIONS_GID": "548202372"
     },
-    "2026": { // Your newly duplicated second season
+    "So2": { // Your newly duplicated second season
         "PLAYER_STATS_GID": "1449243249",
         "TEAM_STATS_GID": "636058703",
         "SCHEDULE_GID": "2096810957",

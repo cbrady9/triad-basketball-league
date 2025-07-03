@@ -1,6 +1,7 @@
 // team-detail.js
 console.log('team-detail.js loaded and executing.');
 
+
 async function initializeTeamDetailPage() {
     console.log('Inside initializeTeamDetailPage. About to call getCurrentSeason. typeof getCurrentSeason:', typeof typeof getCurrentSeason);
 
@@ -117,6 +118,10 @@ async function initializeTeamDetailPage() {
                 console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
                 console.log('DEBUG: Final teamRoster before display decision:', teamRoster);
                 console.log('DEBUG: Final teamRoster length before display decision:', teamRoster.length);
+                // NEW LOG ADDED HERE:
+                console.log('DEBUG: Value of teamRoster.length just before the display IF check:', teamRoster.length);
+
+
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
                         <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
@@ -140,15 +145,15 @@ async function initializeTeamDetailPage() {
                             .replace(/'/g, '&#039;');
 
                         rosterHtml += `
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-2 px-4 border-b text-sm">${escapedPlayerName}</td>
-                            </tr>
-                        `;
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-2 px-4 border-b text-sm">${escapedPlayerName}</td>
+                                </tr>
+                            `;
                     });
 
                     rosterHtml += `
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
                     `;
 
                     // Log the generated HTML and attempt to set it in a try-catch block
@@ -242,20 +247,20 @@ async function initializeTeamDetailPage() {
                         const location = game.Location || 'N/A'; // Assuming a 'Location' column exists
 
                         scheduleHtml += `
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-2 px-4 border-b text-sm">${game.Date || 'N/A'}</td>
-                                <td class="py-2 px-4 border-b text-sm">${game.Time || 'N/A'}</td>
-                                <td class="py-2 px-4 border-b text-sm">${homeTeam}</td>
-                                <td class="py-2 px-4 border-b text-sm">${awayTeam}</td>
-                                <td class="py-2 px-4 border-b text-sm">${scoreDisplay}</td>
-                                <td class="py-2 px-4 border-b text-sm">${location}</td>
-                            </tr>
-                        `;
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-2 px-4 border-b text-sm">${game.Date || 'N/A'}</td>
+                                    <td class="py-2 px-4 border-b text-sm">${game.Time || 'N/A'}</td>
+                                    <td class="py-2 px-4 border-b text-sm">${homeTeam}</td>
+                                    <td class="py-2 px-4 border-b text-sm">${awayTeam}</td>
+                                    <td class="py-2 px-4 border-b text-sm">${scoreDisplay}</td>
+                                    <td class="py-2 px-4 border-b text-sm">${location}</td>
+                                </tr>
+                            `;
                     });
 
                     scheduleHtml += `
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
                     `;
                     document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
                 } else {

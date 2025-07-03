@@ -2,7 +2,7 @@
 console.log('team-detail.js loaded and executing.');
 
 async function initializeTeamDetailPage() {
-    console.log('Inside initializeTeamDetailPage. About to call getCurrentSeason. typeof getCurrentSeason:', typeof getCurrentSeason);
+    console.log('Inside initializeTeamDetailPage. About to call getCurrentSeason. typeof getCurrentSeason:', typeof typeof getCurrentSeason);
 
     const urlParams = new URLSearchParams(window.location.search);
     const teamName = urlParams.get('teamName');
@@ -130,9 +130,17 @@ async function initializeTeamDetailPage() {
                     teamRoster.forEach(player => {
                         const playerName = player['Player Name']; // Column 'Player Name' from CSV
 
+                        // NEW: Escape HTML characters in playerName to prevent malformed HTML
+                        const escapedPlayerName = String(playerName || '') // Ensure it's a string, default to empty
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#039;');
+
                         rosterHtml += `
                             <tr class="hover:bg-gray-50">
-                                <td class="py-2 px-4 border-b text-sm">${playerName}</td>
+                                <td class="py-2 px-4 border-b text-sm">${escapedPlayerName}</td>
                             </tr>
                         `;
                     });
@@ -142,7 +150,7 @@ async function initializeTeamDetailPage() {
                         </table>
                     `;
 
-                    // NEW: Log the generated HTML and attempt to set it in a try-catch block
+                    // Log the generated HTML and attempt to set it in a try-catch block
                     console.log("Generated rosterHtml (first 500 chars):", rosterHtml.substring(0, 500), "...");
                     console.log("Generated rosterHtml (total length):", rosterHtml.length);
 
@@ -227,8 +235,8 @@ async function initializeTeamDetailPage() {
                         // Use Team 1 and Team 2 from the sheet, not Home/Away Team
                         const homeTeam = game['Team 1'] || 'N/A';
                         const awayTeam = game['Team 2'] || 'N/A';
-                        const homeScore = game['Team 1 Score'] !== undefined ? game['Team 1 Score'] : '-'; // Corrected column name
-                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Share'] : '-'; // Corrected column name - MISTAKE HERE WAS 'Team 2 Share', should be 'Team 2 Score'
+                        const homeScore = game['Team 1 Score'] !== undefined ? game['Team 1 Score'] : '-';
+                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Score'] : '-'; // Corrected column name to 'Team 2 Score'
                         const scoreDisplay = (game.Winner !== undefined && game.Winner !== '') ? `${homeScore} - ${awayScore}` : 'Upcoming'; // Use Winner to determine if completed
                         const location = game.Location || 'N/A'; // Assuming a 'Location' column exists
 

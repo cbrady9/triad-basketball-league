@@ -1,58 +1,59 @@
 // teams.js
 
-const TEAMS_QUERY = 'SELECT *'; // Select all columns for teams
+// Query to get team names from the 'Teams' tab (assuming 'Team Name' is the column header in column A)
+const TEAMS_QUERY = 'SELECT A';
 
-function renderTeamsTable(data) {
-    const container = document.getElementById('teams-data-container'); // Assuming you have a teams-data-container
+async function renderTeamList(data) {
+    const container = document.getElementById('team-list-container');
     if (!container) {
-        console.error("Teams container not found.");
+        console.error("Team list container not found.");
         return;
     }
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = ''; // Clear "Loading teams..." message
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No teams available for this season.</p>';
+        container.innerHTML = '<p class="text-gray-700">No teams found for this season.</p>';
         return;
     }
 
-    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
-    const headers = Object.keys(data[0]);
+    // Assuming the first column in your 'Teams' tab is 'Team Name'
+    const teamNameHeader = Object.keys(data[0])[0]; // Get the actual header of the first column
 
-    headers.forEach(header => {
-        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
+    data.forEach(team => {
+        const teamName = team[teamNameHeader];
+        if (teamName) { // Ensure team name is not empty
+            const teamLink = document.createElement('a');
+            teamLink.href = `team-detail.html?teamName=${encodeURIComponent(teamName)}`; // Link to new detail page
+            teamLink.className = 'block p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition duration-200 text-blue-800 font-semibold text-lg text-center';
+            teamLink.textContent = teamName;
+            container.appendChild(teamLink);
+        }
     });
-    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
-
-    data.forEach(row => {
-        tableHTML += '<tr>';
-        headers.forEach(header => {
-            const value = row[header] !== undefined ? row[header] : '';
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
-        });
-        tableHTML += '</tr>';
-    });
-    tableHTML += '</tbody></table>';
-    container.innerHTML = tableHTML;
 }
 
 async function initializeTeamsPage() {
     const currentSeason = getCurrentSeason();
+    // We need a GID for your 'Teams' tab in config.js!
     const teamsGID = getGID('TEAMS_GID', currentSeason);
 
     if (!teamsGID) {
         console.error("Teams GID not found for current season:", currentSeason);
-        document.getElementById('teams-data-container').innerHTML = '<p class="text-red-500">Error: Teams data not configured for this season. Please ensure the correct GID is in config.js.</p>';
+        document.getElementById('team-list-container').innerHTML = '<p class="text-red-500">Error: Teams data not configured for this season. Please ensure the correct GID is in config.js.</p>';
         return;
     }
 
-    document.getElementById('teams-data-container').innerHTML = '<p class="text-gray-600">Loading teams data...</p>';
+    document.getElementById('team-list-container').innerHTML = '<p class="text-gray-600">Loading teams...</p>';
 
-    const tableData = await fetchGoogleSheetData(SHEET_ID, teamsGID, TEAMS_QUERY);
-    if (tableData) {
-        renderTeamsTable(tableData);
+    // fetchGoogleSheetData is assumed to be in utils.js
+    const teamData = await fetchGoogleSheetData(SHEET_ID, teamsGID, TEAMS_QUERY);
+    if (teamData) {
+        renderTeamList(teamData);
+    } else {
+        document.getElementById('team-list-container').innerHTML = '<p class="text-red-500">Failed to load team list. Please try again later or select a different season.</p>';
     }
-    createSeasonSelector(currentSeason);
+
+    createSeasonSelector(currentSeason); // Add season selector
 }
 
 document.addEventListener('DOMContentLoaded', initializeTeamsPage);
-window.initializePage = initializeTeamsPage;
+window.initializePage = initializeTeamsPage; // Make globally accessible for config.js

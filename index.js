@@ -7,14 +7,17 @@ function renderStandingsWidget(data) {
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 
-    // --- CORRECTED: Added the multi-level sort with parseFloat ---
+    // --- CORRECTED: Final, robust sorting logic ---
     data.sort((a, b) => {
+        // Convert Win % string to a number for comparison
         const winPctA = parseFloat(a['Win %']) || 0;
         const winPctB = parseFloat(b['Win %']) || 0;
         const winPctDiff = winPctB - winPctA;
         if (winPctDiff !== 0) {
             return winPctDiff;
         }
+
+        // Convert Point Differential string to a number for tiebreakers
         const pdA = parseFloat(a['Point Differential']) || 0;
         const pdB = parseFloat(b['Point Differential']) || 0;
         return pdB - pdA;
@@ -25,8 +28,7 @@ function renderStandingsWidget(data) {
     html += '<ol class="space-y-2">';
 
     topTeams.forEach((team, index) => {
-        // Use the new sorted index to generate the rank
-        const rank = index + 1;
+        const rank = index + 1; // Generate rank based on new sorted order
         const teamName = team['Team Name'];
         const wins = team['Wins'];
         const losses = team['Losses'];
@@ -68,11 +70,9 @@ function renderScheduleWidgets(data) {
     const nextGamesContainer = document.getElementById('next-games-widget-container');
     if (!recentResultsContainer || !nextGamesContainer) return;
 
-    // A game has been played if its score is not empty/null. This is more reliable.
     const playedGames = data.filter(game => game['Team 1 Score'] !== null && game['Team 1 Score'] !== '');
     const upcomingGames = data.filter(game => game['Team 1 Score'] === null || game['Team 1 Score'] === '');
 
-    // --- Render Recent Results (last 3 played) ---
     const recentGames = playedGames.slice(-3).reverse();
     let recentHtml = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Recent Results</h3>';
     if (recentGames.length > 0) {
@@ -95,15 +95,11 @@ function renderScheduleWidgets(data) {
     }
     recentResultsContainer.innerHTML = recentHtml;
 
-    // --- Render Upcoming Games (next 3 upcoming) ---
     const nextGames = upcomingGames.slice(0, 3);
-    let nextHtml = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Upcoming Games</h3>'; // Text changed here
+    let nextHtml = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Upcoming Games</h3>';
     if (nextGames.length > 0) {
         nextHtml += '<div class="space-y-3">';
         nextGames.forEach(game => {
-            const gameId = game['Game ID'];
-            // Upcoming games are not yet clickable as they have no stats page
-            // If you want them to be, change the line below to: const gameLink = `...`;
             const gameLink = `schedule.html`;
             nextHtml += `
                  <a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700">
@@ -135,9 +131,8 @@ async function initializeHomePage() {
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
 
     try {
-        // UPDATED to select specific columns by letter for reliability
         const [standingsData, scheduleData] = await Promise.all([
-            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D, E, G'), // Fetches Team Name, W, L, PD, GP, Rank
+            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT *'),
             fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT A, B, C, D, E, F, G, H')
         ]);
 

@@ -3,28 +3,21 @@
 // Query to get team names from the 'Teams' tab (assuming 'Team Name' is the column header in column A)
 const TEAMS_QUERY = 'SELECT A';
 
-async function renderTeamList(data) {
+function renderTeamList(data) {
     const container = document.getElementById('team-list-container');
-    if (!container) {
-        console.error("Team list container not found.");
-        return;
-    }
-    container.innerHTML = ''; // Clear "Loading teams..." message
-
+    if (!container) return;
+    container.innerHTML = '';
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No teams found for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No teams found for this season.</p>';
         return;
     }
-
-    // Assuming the first column in your 'Teams' tab is 'Team Name'
-    const teamNameHeader = Object.keys(data[0])[0]; // Get the actual header of the first column
-
     data.forEach(team => {
-        const teamName = team[teamNameHeader];
-        if (teamName) { // Ensure team name is not empty
+        const teamName = team['Team Name'];
+        if (teamName) {
             const teamLink = document.createElement('a');
-            teamLink.href = `team-detail.html?teamName=${encodeURIComponent(teamName)}`; // Link to new detail page
-            teamLink.className = 'block p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition duration-200 text-blue-800 font-semibold text-lg text-center';
+            teamLink.href = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
+            // Changed card colors and text
+            teamLink.className = 'block p-4 bg-gray-800 border border-gray-700 rounded-lg shadow hover:bg-gray-700 transition duration-200 text-gray-200 font-semibold text-lg text-center';
             teamLink.textContent = teamName;
             container.appendChild(teamLink);
         }

@@ -2,21 +2,14 @@
 
 function renderSchedule(data) {
     const container = document.getElementById('schedule-data-container');
-    if (!container) {
-        console.error("Schedule container not found.");
-        return;
-    }
-    container.innerHTML = ''; // Clear existing content
-
+    if (!container) return;
+    container.innerHTML = '';
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No schedule or results available for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No schedule or results available for this season.</p>';
         return;
     }
-
-    // Create a responsive grid for the game cards
     const scheduleGrid = document.createElement('div');
     scheduleGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-
     data.forEach(game => {
         const gameId = game['Game ID'];
         const team1 = game['Team 1'];
@@ -27,28 +20,21 @@ function renderSchedule(data) {
         const gameTime = game['Time'];
         const location = game['Location'];
         const hasBeenPlayed = (game['Winner'] !== null && game['Winner'] !== '');
-
         let scoreOrTime;
-        let resultClass = 'bg-gray-200 text-gray-800'; // Default for upcoming games
-
+        // Updated result bar colors
+        let resultClass = 'bg-gray-700 text-gray-300';
         if (hasBeenPlayed) {
             scoreOrTime = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
-            // Highlight the winner
-            if (team1Score > team2Score) {
-                resultClass = 'bg-green-100 text-green-800';
-            } else {
-                resultClass = 'bg-green-100 text-green-800'; // Could be different for loser if desired
-            }
+            resultClass = 'bg-teal-900/50 text-teal-300';
         } else {
             scoreOrTime = `<span>${gameDate} - ${gameTime}</span>`;
         }
-
-        // Each game is a clickable card
+        // Updated main card colors
         const gameCard = `
-            <a href="game-detail.html?gameId=${gameId}" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 overflow-hidden">
+            <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-800 border border-gray-700 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
                 <div class="p-4">
-                    <p class="text-sm text-gray-500 text-center mb-2">${location}</p>
-                    <div class="flex justify-between items-center text-lg">
+                    <p class="text-sm text-gray-400 text-center mb-2">${location}</p>
+                    <div class="flex justify-between items-center text-lg text-gray-200">
                         <span class="font-semibold">${team1}</span>
                         <span class="font-semibold">${team2}</span>
                     </div>
@@ -60,7 +46,6 @@ function renderSchedule(data) {
         `;
         scheduleGrid.innerHTML += gameCard;
     });
-
     container.appendChild(scheduleGrid);
 }
 

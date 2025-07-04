@@ -2,30 +2,21 @@
 
 function renderPlayerList(data) {
     const container = document.getElementById('player-list-container');
-    if (!container) {
-        console.error("Player list container not found.");
-        return;
-    }
-    container.innerHTML = ''; // Clear "Loading..." message
-
+    if (!container) return;
+    container.innerHTML = '';
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No players found for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No players found for this season.</p>';
         return;
     }
-
-    // --- UPDATED LOGIC TO HANDLE DYNAMIC KEY ---
-    // Get the header key from the first player object (e.g., 'Player Name' or 'A')
     const playerHeaderKey = Object.keys(data[0])[0];
-
-    // Sort players alphabetically
     data.sort((a, b) => a[playerHeaderKey].localeCompare(b[playerHeaderKey]));
-
     data.forEach(player => {
-        const playerName = player[playerHeaderKey]; // Use the dynamic key here
+        const playerName = player[playerHeaderKey];
         if (playerName) {
             const playerLink = document.createElement('a');
             playerLink.href = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
-            playerLink.className = 'block p-3 bg-gray-50 rounded-md shadow-sm hover:bg-blue-100 transition duration-200 text-blue-800 font-medium text-center';
+            // Changed card colors and text
+            playerLink.className = 'block p-3 bg-gray-800 border border-gray-700 rounded-md shadow-sm hover:bg-gray-700 transition duration-200 text-gray-200 font-medium text-center';
             playerLink.textContent = playerName;
             container.appendChild(playerLink);
         }

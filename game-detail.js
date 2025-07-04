@@ -2,24 +2,25 @@
 
 // This function creates a single box score table for one team
 function createBoxScoreTable(teamName, teamStats) {
+    // Updated main div classes
     let tableHtml = `
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <h3 class="text-xl font-semibold mb-3">${teamName}</h3>
+        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <h3 class="text-xl font-semibold mb-3 text-gray-200">${teamName}</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-700">
                         <tr>
-                            <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">PTS</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">REB</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">AST</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">STL</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">BLK</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">1PM</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">2PM</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-300 uppercase tracking-wider">Player</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">PTS</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">REB</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">AST</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">STL</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">BLK</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">1PM</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">2PM</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-700">
     `;
     const statColumns = {
         points: 'Points',
@@ -28,29 +29,24 @@ function createBoxScoreTable(teamName, teamStats) {
         steals: 'Steals',
         blocks: 'Blocks'
     };
-
     teamStats.forEach(player => {
-        // --- NEW ---
-        // Get player name and create the link
         const playerName = player['Player'];
         const encodedPlayerName = encodeURIComponent(playerName);
-        const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${playerName}</a>`;
-        // --- END NEW ---
-
+        // Updated link color
+        const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${playerName}</a>`;
         tableHtml += `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-700">
                 <td class="px-4 py-2 whitespace-nowrap">${playerLink}</td>
-                <td class="px-4 py-2 text-right">${player[statColumns.points] || 0}</td>
-                <td class="px-4 py-2 text-right">${player[statColumns.rebounds] || 0}</td>
-                <td class="px-4 py-2 text-right">${player[statColumns.assists] || 0}</td>
-                <td class="px-4 py-2 text-right">${player[statColumns.steals] || 0}</td>
-                <td class="px-4 py-2 text-right">${player[statColumns.blocks] || 0}</td>
-                <td class="px-4 py-2 text-right">${player['1PM'] || 0}</td>
-                <td class="px-4 py-2 text-right">${player['2PM'] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.points] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.rebounds] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.assists] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.steals] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.blocks] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player['1PM'] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player['2PM'] || 0}</td>
             </tr>
         `;
     });
-
     tableHtml += `</tbody></table></div></div>`;
     return tableHtml;
 }

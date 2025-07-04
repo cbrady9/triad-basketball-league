@@ -50,7 +50,8 @@ function renderPlayerStatsTable(data) {
     const headers = Object.keys(data[0]);
 
     headers.forEach(header => {
-        const isSortable = ['PLAYER'].includes(header.toUpperCase()) ? '' : 'sortable';
+        // Use trim() to remove leading/trailing spaces from the header before checking
+        const isSortable = header.trim().toUpperCase() === 'PLAYER' ? '' : 'sortable';
         tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
     });
     tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
@@ -61,8 +62,9 @@ function renderPlayerStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // If the current column is the player's name, make it a link
-            if (header.toUpperCase() === 'PLAYER') {
+            // If the current column is the player's name, make it a link.
+            // This check is now more robust.
+            if (header.trim().toUpperCase() === 'PLAYER') {
                 const encodedPlayerName = encodeURIComponent(value);
                 displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${value}</a>`;
             }

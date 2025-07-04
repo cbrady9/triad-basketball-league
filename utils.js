@@ -3,7 +3,7 @@ console.log('utils.js loaded and executing.');
 
 // fetchGoogleSheetData: Fetches data from a Google Sheet and parses it into an array of objects.
 async function fetchGoogleSheetData(sheetId, gid, query) {
-    const URL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gid}&tq=${encodeURIComponent(query)}`;
+    const URL = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gid}&headers=1&tq=${encodeURIComponent(query)}`;
 
     try {
         const response = await fetch(URL);

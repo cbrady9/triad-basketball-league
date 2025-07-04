@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Loading Player Details...</title>
+    <link href="https://cdn.tailwindcss.com/3.4.1" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> </head>
+<body class="bg-gray-50 text-gray-800 font-sans leading-normal tracking-normal">
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Triad 2v2 Basketball League</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="index.html" class="hover:text-blue-200">Home</a></li>
+                    <li><a href="teams.html" class="hover:text-blue-200">Teams</a></li>
+                    <li><a href="schedule.html" class="hover:text-blue-200">Schedule & Results</a></li>
+                    <li><a href="player-stats.html" class="hover:text-blue-200">Player Stats</a></li>
+                    <li><a href="team-stats.html" class="hover:text-blue-200">Team Stats</a></li>
+                    <li><a href="standings.html" class="hover:text-blue-200">Standings</a></li>
+                    <li><a href="transactions.html" class="hover:text-blue-200">Transactions</a></li>
+                    <li><a href="discord.html" class="hover:text-blue-200">Discord</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6 mt-4">
+        <h1 id="player-name-display" class="text-4xl font-extrabold mb-8 text-blue-700">Loading Player...</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-1">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-600">Player Information</h2>
+                <div id="player-info">
+                    <p class="text-gray-600">Loading player info...</p>
+                    </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-600">Player Stats</h2>
+                <div id="player-stats-container">
+                    <p class="text-gray-600">Loading player stats...</p>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-4 mt-8 text-center">
+        <div class="container mx-auto">
+            &copy; 2025 Triad 2v2 Basketball League. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="google-sheets-api.js"></script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="player-detail.js"></script> </body>
+</html>

@@ -16,8 +16,10 @@
         <div class="container mx-auto flex justify-between items-center">
             <a href="index.html" class="text-xl font-bold text-gray-100">Triad Basketball League</a>
             <nav class="flex items-center">
-                <ul class="flex items-baseline space-x-6">
-                    <li><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
+                {/* Switched back to items-center for true vertical centering */}
+                <ul class="flex items-center space-x-6">
+                    {/* Added pb-4 to match the dropdown items' height */}
+                    <li class="pb-4"><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
 
                     <li class="relative group pb-4">
                         <button class="text-gray-300 hover:text-white flex items-center">
@@ -52,46 +54,28 @@
                         </button>
                         <div
                             class="absolute left-0 mt-2 w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
-                            <a href="standings.html"
-                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Standings</a>
-                            <a href="leaders.html"
-                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">League
-                                Leaders</a>
-                            <a href="player-stats.html"
-                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Player
-                                Stats</a>
-                            <a href="team-stats.html"
-                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Team
-                                Stats</a>
-                        </div>
-                    </li>
+                            <a href="standings.html" class="block px-4 py-2 text-sm text
 
-                    <li><a href="https://discord.gg/Q6RGpkbMJn" class="text-gray-300 hover:text-white" target="_blank"
-                            rel="noopener noreferrer">Discord</a></li>
-                </ul>
-                <div id="season-selector-container" class="ml-6"></div>
-            </nav>
-        </div>
-    </header>
+    <main class=" container mx-auto p-4 mt-4">
+                                <section class="bg-gray-800 p-6 rounded-lg border border-gray-700" <h2
+                                    class="text-xl font-semibold mb-4">League
+                                    Players</h2>
+                                    <div id="player-list-container"
+                                        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                        <p class="text-gray-400 col-span-full">Loading players...</p>
+                                    </div>
+                                </section>
+                                </main>
 
-    <main class="container mx-auto p-4 mt-4">
-        <section class="bg-gray-800 p-6 rounded-lg border border-gray-700" <h2 class="text-xl font-semibold mb-4">League
-            Players</h2>
-            <div id="player-list-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <p class="text-gray-400 col-span-full">Loading players...</p>
-            </div>
-        </section>
-    </main>
+                                <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">
+                                    <div class="container mx-auto">
+                                        <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
+                                    </div>
+                                </footer>
 
-    <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">
-        <div class="container mx-auto">
-            <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="config.js"></script>
-    <script src="utils.js"></script>
-    <script src="players.js"></script>
+                                <script src="config.js"></script>
+                                <script src="utils.js"></script>
+                                <script src="players.js"></script>
 </body>
 
 </html>

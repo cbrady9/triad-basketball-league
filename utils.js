@@ -20,7 +20,7 @@ async function fetchGoogleSheetData(sheetId, gid, query) {
             }
 
             const columns = json.table.cols.map(col => col.label || col.id); // Use label or id for column name
-            const rows = json.table.rows.map(row => row.c.map(cell => cell ? (cell.v !== undefined ? cell.v : cell.f) : '')); // Get value or formatted value
+            const rows = json.table.rows.map(row => row.c.map(cell => cell ? (cell.f !== undefined ? cell.f : cell.v) : ''));
 
             const data = rows.map(row => {
                 let obj = {};

@@ -31,7 +31,7 @@ window.initializePage = async function() {
     // await fetchDataAndRender(newSeason); // Call your data fetching/rendering function
 };
 
-const STANDINGS_QUERY = 'SELECT *'; // Select all columns for standings
+const STANDINGS_QUERY = 'SELECT A, B, C, D, E, F, G, H'; // Select all columns for standings
 
 function renderStandingsTable(data) {
     const container = document.getElementById('standings-data-container');
@@ -39,7 +39,7 @@ function renderStandingsTable(data) {
         console.error("Standings container not found.");
         return;
     }
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = '';
 
     if (!data || data.length === 0) {
         container.innerHTML = '<p class="text-gray-700">No team standings available for this season.</p>';
@@ -50,26 +50,42 @@ function renderStandingsTable(data) {
     const headers = Object.keys(data[0]);
 
     headers.forEach(header => {
-        const isSortable = ['TEAM NAME'].includes(header) ? '' : 'sortable'; // Example: make WINS, LOSSES sortable
+        const isSortable = ['Team Name'].includes(header) ? '' : 'sortable';
         tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
     });
     tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
     data.forEach(row => {
+        // Added zebra-striping and hover effect class here!
         tableHTML += '<tr class="odd:bg-white even:bg-gray-50 hover:bg-blue-100">';
         headers.forEach(header => {
-            const value = row[header] !== undefined ? row[header] : '';
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
+            let value = row[header] !== undefined ? row[header] : '';
+            let displayValue = value;
+
+            // --- NEW FORMATTING LOGIC ---
+            if (header === 'Win %') {
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue)) {
+                    displayValue = (numValue * 100).toFixed(0) + '%';
+                }
+            } else if (header === 'Point Differential') {
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue) && numValue > 0) {
+                    displayValue = '+' + numValue;
+                }
+            }
+            // --- END NEW FORMATTING LOGIC ---
+
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${displayValue}</td>`;
         });
         tableHTML += '</tr>';
     });
     tableHTML += '</tbody></table>';
     container.innerHTML = tableHTML;
 
-    // Add sorting functionality
     const sortableHeaders = container.querySelectorAll('th.sortable');
-    sortableHeaders.forEach(header => {
-        header.addEventListener('click', () => sortTable(header, container));
+    sortableHeaders.forEach(h => {
+        h.addEventListener('click', () => sortTable(h, container));
     });
 }
 

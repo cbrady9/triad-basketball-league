@@ -31,7 +31,7 @@ window.initializePage = async function() {
     // await fetchDataAndRender(newSeason); // Call your data fetching/rendering function
 };
 
-const TRANSACTIONS_QUERY = 'SELECT *'; // Select all columns for transactions
+const TRANSACTIONS_QUERY = 'SELECT A, B, C, D'; // Select all columns for transactions
 
 function renderTransactionsTable(data) {
     const container = document.getElementById('transactions-data-container');

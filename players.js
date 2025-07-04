@@ -13,11 +13,15 @@ function renderPlayerList(data) {
         return;
     }
 
+    // --- UPDATED LOGIC TO HANDLE DYNAMIC KEY ---
+    // Get the header key from the first player object (e.g., 'Player Name' or 'A')
+    const playerHeaderKey = Object.keys(data[0])[0];
+
     // Sort players alphabetically
-    data.sort((a, b) => a['Player Name'].localeCompare(b['Player Name']));
+    data.sort((a, b) => a[playerHeaderKey].localeCompare(b[playerHeaderKey]));
 
     data.forEach(player => {
-        const playerName = player['Player Name'];
+        const playerName = player[playerHeaderKey]; // Use the dynamic key here
         if (playerName) {
             const playerLink = document.createElement('a');
             playerLink.href = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
@@ -27,7 +31,6 @@ function renderPlayerList(data) {
         }
     });
 }
-
 async function initializePlayersPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);

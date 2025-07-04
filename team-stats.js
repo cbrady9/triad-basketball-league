@@ -35,14 +35,6 @@ function renderTeamStatsTable(data) {
             let displayValue = value;
 
             // Format percentage columns
-            if (percentageColumns.includes(header)) {
-                const numValue = parseFloat(value);
-                if (!isNaN(numValue)) {
-                    displayValue = (numValue * 100).toFixed(decimalPlaces) + '%';
-                } else {
-                    displayValue = ''; // Handle non-numeric or empty values gracefully
-                }
-            }
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${displayValue}</td>`;
         });
         tableHTML += '</tr>';

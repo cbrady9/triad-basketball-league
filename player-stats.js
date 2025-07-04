@@ -49,9 +49,8 @@ function renderPlayerStatsTable(data) {
     let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
     const headers = Object.keys(data[0]);
 
-    // Define which columns are percentages and how many decimal places to show
     const percentageColumns = ['FG%', '2P%', 'FT%'];
-    const decimalPlaces = 1; // For example, 1 decimal place (e.g., 66.7%)
+    const decimalPlaces = 1;
 
     headers.forEach(header => {
         const isSortable = ['PLAYER'].includes(header.toUpperCase()) ? '' : 'sortable';
@@ -65,15 +64,23 @@ function renderPlayerStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // Format percentage columns
             if (percentageColumns.includes(header)) {
                 const numValue = parseFloat(value);
                 if (!isNaN(numValue)) {
                     displayValue = (numValue * 100).toFixed(decimalPlaces) + '%';
                 } else {
-                    displayValue = ''; // Handle non-numeric or empty values gracefully
+                    displayValue = '';
                 }
             }
+            
+            // --- NEW ---
+            // If the current column is the player's name, make it a link
+            if (header.toUpperCase() === 'PLAYER') {
+                const encodedPlayerName = encodeURIComponent(value);
+                displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${value}</a>`;
+            }
+            // --- END NEW ---
+
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${displayValue}</td>`;
         });
         tableHTML += '</tr>';

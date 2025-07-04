@@ -21,7 +21,6 @@ function createBoxScoreTable(teamName, teamStats) {
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
     `;
-    // Column headers from your "Game Log" sheet
     const statColumns = {
         points: 'Points',
         rebounds: 'Rebounds',
@@ -31,9 +30,16 @@ function createBoxScoreTable(teamName, teamStats) {
     };
 
     teamStats.forEach(player => {
+        // --- NEW ---
+        // Get player name and create the link
+        const playerName = player['Player'];
+        const encodedPlayerName = encodeURIComponent(playerName);
+        const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${playerName}</a>`;
+        // --- END NEW ---
+
         tableHtml += `
             <tr class="hover:bg-gray-50">
-                <td class="px-4 py-2 whitespace-nowrap">${player['Player']}</td>
+                <td class="px-4 py-2 whitespace-nowrap">${playerLink}</td>
                 <td class="px-4 py-2 text-right">${player[statColumns.points] || 0}</td>
                 <td class="px-4 py-2 text-right">${player[statColumns.rebounds] || 0}</td>
                 <td class="px-4 py-2 text-right">${player[statColumns.assists] || 0}</td>

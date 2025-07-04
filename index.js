@@ -121,20 +121,18 @@ async function initializeHomePage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
 
-    // Show loading messages
     document.getElementById('standings-widget-container').innerHTML = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3><p class="text-gray-400">Loading...</p>';
     document.getElementById('recent-results-widget-container').innerHTML = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Recent Results</h3><p class="text-gray-400">Loading...</p>';
     document.getElementById('next-games-widget-container').innerHTML = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Upcoming Games</h3><p class="text-gray-400">Loading...</p>';
 
-    // Fetch all needed data at once
     const standingsGID = getGID('STANDINGS_GID', currentSeason);
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
 
     try {
-        // Updated the queries to fetch the correct columns
+        // UPDATED to select specific columns by letter for reliability
         const [standingsData, scheduleData] = await Promise.all([
-            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D'), // Select Rank, Team Name, Win %, Point Diff
-            fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT A, B, C, D, E, F, G, H') // Select GameID, Date, Time, Teams, Scores, Winner
+            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D, E, G'), // Fetches Team Name, W, L, PD, GP, Rank
+            fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT A, B, C, D, E, F, G, H')
         ]);
 
         if (standingsData) {

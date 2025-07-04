@@ -74,7 +74,7 @@ async function initializeGameDetailPage() {
     }
 
     // Fetch all game log data for the specific game
-    const GAME_LOG_QUERY = `SELECT * WHERE A = ${gameId}`;
+    const GAME_LOG_QUERY = `SELECT * WHERE A = '${gameId}'`;
     const gameLogData = await fetchGoogleSheetData(SHEET_ID, gameLogGID, GAME_LOG_QUERY);
 
     if (!gameLogData || gameLogData.length === 0) {

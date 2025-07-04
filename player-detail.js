@@ -40,14 +40,14 @@ async function initializePlayerDetailPage() {
     if (playerStats) {
         // Define the exact stats you want to display, in order
         const desiredStats = [
-            { header: 'Games Played', key: 'GP' },
+            { header: 'Games Played', key: 'Games Played' }, // Use the full name
             { header: 'PPG', key: 'PPG' },
             { header: 'RPG', key: 'RPG' },
             { header: 'APG', key: 'APG' },
             { header: 'SPG', key: 'SPG' },
             { header: 'BPG', key: 'BPG' },
-            { header: 'Total 1PM', key: '1PM' },
-            { header: 'Total 2PM', key: '2PM' }
+            { header: 'TPG', key: 'TPG' },             // Replaced 1PM with TPG
+            { header: 'FG%', key: 'FG%' }             // Replaced 2PM with FG%
         ];
 
         let statsHtml = `

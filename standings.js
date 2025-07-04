@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Replace 'initializeHomePage' with the actual name of your main page function.
 // If you don't have a specific `initializePage` function for this page,
 // you might need to structure your page's data loading inside this global function.
-window.initializePage = async function() {
+window.initializePage = async function () {
     console.log('Re-initializing page for new season...');
     const newSeason = getCurrentSeason(); // Get the updated season
     // Add code here to clear existing data and reload content for the newSeason
@@ -42,45 +42,57 @@ function renderStandingsTable(data) {
     container.innerHTML = '';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No team standings available for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No team standings available for this season.</p>';
         return;
     }
 
-    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
+    // Add a subtle outer border and hide overflow for clean rounded corners
+    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
+
+    // --- THEAD STYLING ---
+    // Changed background to bg-gray-800 and text to text-gray-300
+    tableHTML += '<thead class="bg-gray-800">';
+    tableHTML += '<tr>';
+
     const headers = Object.keys(data[0]);
 
     headers.forEach(header => {
-        const isSortable = ['Team Name'].includes(header) ? '' : 'sortable';
-        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
+        const isSortable = ['Team Name', 'Player Name'].includes(header) ? '' : 'sortable';
+        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
     });
-    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+    tableHTML += '</tr></thead>';
+
+    // --- TBODY STYLING ---
+    // Changed background color and hover effect
+    tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
     data.forEach(row => {
-        // Added zebra-striping and hover effect class here!
-        tableHTML += '<tr class="odd:bg-white even:bg-gray-50 hover:bg-blue-100">';
+        tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // --- NEW FORMATTING LOGIC ---
             if (header === 'Point Differential') {
                 const numValue = parseFloat(value);
                 if (!isNaN(numValue) && numValue > 0) {
                     displayValue = '+' + numValue;
                 }
             }
-            // --- END NEW FORMATTING LOGIC ---
 
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${displayValue}</td>`;
+            // --- TD STYLING ---
+            // Changed text color to text-gray-300
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
         });
         tableHTML += '</tr>';
     });
-    tableHTML += '</tbody></table>';
+
+    tableHTML += '</tbody></table></div>';
     container.innerHTML = tableHTML;
 
+    // Add sorting functionality
     const sortableHeaders = container.querySelectorAll('th.sortable');
-    sortableHeaders.forEach(h => {
-        h.addEventListener('click', () => sortTable(h, container));
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', () => sortTable(header, container));
     });
 }
 

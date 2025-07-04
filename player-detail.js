@@ -40,38 +40,37 @@ async function initializePlayerDetailPage() {
     if (playerStats) {
         // Define the exact stats you want to display, in order
         const desiredStats = [
-            { header: 'Games Played', key: 'Games Played' }, // Use the full name
+            { header: 'Games Played', key: 'Games Played' },
             { header: 'PPG', key: 'PPG' },
             { header: 'RPG', key: 'RPG' },
             { header: 'APG', key: 'APG' },
             { header: 'SPG', key: 'SPG' },
             { header: 'BPG', key: 'BPG' },
-            { header: 'TPG', key: 'TPG' },             // Replaced 1PM with TPG
-            { header: 'FG%', key: 'FG%' }             // Replaced 2PM with FG%
+            { header: 'TPG', key: 'TPG' },
+            { header: 'FG%', key: 'FG%' }
         ];
 
         let statsHtml = `
-            <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                <thead class="bg-gray-100">
+        <div class="overflow-x-auto border border-gray-700 rounded-lg">
+            <table class="min-w-full">
+                <thead class="bg-gray-800">
                     <tr>`;
 
-        // Create headers from our desiredStats array
         desiredStats.forEach(stat => {
-            statsHtml += `<th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">${stat.header}</th>`;
+            statsHtml += `<th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">${stat.header}</th>`;
         });
 
-        statsHtml += `</tr></thead><tbody><tr>`;
+        statsHtml += `</tr></thead><tbody class="divide-y divide-gray-700"><tr>`;
 
-        // Add table data from our desiredStats array
         desiredStats.forEach(stat => {
             const value = playerStats[stat.key] !== undefined ? playerStats[stat.key] : 'N/A';
-            statsHtml += `<td class="py-2 px-4 border-b text-sm">${value}</td>`;
+            statsHtml += `<td class="py-2 px-4 text-sm text-gray-300">${value}</td>`;
         });
 
-        statsHtml += `</tr></tbody></table>`;
+        statsHtml += `</tr></tbody></table></div>`;
         document.getElementById('player-stats-container').innerHTML = statsHtml;
     } else {
-        document.getElementById('player-stats-container').innerHTML = '<p class="text-gray-700">Detailed player stats not found.</p>';
+        document.getElementById('player-stats-container').innerHTML = '<p class="text-gray-300">Detailed player stats not found.</p>';
     }
 }
 document.addEventListener('DOMContentLoaded', initializePlayerDetailPage);

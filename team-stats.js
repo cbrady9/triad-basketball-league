@@ -11,35 +11,34 @@ function renderTeamStatsTable(data) {
     container.innerHTML = '';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No team stats available for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No team stats available for this season.</p>';
         return;
     }
 
-    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
-    const headers = Object.keys(data[0]);
+    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
+    tableHTML += '<thead class="bg-gray-800">';
+    tableHTML += '<tr>';
 
-    // Define which columns are percentages and how many decimal places to show
-    const percentageColumns = ['FG%', '2P%', 'FT%'];
-    const decimalPlaces = 1; // For example, 1 decimal place (e.g., 66.7%)
+    const headers = Object.keys(data[0]);
 
     headers.forEach(header => {
         const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
-        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
+        tableHTML += `<th scope="col" class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${isSortable}">${header}</th>`;
     });
-    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+    tableHTML += '</tr></thead>';
+
+    tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
     data.forEach(row => {
-        tableHTML += '<tr class="odd:bg-white even:bg-gray-50 hover:bg-blue-100">';
+        tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
-            let displayValue = value;
-
-            // Format percentage columns
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${displayValue}</td>`;
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
         });
         tableHTML += '</tr>';
     });
-    tableHTML += '</tbody></table>';
+
+    tableHTML += '</tbody></table></div>';
     container.innerHTML = tableHTML;
 
     const sortableHeaders = container.querySelectorAll('th.sortable');

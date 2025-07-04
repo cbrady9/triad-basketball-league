@@ -100,48 +100,44 @@ async function initializeTeamDetailPage() {
 
             if (playersData && playersData.length > 0) {
                 const teamRoster = playersData.filter(player => {
-                    // --- THIS IS THE CORRECTED LINE ---
                     const playerTeamName = player['Team Name'];
-                    // --- END CORRECTION ---
-
                     const cleanedPlayerTeamName = playerTeamName ? playerTeamName.trim().toLowerCase() : '';
                     return cleanedPlayerTeamName === decodedTeamName;
                 });
 
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
-                    <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div class="overflow-x-auto border border-gray-700 rounded-lg">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-800">
+                                <tr>
+                                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">Player Name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
                 `;
                     teamRoster.forEach(player => {
                         const playerName = player['Player Name'];
                         const encodedPlayerName = encodeURIComponent(playerName);
                         rosterHtml += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="py-2 px-4 border-b text-sm">
-                                <a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline">
+                        <tr class="hover:bg-gray-700">
+                            <td class="py-2 px-4 text-sm">
+                                <a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline">
                                     ${playerName}
                                 </a>
                             </td>
                         </tr>
                     `;
                     });
-                    rosterHtml += `</tbody></table>`;
+                    rosterHtml += `</tbody></table></div>`;
                     document.getElementById('team-roster-container').innerHTML = rosterHtml;
                 } else {
-                    document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
+                    document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-300">No players found for this team in the roster.</p>';
                 }
             } else {
                 document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Failed to load player data for roster.</p>';
             }
         }
-    } else {
-        document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error: Current season not determined for player data.</p>';
     }
 
     // --- Fetch Schedule Data ---
@@ -153,83 +149,62 @@ async function initializeTeamDetailPage() {
         } else {
             const SCHEDULE_QUERY = 'SELECT *';
             const scheduleData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
-
-            console.log("Schedule Data fetched:", scheduleData);
             const decodedTeamName = decodeURIComponent(teamName).trim().toLowerCase();
-            console.log("Target Team Name for Schedule Filter (trimmed & lowercased):", decodedTeamName);
 
             if (scheduleData && scheduleData.length > 0) {
                 const teamSchedule = scheduleData.filter(game => {
                     const team1Name = game['Team 1'];
                     const team2Name = game['Team 2'];
-
-                    const cleanedTeam1Name = team1Name ? team1Name.replace(/\s+/g, '').trim().toLowerCase() : '';
-                    const cleanedTeam2Name = team2Name ? team2Name.replace(/\s+/g, '').trim().toLowerCase() : '';
-                    const cleanedDecodedTeamName = decodedTeamName.replace(/\s+/g, '').trim().toLowerCase();
-
-                    const isTeam1Match = cleanedTeam1Name === cleanedDecodedTeamName;
-                    const isTeam2Match = cleanedTeam2Name === cleanedDecodedTeamName;
-
-                    console.log(`Schedule Compare: Raw Team 1:"${team1Name}", Cleaned:"${cleanedTeam1Name}"`);
-                    console.log(`Schedule Compare: Raw Team 2:"${team2Name}", Cleaned:"${cleanedTeam2Name}"`);
-                    console.log(`Schedule Compare: Target Team (fully cleaned): "${cleanedDecodedTeamName}"`);
-                    console.log(`Schedule Compare: Team 1 match? ${isTeam1Match}, Team 2 match? ${isTeam2Match}`);
-
-                    return isTeam1Match || isTeam2Match;
+                    const cleanedTeam1Name = team1Name ? team1Name.trim().toLowerCase() : '';
+                    const cleanedTeam2Name = team2Name ? team2Name.trim().toLowerCase() : '';
+                    return cleanedTeam1Name === decodedTeamName || cleanedTeam2Name === decodedTeamName;
                 });
-
-                console.log("Team Schedule for", decodeURIComponent(teamName), ":", teamSchedule);
 
                 if (teamSchedule.length > 0) {
                     let scheduleHtml = `
-                        <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100">
+                    <div class="overflow-x-auto border border-gray-700 rounded-lg">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-800">
                                 <tr>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Date</th>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Time</th>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Home Team</th>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Away Team</th>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Score</th>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Location</th>
+                                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">Date</th>
+                                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">Opponent</th>
+                                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">Result</th>
+                                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-300 uppercase">Score</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                    `;
-
+                            <tbody class="divide-y divide-gray-700">
+                `;
                     teamSchedule.forEach(game => {
-                        const homeTeam = game['Team 1'] || 'N/A';
-                        const awayTeam = game['Team 2'] || 'N/A';
-                        const homeScore = game['Team 1 Score'] !== undefined ? game['Team 1 Score'] : '-';
-                        const awayScore = game['Team 2 Score'] !== undefined ? game['Team 2 Score'] : '-';
-                        const scoreDisplay = (game.Winner !== undefined && game.Winner !== '') ? `${homeScore} - ${awayScore}` : 'Upcoming';
-                        const location = game.Location || 'N/A';
+                        const thisTeamName = decodeURIComponent(teamName);
+                        const opponentName = game['Team 1'] === thisTeamName ? game['Team 2'] : game['Team 1'];
+                        const thisTeamScore = game['Team 1'] === thisTeamName ? game['Team 1 Score'] : game['Team 2 Score'];
+                        const opponentScore = game['Team 2'] === thisTeamName ? game['Team 2 Score'] : game['Team 1 Score'];
+                        const scoreDisplay = (game.Winner !== undefined && game.Winner !== '') ? `${thisTeamScore} - ${opponentScore}` : 'Upcoming';
+                        let result = 'TBD';
+                        if (game.Winner === thisTeamName) {
+                            result = '<span class="font-semibold text-green-400">W</span>';
+                        } else if (game.Winner !== undefined && game.Winner !== '') {
+                            result = '<span class="font-semibold text-red-400">L</span>';
+                        }
 
                         scheduleHtml += `
-                                <tr class="hover:bg-gray-50">
-                                    <td class="py-2 px-4 border-b text-sm">${game.Date || 'N/A'}</td>
-                                    <td class="py-2 px-4 border-b text-sm">${game.Time || 'N/A'}</td>
-                                    <td class="py-2 px-4 border-b text-sm">${homeTeam}</td>
-                                    <td class="py-2 px-4 border-b text-sm">${awayTeam}</td>
-                                    <td class="py-2 px-4 border-b text-sm">${scoreDisplay}</td>
-                                    <td class="py-2 px-4 border-b text-sm">${location}</td>
-                                </tr>
-                            `;
-                    });
-
-                    scheduleHtml += `
-                                </tbody>
-                            </table>
+                        <tr class="hover:bg-gray-700">
+                            <td class="py-2 px-4 text-sm text-gray-300">${game.Date || 'N/A'}</td>
+                            <td class="py-2 px-4 text-sm text-gray-300">${opponentName}</td>
+                            <td class="py-2 px-4 text-sm text-gray-300">${result}</td>
+                            <td class="py-2 px-4 text-sm text-gray-300">${scoreDisplay}</td>
+                        </tr>
                     `;
+                    });
+                    scheduleHtml += `</tbody></table></div>`;
                     document.getElementById('team-schedule-container').innerHTML = scheduleHtml;
                 } else {
-                    document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-700">No schedule found for this team.</p>';
+                    document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-300">No schedule found for this team.</p>';
                 }
             } else {
                 document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Failed to load schedule data.</p>';
             }
         }
-    } else {
-        document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Error: Current season not determined for schedule data.</p>';
     }
 
     console.log(`Finished attempting to fetch data for ${decodeURIComponent(teamName)} in Season ${currentSeason}.`);

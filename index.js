@@ -7,33 +7,37 @@ function renderStandingsWidget(data) {
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 
-    // Sort data by Rank, just in case the sheet isn't sorted
-    data.sort((a, b) => a.Rank - b.Rank);
+    // 1. Sort the data by Rank to get the true Top 5
+    // This will now work correctly once the 'Rank' column has data.
+    data.sort((a, b) => (a['Rank'] || 99) - (b['Rank'] || 99));
 
     const topTeams = data.slice(0, 5);
     let html = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
 
     topTeams.forEach(team => {
-        const rank = team['Rank'];
+        // 2. Use a default value ('-') if Rank is still missing
+        const rank = team['Rank'] || '-';
         const teamName = team['Team Name'];
         const wins = team['Wins'];
         const losses = team['Losses'];
-        // --- UPDATED to look for "Games Played (Internal)" ---
+        // 3. Look for the exact header "Games Played (Internal)"
         const gamesPlayed = team['Games Played (Internal)'];
         const pointDiff = team['Point Differential'];
 
-        let statsString = '';
+        // Build the stats string more carefully to avoid "undefined"
+        let statsParts = [];
         if (gamesPlayed !== undefined) {
-            statsString += `(${gamesPlayed} GP) `;
+            statsParts.push(`(${gamesPlayed} GP)`);
         }
         if (wins !== undefined && losses !== undefined) {
-            statsString += `${wins}-${losses}`;
+            statsParts.push(`${wins}-${losses}`);
         }
         if (pointDiff !== undefined) {
             const diffSign = pointDiff > 0 ? '+' : '';
-            statsString += `, ${diffSign}${pointDiff} PD`;
+            statsParts.push(`${diffSign}${pointDiff} PD`);
         }
+        const statsString = statsParts.join(' ');
 
         const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
 

@@ -134,7 +134,7 @@ async function initializeTeamDetailPage() {
 
                     teamRoster.forEach(player => {
                         // *** FIX: Changed from player['Player Name'] to player['_'] ***
-                        const playerName = player['_']; // Column '_' from fetched data
+                        const playerName = player['A']; // Column 'A' from fetched data, based on console log
 
                         // NEW: Escape HTML characters in playerName to prevent malformed HTML
                         const escapedPlayerName = String(playerName || '') // Ensure it's a string, default to empty

@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Replace 'initializeHomePage' with the actual name of your main page function.
 // If you don't have a specific `initializePage` function for this page,
 // you might need to structure your page's data loading inside this global function.
-window.initializePage = async function() {
+window.initializePage = async function () {
     console.log('Re-initializing page for new season...');
     const newSeason = getCurrentSeason(); // Get the updated season
     // Add code here to clear existing data and reload content for the newSeason
@@ -39,30 +39,34 @@ function renderTransactionsTable(data) {
         console.error("Transactions container not found.");
         return;
     }
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = '';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-700">No transactions available for this season.</p>';
+        container.innerHTML = '<p class="text-gray-300">No transactions available for this season.</p>';
         return;
     }
 
-    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
+    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
+    tableHTML += '<thead class="bg-gray-800">';
+    tableHTML += '<tr>';
     const headers = Object.keys(data[0]);
 
     headers.forEach(header => {
-        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
+        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
     });
-    tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+    tableHTML += '</tr></thead>';
+
+    tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
     data.forEach(row => {
-        tableHTML += '<tr>';
+        tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             const value = row[header] !== undefined ? row[header] : '';
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
         });
         tableHTML += '</tr>';
     });
-    tableHTML += '</tbody></table>';
+    tableHTML += '</tbody></table></div>';
     container.innerHTML = tableHTML;
 }
 

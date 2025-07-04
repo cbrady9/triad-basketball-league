@@ -110,7 +110,7 @@ async function initializeHomePage() {
     try {
         // Updated the queries to fetch the correct columns
         const [standingsData, scheduleData] = await Promise.all([
-            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, D, E'), // Select Rank, Team Name, Win %, Point Diff
+            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D'), // Select Rank, Team Name, Win %, Point Diff
             fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT A, B, C, D, E, F, G, H') // Select GameID, Date, Time, Teams, Scores, Winner
         ]);
 

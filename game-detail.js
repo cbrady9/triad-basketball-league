@@ -22,11 +22,11 @@ function createBoxScoreTable(teamName, teamStats) {
     `;
     // Column headers from your "Game Log" sheet
     const statColumns = {
-        points: 'PTS',
-        rebounds: 'REB',
-        assists: 'AST',
-        steals: 'STL',
-        blocks: 'BLK'
+        points: 'Points',
+        rebounds: 'Rebounds',
+        assists: 'Assists',
+        steals: 'Steals',
+        blocks: 'Blocks'
     };
 
     teamStats.forEach(player => {
@@ -94,8 +94,8 @@ async function initializeGameDetailPage() {
 
     const teamNames = Object.keys(teams);
     if (teamNames.length < 2) {
-         gameHeader.textContent = 'Error: Game data is incomplete.';
-         return;
+        gameHeader.textContent = 'Error: Game data is incomplete.';
+        return;
     }
 
     // Update headers and page title
@@ -105,8 +105,8 @@ async function initializeGameDetailPage() {
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
     // Get total scores to display in the sub-header
-    const team1Score = teams[team1Name].reduce((total, player) => total + (player['PTS'] || 0), 0);
-    const team2Score = teams[team2Name].reduce((total, player) => total + (player['PTS'] || 0), 0);
+    const team1Score = teams[team1Name].reduce((total, player) => total + (player['Points'] || 0), 0);
+    const team2Score = teams[team2Name].reduce((total, player) => total + (player['Points'] || 0), 0);
     document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
 
     // Create and display the box score tables

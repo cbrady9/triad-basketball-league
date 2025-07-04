@@ -105,12 +105,12 @@ function createSeasonSelector(currentSeason) {
 
         // Find where to append the selector (e.g., inside the header nav)
         const headerNav = document.querySelector('header nav');
-        if (headerNav) {
-            headerNav.appendChild(selector);
+        const selectorContainer = document.getElementById('season-selector-container');
+
+        if (selectorContainer) {
+            selectorContainer.appendChild(selector);
         } else {
-            console.warn("Could not find header nav to append season selector.");
-            // As a fallback, append to body if header nav is not found
-            document.body.insertBefore(selector, document.body.firstChild);
+            console.warn("Could not find #season-selector-container to append season selector.");
         }
     } else {
         // If selector already exists (e.g., on re-initialization), just update its value and disable

@@ -7,6 +7,9 @@ function renderStandingsWidget(data) {
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 
+    // Sort data by Rank, just in case the sheet isn't sorted
+    data.sort((a, b) => a.Rank - b.Rank);
+
     const topTeams = data.slice(0, 5);
     let html = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
@@ -14,9 +17,24 @@ function renderStandingsWidget(data) {
     topTeams.forEach(team => {
         const rank = team['Rank'];
         const teamName = team['Team Name'];
-        const winPercentage = team['Win %']; // Use Win % since W/L isn't in this sheet
+        const wins = team['Wins'];
+        const losses = team['Losses'];
+        // --- UPDATED to look for "Games Played (Internal)" ---
+        const gamesPlayed = team['Games Played (Internal)'];
+        const pointDiff = team['Point Differential'];
 
-        // Create the link for the team detail page
+        let statsString = '';
+        if (gamesPlayed !== undefined) {
+            statsString += `(${gamesPlayed} GP) `;
+        }
+        if (wins !== undefined && losses !== undefined) {
+            statsString += `${wins}-${losses}`;
+        }
+        if (pointDiff !== undefined) {
+            const diffSign = pointDiff > 0 ? '+' : '';
+            statsString += `, ${diffSign}${pointDiff} PD`;
+        }
+
         const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
 
         html += `
@@ -24,7 +42,7 @@ function renderStandingsWidget(data) {
                 <a href="${teamLink}" class="flex items-center text-sm">
                     <span class="text-center font-bold text-gray-400 w-5">${rank}</span>
                     <span class="ml-4 flex-grow font-semibold text-gray-300">${teamName}</span>
-                    <span class="text-gray-400">${winPercentage}</span>
+                    <span class="text-gray-400 text-xs whitespace-nowrap">${statsString}</span>
                 </a>
             </li>
         `;

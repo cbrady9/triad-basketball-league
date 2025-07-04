@@ -40,22 +40,13 @@ async function fetchGoogleSheetData(sheetId, gid, query) {
     }
 }
 
-// getCurrentSeason: Gets the current season from local storage or defaults to the latest configured season.
+// getCurrentSeason: Gets the current season, FORCING S01 for now.
 function getCurrentSeason() {
-    console.log('Inside getCurrentSeason. Checking SEASON_CONFIGS...');
-    if (typeof SEASON_CONFIGS === 'undefined') {
-        console.error("SEASON_CONFIGS is not defined. Ensure config.js is loaded before utils.js.");
-        return null;
-    }
-    const seasons = Object.keys(SEASON_CONFIGS).sort();
-    let selectedSeason = localStorage.getItem('selectedSeason');
-
-    if (!selectedSeason || !seasons.includes(selectedSeason)) {
-        selectedSeason = seasons[seasons.length - 1]; // Default to the latest season
-        localStorage.setItem('selectedSeason', selectedSeason);
-    }
-    console.log('getCurrentSeason returning:', selectedSeason);
-    return selectedSeason;
+    console.log('Inside getCurrentSeason. Forcing S01 for all interactions.');
+    const forcedSeason = 'S01'; // <-- Set your desired default/forced season key here (e.g., 'S01')
+    localStorage.setItem('selectedSeason', forcedSeason); // Make sure localStorage reflects this
+    console.log('getCurrentSeason returning (forced):', forcedSeason);
+    return forcedSeason;
 }
 
 // getGID: Retrieves the GID for a specific tab and season from SEASON_CONFIGS.
@@ -71,32 +62,34 @@ function getGID(tabName, season) {
     return SEASON_CONFIGS[season][tabName];
 }
 
-// createSeasonSelector: Creates and appends a season dropdown to the header.
+// createSeasonSelector: Creates and appends a season dropdown to the header, showing only S01 for now.
 function createSeasonSelector(currentSeason) {
     if (typeof SEASON_CONFIGS === 'undefined') {
         console.error("SEASON_CONFIGS is not defined.");
         return;
     }
 
-    const seasons = Object.keys(SEASON_CONFIGS).sort();
+    // Since we're enforcing 'S01', we don't need to get all season keys
+    // const seasons = Object.keys(SEASON_CONFIGS).sort(); // REMOVED THIS LINE
+
     let selector = document.getElementById('season-selector');
 
     if (!selector) {
         selector = document.createElement('select');
         selector.id = 'season-selector';
         selector.className = 'ml-4 p-2 rounded bg-gray-700 text-white'; // Tailwind classes
+        selector.disabled = true; // Make the selector unclickable
 
-        seasons.forEach(season => {
-            const option = document.createElement('option');
-            option.value = season; // Keep the internal value as S01, S02 etc.
-            // THIS IS THE CORRECTED LINE:
-            const displaySeason = season.startsWith('S0') ? parseInt(season.substring(2)).toString() : season;
-            option.textContent = `Season ${displaySeason}`; // This will display "Season 1", "Season 2"
-            selector.appendChild(option);
-        });
+        // Manually add only the 'S01' option
+        const option = document.createElement('option');
+        option.value = 'S01'; // The internal key for Season 1
+        option.textContent = 'Season 1'; // What the user sees
+        selector.appendChild(option);
 
-        selector.value = currentSeason; // Set initial value
+        selector.value = 'S01'; // Ensure the single option is selected
 
+        // The change event listener is still present, but won't fire if disabled.
+        // Keeping it might be useful if you later want to enable it with minimal changes.
         selector.addEventListener('change', (event) => {
             const newSeason = event.target.value;
             localStorage.setItem('selectedSeason', newSeason);
@@ -120,8 +113,15 @@ function createSeasonSelector(currentSeason) {
             document.body.insertBefore(selector, document.body.firstChild);
         }
     } else {
-        // If selector already exists, just update its value
-        selector.value = currentSeason;
+        // If selector already exists (e.g., on re-initialization), just update its value and disable
+        selector.value = 'S01';
+        selector.disabled = true;
+        // If there were other options previously, you might want to clear them:
+        // selector.innerHTML = '';
+        // const option = document.createElement('option');
+        // option.value = 'S01';
+        // option.textContent = 'Season 1';
+        // selector.appendChild(option);
     }
 }
 

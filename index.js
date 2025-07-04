@@ -4,29 +4,35 @@ window.initializePage = initializeHomePage;
 // --- WIDGET RENDERING FUNCTIONS ---
 
 function renderStandingsWidget(data) {
-    console.log("Standings Widget Data:", data);
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 
-    // 1. Sort the data by Rank to get the true Top 5
-    // This will now work correctly once the 'Rank' column has data.
-    data.sort((a, b) => (a['Rank'] || 99) - (b['Rank'] || 99));
+    // --- CORRECTED: Added the multi-level sort with parseFloat ---
+    data.sort((a, b) => {
+        const winPctA = parseFloat(a['Win %']) || 0;
+        const winPctB = parseFloat(b['Win %']) || 0;
+        const winPctDiff = winPctB - winPctA;
+        if (winPctDiff !== 0) {
+            return winPctDiff;
+        }
+        const pdA = parseFloat(a['Point Differential']) || 0;
+        const pdB = parseFloat(b['Point Differential']) || 0;
+        return pdB - pdA;
+    });
 
     const topTeams = data.slice(0, 5);
     let html = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
 
-    topTeams.forEach(team => {
-        // 2. Use a default value ('-') if Rank is still missing
-        const rank = team['Rank'] || '-';
+    topTeams.forEach((team, index) => {
+        // Use the new sorted index to generate the rank
+        const rank = index + 1;
         const teamName = team['Team Name'];
         const wins = team['Wins'];
         const losses = team['Losses'];
-        // 3. Look for the exact header "Games Played (Internal)"
         const gamesPlayed = team['Games Played (Internal)'];
         const pointDiff = team['Point Differential'];
 
-        // Build the stats string more carefully to avoid "undefined"
         let statsParts = [];
         if (gamesPlayed !== undefined) {
             statsParts.push(`(${gamesPlayed} GP)`);

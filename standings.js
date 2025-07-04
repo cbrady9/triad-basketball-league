@@ -11,22 +11,23 @@ function renderStandingsTable(data) {
         return;
     }
 
-    // --- NEW: Sort the data by Rank before displaying ---
     data.sort((a, b) => (a['Rank'] || 99) - (b['Rank'] || 99));
+
+    // --- NEW: A map to rename headers ---
+    const headerMap = {
+        'Games Played (Internal)': 'Games Played'
+    };
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800">';
     tableHTML += '<tr>';
 
-    // Use a predefined order for headers for consistency
-    const headers = ['Rank', 'Team Name', 'Wins', 'Losses', 'Win %', 'Point Differential', 'Games Played (Internal)'];
-    const dataKeys = Object.keys(data[0]); // Get keys from the actual data
+    const dataKeys = Object.keys(data[0]);
 
-    headers.forEach(header => {
-        // Only add the header if it exists in the data to prevent errors
-        if(dataKeys.includes(header)) {
-            tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
-        }
+    dataKeys.forEach(header => {
+        // Use the map to display a cleaner name, or use the original header if not in the map
+        const displayHeader = headerMap[header] || header;
+        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${displayHeader}</th>`;
     });
     tableHTML += '</tr></thead>';
 
@@ -34,11 +35,19 @@ function renderStandingsTable(data) {
 
     data.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
-        headers.forEach(header => {
-            if(dataKeys.includes(header)) {
-                const value = row[header] !== undefined ? row[header] : '';
-                tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
+        dataKeys.forEach(header => {
+            let value = row[header] !== undefined ? row[header] : '';
+            let displayValue = value;
+
+            // --- NEW: Add a '+' to positive Point Differentials ---
+            if (header === 'Point Differential') {
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue) && numValue > 0) {
+                    displayValue = '+' + numValue;
+                }
             }
+
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
         });
         tableHTML += '</tr>';
     });

@@ -40,13 +40,23 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 mt-4">
-        <section class="bg-gray-800 p-6 rounded-lg border border-gray-700" p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Welcome to the Triad Basketball League Website!</h2>
-            <p class="text-gray-400">This is your homepage. Use the navigation above to explore team standings, player
-                stats, game schedules, and more.</p>
-            <p class="mt-2 text-gray-600">All data is pulled live from our Google Sheet.</p>
-        </section>
+    <main class="container mx-auto p-4 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <div class="lg:col-span-1">
+                <div id="standings-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div id="recent-results-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                </div>
+
+                <div id="next-games-widget-container" class="bg-gray-800 p-6 rounded-lg border border-ray-700">
+                </div>
+            </div>
+
+        </div>
     </main>
 
     <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">

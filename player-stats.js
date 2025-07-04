@@ -37,7 +37,7 @@ function renderPlayerStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            if (header.trim().toUpperCase() === 'PLAYER') {
+            if (header.trim().toUpperCase() === 'PLAYER NAME') {
                 const encodedPlayerName = encodeURIComponent(value);
                 displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${value}</a>`;
             }

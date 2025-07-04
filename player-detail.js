@@ -35,7 +35,7 @@ async function initializePlayerDetailPage() {
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
     const allPlayerStatsData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *');
     // Find player stats by 'PLAYER' header
-    const playerStats = allPlayerStatsData.find(s => s['PLAYER']?.trim().toLowerCase() === decodedPlayerName.trim().toLowerCase());
+    const playerStats = allPlayerStatsData.find(s => s['Player Name']?.trim().toLowerCase() === decodedPlayerName.trim().toLowerCase());
 
     if (playerStats) {
         // Define the exact stats you want to display, in order

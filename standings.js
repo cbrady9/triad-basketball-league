@@ -63,12 +63,7 @@ function renderStandingsTable(data) {
             let displayValue = value;
 
             // --- NEW FORMATTING LOGIC ---
-            if (header === 'Win %') {
-                const numValue = parseFloat(value);
-                if (!isNaN(numValue)) {
-                    displayValue = (numValue * 100).toFixed(0) + '%';
-                }
-            } else if (header === 'Point Differential') {
+            if (header === 'Point Differential') {
                 const numValue = parseFloat(value);
                 if (!isNaN(numValue) && numValue > 0) {
                     displayValue = '+' + numValue;

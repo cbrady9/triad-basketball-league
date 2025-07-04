@@ -15,7 +15,8 @@ function createBoxScoreTable(teamName, teamStats) {
                             <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">AST</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">STL</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">BLK</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">FGM-A</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">1PM</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">2PM</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -30,8 +31,6 @@ function createBoxScoreTable(teamName, teamStats) {
     };
 
     teamStats.forEach(player => {
-        const fgm = player['FGM'] || 0;
-        const fga = player['FGA'] || 0;
         tableHtml += `
             <tr class="hover:bg-gray-50">
                 <td class="px-4 py-2 whitespace-nowrap">${player['Player']}</td>
@@ -40,7 +39,8 @@ function createBoxScoreTable(teamName, teamStats) {
                 <td class="px-4 py-2 text-right">${player[statColumns.assists] || 0}</td>
                 <td class="px-4 py-2 text-right">${player[statColumns.steals] || 0}</td>
                 <td class="px-4 py-2 text-right">${player[statColumns.blocks] || 0}</td>
-                <td class="px-4 py-2 text-right">${fgm}-${fga}</td>
+                <td class="px-4 py-2 text-right">${player['1PM'] || 0}</td>
+                <td class="px-4 py-2 text-right">${player['2PM'] || 0}</td>
             </tr>
         `;
     });
@@ -48,8 +48,6 @@ function createBoxScoreTable(teamName, teamStats) {
     tableHtml += `</tbody></table></div></div>`;
     return tableHtml;
 }
-
-
 async function initializeGameDetailPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason); // Initialize the season selector
@@ -105,8 +103,8 @@ async function initializeGameDetailPage() {
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
     // Get total scores to display in the sub-header
-    const team1Score = teams[team1Name].reduce((total, player) => total + (player['Points'] || 0), 0);
-    const team2Score = teams[team2Name].reduce((total, player) => total + (player['Points'] || 0), 0);
+    const team1Score = teams[team1Name].reduce((total, player) => total + Number(player['Points'] || 0), 0);
+    const team2Score = teams[team2Name].reduce((total, player) => total + Number(player['Points'] || 0), 0);
     document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
 
     // Create and display the box score tables

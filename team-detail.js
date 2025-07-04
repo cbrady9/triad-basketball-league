@@ -60,12 +60,11 @@ async function initializeTeamDetailPage() {
                 if (teamStanding) {
                     const wins = parseFloat(teamStanding.Wins) || 0;
                     const losses = parseFloat(teamStanding.Losses) || 0;
-                    const winPercentage = parseFloat(teamStanding['Win %']) || 0;
                     const pointDifferential = parseFloat(teamStanding['Point Differential']) || 0;
 
                     let recordStatsHtml = `
                         <p><strong>Record:</strong> ${wins} - ${losses}</p>
-                        <p><strong>Win %:</strong> ${(winPercentage * 100).toFixed(0)}%</p>
+                        <p><strong>Win %:</strong> ${teamStanding['Win %']}</p>
                         <p><strong>Point Differential:</strong> ${pointDifferential > 0 ? `+${pointDifferential}` : pointDifferential}</p>
                     `;
                     document.getElementById('team-record-stats').innerHTML = recordStatsHtml;

@@ -30,9 +30,6 @@ const SEASON_CONFIGS = {
     // Add more seasons as you create them
 };
 // Function to get the current season from localStorage or default
-function getCurrentSeason() {
-    return localStorage.getItem('currentSeason') || 'S01'; // Default to S01
-}
 
 // UPDATED getGID function to correctly handle GID 0
 function getGID(type, season) {

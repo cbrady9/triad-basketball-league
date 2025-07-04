@@ -1,44 +1,17 @@
 // player-stats.js
 
-// player-stats.js (example - do this for each relevant page's JS file)
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Get the current season (will now correctly come from utils.js)
-    const currentSeason = getCurrentSeason();
-
-    // Initialize the season selector dropdown
-    createSeasonSelector(currentSeason);
-
-    // Call your page-specific initialization function here
-    // This function should then use 'currentSeason' to fetch and display data
-    // For example:
-    // initializeHomePage(currentSeason); // If you have a specific function
-    // Or if the page just loads data based on getCurrentSeason()
-    // loadPageData();
+    initializePlayerStatsPage();
 });
 
-// OPTIONAL: If you want the page to re-render data immediately when season changes
-// You must make your page's main initialization function globally accessible.
-// Replace 'initializeHomePage' with the actual name of your main page function.
-// If you don't have a specific `initializePage` function for this page,
-// you might need to structure your page's data loading inside this global function.
 window.initializePage = async function() {
     console.log('Re-initializing page for new season...');
-    const newSeason = getCurrentSeason(); // Get the updated season
-    // Add code here to clear existing data and reload content for the newSeason
-    // For example:
-    // document.getElementById('data-container').innerHTML = 'Loading...';
-    // await fetchDataAndRender(newSeason); // Call your data fetching/rendering function
+    await initializePlayerStatsPage();
 };
-
-const PLAYERSTATS_QUERY = 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X';
 
 function renderPlayerStatsTable(data) {
     const container = document.getElementById('playerstats-data-container');
-    if (!container) {
-        console.error("Player stats data container not found.");
-        return;
-    }
+    if (!container) return;
     container.innerHTML = '';
 
     if (!data || data.length === 0) {
@@ -46,13 +19,15 @@ function renderPlayerStatsTable(data) {
         return;
     }
 
-    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
     const headers = Object.keys(data[0]);
+    // THIS IS THE SPECIAL DEBUGGING LINE
+    console.log('The headers are:', headers);
+
+    let tableHTML = '<table class="min-w-full divide-y divide-gray-200"><thead><tr>';
 
     headers.forEach(header => {
-        // Use trim() to remove leading/trailing spaces from the header before checking
         const isSortable = header.trim().toUpperCase() === 'PLAYER' ? '' : 'sortable';
-        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}" data-column="${header}">${header}</th>`;
+        tableHTML += `<th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${isSortable}">${header}</th>`;
     });
     tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
@@ -62,8 +37,6 @@ function renderPlayerStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // If the current column is the player's name, make it a link.
-            // This check is now more robust.
             if (header.trim().toUpperCase() === 'PLAYER') {
                 const encodedPlayerName = encodeURIComponent(value);
                 displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline font-semibold">${value}</a>`;
@@ -76,33 +49,27 @@ function renderPlayerStatsTable(data) {
     tableHTML += '</tbody></table>';
     container.innerHTML = tableHTML;
 
-    const sortableHeaders = container.querySelectorAll('th.sortable');
-    sortableHeaders.forEach(header => {
+    container.querySelectorAll('th.sortable').forEach(header => {
         header.addEventListener('click', () => sortTable(header, container));
     });
 }
 
 async function initializePlayerStatsPage() {
     const currentSeason = getCurrentSeason();
-    const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
+    createSeasonSelector(currentSeason);
 
+    const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
     if (!playerStatsGID) {
-        console.error("Player Stats GID not found for current season:", currentSeason);
-        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Error: Player stats data not configured for this season.</p>';
+        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Error: Player stats data not configured.</p>';
         return;
     }
 
     document.getElementById('playerstats-data-container').innerHTML = '<p class="text-gray-600">Loading player stats...</p>';
 
-    const tableData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, PLAYERSTATS_QUERY);
+    const tableData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X');
     if (tableData) {
         renderPlayerStatsTable(tableData);
     } else {
-        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Failed to load player stats. Please try again later or select a different season.</p>';
+        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Failed to load player stats.</p>';
     }
-
-    createSeasonSelector(currentSeason);
 }
-
-document.addEventListener('DOMContentLoaded', initializePlayerStatsPage);
-window.initializePage = initializePlayerStatsPage;

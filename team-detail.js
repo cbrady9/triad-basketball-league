@@ -19,6 +19,12 @@ async function initializeTeamDetailPage() {
 
     document.getElementById('page-title').textContent = `${decodeURIComponent(teamName)} - Team Details`;
     document.getElementById('team-name-display').textContent = decodeURIComponent(teamName);
+        const seasonDisplayElement = document.getElementById('current-season-display');
+    if (seasonDisplayElement) {
+        // Format for display (e.g., "Season 1" instead of "S01")
+        const displaySeason = currentSeason.startsWith('S0') ? parseInt(currentSeason.substring(2)).toString() : currentSeason;
+        seasonDisplayElement.textContent = `(Season ${displaySeason})`;
+    }
 
     const currentSeason = getCurrentSeason();
     console.log('currentSeason in team-detail.js:', currentSeason);

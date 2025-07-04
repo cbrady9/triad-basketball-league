@@ -35,20 +35,24 @@
             }
         });
     </script>
-    <header class="bg-blue-600 text-white p-4 shadow-md">
+    <header class="bg-gray-800 text-white p-4 shadow-md border-b border-gray-700">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold">Triad Basketball League Team Details</a>
-            <nav>
+            <h1 class="text-xl font-bold text-gray-100">Triad Basketball League</h1>
+            <nav class="flex items-center">
                 <ul class="flex space-x-4">
-                    <li><a href="index.html" class="hover:text-blue-200">Home</a></li>
-                    <li><a href="players.html" class="hover:underline">Players</a></li>
-                    <li><a href="teams.html" class="hover:text-blue-200">Teams</a></li>
-                    <li><a href="schedule.html" class="hover:text-blue-200">Schedule &amp; Results</a></li>
-                    <li><a href="player-stats.html" class="hover:text-blue-200">Player Stats</a></li>
-                    <li><a href="team-stats.html" class="hover:text-blue-200">Team Stats</a></li>
-                    <li><a href="standings.html" class="hover:text-blue-200">Standings</a></li>
-                    <li><a href="transactions.html" class="hover:text-blue-200">Transactions</a></li>
-                    <li><a href="discord.html" class="hover:text-blue-200">Discord</a></li>
+                    <li><a href="index.html" class="text-gray-300 hover:text-white hover:underline">Home</a></li>
+                    <li><a href="teams.html" class="text-gray-300 hover:text-white hover:underline">Teams</a></li>
+                    <li><a href="players.html" class="text-gray-300 hover:text-white hover:underline">Players</a></li>
+                    <li><a href="schedule.html" class="text-gray-300 hover:text-white hover:underline">Schedule &
+                            Results</a></li>
+                    <li><a href="player-stats.html" class="text-gray-300 hover:text-white hover:underline">Player
+                            Stats</a></li>
+                    <li><a href="team-stats.html" class="text-gray-300 hover:text-white hover:underline">Team Stats</a>
+                    </li>
+                    <li><a href="standings.html" class="text-gray-300 hover:text-white hover:underline">Standings</a>
+                    </li>
+                    <li><a href="transactions.html"
+                            class="text-gray-300 hover:text-white hover:underline">Transactions</a></li>
                 </ul>
                 <div id="season-selector-container" class="ml-4"></div>
             </nav>
@@ -63,21 +67,21 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"
                 <h2 class="text-2xl font-semibold mb-4 text-blue-600">Record & Stats</h2>
                 <div id="team-record-stats" class="text-lg space-y-2">
                     <p class="text-gray-600">Loading record and stats...</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"
                 <h2 class="text-2xl font-semibold mb-4 text-blue-600">Rankings</h2>
                 <div id="team-rankings" class="text-lg space-y-2">
                     <p class="text-gray-600">Loading rankings...</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-1">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"
                 <h2 class="text-2xl font-semibold mb-4 text-blue-600">Roster</h2>
                 <div id="team-roster-container" class="mt-4">
                     <p class="text-gray-600">Loading roster...</p>
@@ -85,7 +89,7 @@
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mt-6">
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"
             <h2 class="text-2xl font-semibold mb-4 text-blue-600">Schedule</h2>
             <div id="team-schedule-container" class="overflow-x-auto">
                 <p class="text-gray-600">Loading schedule...</p>

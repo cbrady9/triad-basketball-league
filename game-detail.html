@@ -12,19 +12,24 @@
 </head>
 
 <body class="bg-gray-900 text-gray-200" style="font-family: 'Inter', sans-serif;">
-    <header class="bg-blue-600 text-white p-4 shadow-md">
+    <header class="bg-gray-800 text-white p-4 shadow-md border-b border-gray-700">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Triad Basketball League Game Details</h1>
-            <nav>
+            <h1 class="text-xl font-bold text-gray-100">Triad Basketball League</h1>
+            <nav class="flex items-center">
                 <ul class="flex space-x-4">
-                    <li><a href="index.html" class="hover:underline">Home</a></li>
-                    <li><a href="players.html" class="hover:underline">Players</a></li>
-                    <li><a href="teams.html" class="hover:underline">Teams</a></li>
-                    <li><a href="schedule.html" class="hover:underline">Schedule & Results</a></li>
-                    <li><a href="player-stats.html" class="hover:underline">Player Stats</a></li>
-                    <li><a href="team-stats.html" class="hover:underline">Team Stats</a></li>
-                    <li><a href="standings.html" class="hover:underline">Standings</a></li>
-                    <li><a href="transactions.html" class="hover:underline">Transactions</a></li>
+                    <li><a href="index.html" class="text-gray-300 hover:text-white hover:underline">Home</a></li>
+                    <li><a href="teams.html" class="text-gray-300 hover:text-white hover:underline">Teams</a></li>
+                    <li><a href="players.html" class="text-gray-300 hover:text-white hover:underline">Players</a></li>
+                    <li><a href="schedule.html" class="text-gray-300 hover:text-white hover:underline">Schedule &
+                            Results</a></li>
+                    <li><a href="player-stats.html" class="text-gray-300 hover:text-white hover:underline">Player
+                            Stats</a></li>
+                    <li><a href="team-stats.html" class="text-gray-300 hover:text-white hover:underline">Team Stats</a>
+                    </li>
+                    <li><a href="standings.html" class="text-gray-300 hover:text-white hover:underline">Standings</a>
+                    </li>
+                    <li><a href="transactions.html"
+                            class="text-gray-300 hover:text-white hover:underline">Transactions</a></li>
                 </ul>
                 <div id="season-selector-container" class="ml-4"></div>
             </nav>
@@ -32,7 +37,7 @@
     </header>
 
     <main class="container mx-auto p-4 mt-4">
-        <section id="game-info-container" class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <section id="game-info-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700" p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-3xl font-bold text-center" id="game-header">Loading Game Details...</h2>
             <p class="text-center text-gray-600 mt-2" id="game-sub-header"></p>
         </section>

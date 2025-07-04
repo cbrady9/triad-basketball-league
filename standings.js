@@ -11,23 +11,26 @@ function renderStandingsTable(data) {
         return;
     }
 
-    // --- NEW: Multi-level sorting for accurate rankings ---
+    // --- CORRECTED: Multi-level sorting with parseFloat ---
     data.sort((a, b) => {
-        // First, sort by Win % descending
-        const winPctDiff = (b['Win %'] || 0) - (a['Win %'] || 0);
+        // Convert Win % string to a number for comparison
+        const winPctA = parseFloat(a['Win %']) || 0;
+        const winPctB = parseFloat(b['Win %']) || 0;
+        const winPctDiff = winPctB - winPctA;
         if (winPctDiff !== 0) {
             return winPctDiff;
         }
-        // If Win % is tied, sort by Point Differential descending
-        return (b['Point Differential'] || 0) - (a['Point Differential'] || 0);
+
+        // Convert Point Differential string to a number for tiebreakers
+        const pdA = parseFloat(a['Point Differential']) || 0;
+        const pdB = parseFloat(b['Point Differential']) || 0;
+        return pdB - pdA;
     });
 
-    // A map to rename headers for display
     const headerMap = {
-        'Games Played (Internal)': 'GP' // Renaming to GP for a cleaner look
+        'Games Played (Internal)': 'GP'
     };
 
-    // Define the exact order of headers to display
     const orderedHeaders = ['Rank', 'Team Name', 'Games Played (Internal)', 'Wins', 'Losses', 'Win %', 'Point Differential'];
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
@@ -42,22 +45,18 @@ function renderStandingsTable(data) {
 
     tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
-    // Loop through the now-sorted data
     data.forEach((row, index) => {
         tableHTML += '<tr class="hover:bg-gray-700">';
 
-        // Loop through our ordered headers to build the row
         orderedHeaders.forEach(header => {
             let displayValue = '';
 
             if (header === 'Rank') {
-                // Generate the rank based on the sorted index
                 displayValue = index + 1;
             } else {
                 const value = row[header] !== undefined ? row[header] : '';
                 displayValue = value;
 
-                // Add a '+' to positive Point Differentials
                 if (header === 'Point Differential') {
                     const numValue = parseFloat(value);
                     if (!isNaN(numValue) && numValue > 0) {

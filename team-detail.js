@@ -96,80 +96,43 @@ async function initializeTeamDetailPage() {
         } else {
             const PLAYERS_QUERY = 'SELECT *';
             const playersData = await fetchGoogleSheetData(SHEET_ID, playersGID, PLAYERS_QUERY);
-
-            console.log("Players Data fetched:", playersData);
             const decodedTeamName = decodeURIComponent(teamName).trim().toLowerCase();
-            console.log("Target Team Name for Roster Filter (trimmed & lowercased):", decodedTeamName);
 
             if (playersData && playersData.length > 0) {
                 const teamRoster = playersData.filter(player => {
-                    const playerTeamName = player['B'];
-                    const cleanedPlayerTeamName = playerTeamName ? playerTeamName.replace(/\s+/g, '').trim().toLowerCase() : '';
-                    const isMatch = cleanedPlayerTeamName === decodedTeamName.replace(/\s+/g, '').trim().toLowerCase();
+                    // --- THIS IS THE CORRECTED LINE ---
+                    const playerTeamName = player['Team Name'];
+                    // --- END CORRECTION ---
 
-                    console.log(`Roster Compare: Raw Player Team Name: "${playerTeamName}"`);
-                    console.log(`Roster Compare: Cleaned Player Team Name: "${cleanedPlayerTeamName}"`);
-                    console.log(`Roster Compare: Target Team Name (fully cleaned): "${decodedTeamName.replace(/\s+/g, '').trim().toLowerCase()}"`);
-                    console.log(`Roster Compare: Match result? ${isMatch}`);
-
-                    return isMatch;
+                    const cleanedPlayerTeamName = playerTeamName ? playerTeamName.trim().toLowerCase() : '';
+                    return cleanedPlayerTeamName === decodedTeamName;
                 });
-
-                console.log("Team Roster for", decodeURIComponent(teamName), ":", teamRoster);
-                console.log('DEBUG: Final teamRoster before display decision:', teamRoster);
-                console.log('DEBUG: Final teamRoster length before display decision:', teamRoster.length);
-                console.log('DEBUG: Value of teamRoster.length just before the display IF check:', teamRoster.length);
 
                 if (teamRoster.length > 0) {
                     let rosterHtml = `
-                        <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-
+                    <table class="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Player Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
                     teamRoster.forEach(player => {
-                        const playerName = player['A'];
-
-                        const escapedPlayerName = String(playerName || '')
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;')
-                            .replace(/"/g, '&quot;')
-                            .replace(/'/g, '&#039;');
-
+                        const playerName = player['Player Name'];
                         const encodedPlayerName = encodeURIComponent(playerName);
-
                         rosterHtml += `
-                                <tr class="hover:bg-gray-50">
-                                    <td class="py-2 px-4 border-b text-sm">
-                                        <a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline">
-                                            ${escapedPlayerName}
-                                        </a>
-                                    </td>
-                                </tr>
-                            `;
-                    });
-
-                    rosterHtml += `
-                                </tbody>
-                            </table>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 border-b text-sm">
+                                <a href="player-detail.html?playerName=${encodedPlayerName}" class="text-blue-600 hover:underline">
+                                    ${playerName}
+                                </a>
+                            </td>
+                        </tr>
                     `;
-
-                    console.log("Generated rosterHtml (first 500 chars):", rosterHtml.substring(0, 500), "...");
-                    console.log("Generated rosterHtml (total length):", rosterHtml.length);
-
-                    try {
-                        document.getElementById('team-roster-container').innerHTML = rosterHtml;
-                        console.log("Roster HTML successfully injected.");
-                    } catch (error) {
-                        console.error("Error injecting roster HTML:", error);
-                        document.getElementById('team-roster-container').innerHTML = '<p class="text-red-500">Error displaying roster.</p>';
-                    }
-
+                    });
+                    rosterHtml += `</tbody></table>`;
+                    document.getElementById('team-roster-container').innerHTML = rosterHtml;
                 } else {
                     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-700">No players found for this team in the roster.</p>';
                 }

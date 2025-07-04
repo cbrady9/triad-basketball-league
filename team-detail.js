@@ -135,4 +135,3 @@ async function initializePlayerDetailPage() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initializePlayerDetailPage);

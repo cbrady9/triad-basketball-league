@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body class="bg-gray-50 text-gray-800 font-sans leading-normal tracking-normal">
 
     <script>
@@ -20,7 +22,7 @@
         }
 
         // This runs once the entire DOM content is loaded and parsed
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const rosterContainerDOMReady = document.getElementById('team-roster-container');
             console.log('DEBUG (DOMContentLoaded): team-roster-container element:', rosterContainerDOMReady);
             if (rosterContainerDOMReady) {
@@ -44,6 +46,7 @@
                     <li><a href="transactions.html" class="hover:text-blue-200">Transactions</a></li>
                     <li><a href="discord.html" class="hover:text-blue-200">Discord</a></li>
                 </ul>
+                <div id="season-selector-container" class="ml-4"></div>
             </nav>
         </div>
     </header>
@@ -51,8 +54,8 @@
     <main class="container mx-auto p-6 mt-4">
         <h1 class="text-4xl font-extrabold mb-8 text-blue-700" id="team-name-display">Loading Team...</h1>
         <p class="text-xl text-gray-300 mb-6">
-        <span id="current-season-display" class="ml-2 text-lg text-gray-400"></span>
-    </p>
+            <span id="current-season-display" class="ml-2 text-lg text-gray-400"></span>
+        </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -98,4 +101,5 @@
     <script src="team-detail.js"></script>
 
 </body>
+
 </html>

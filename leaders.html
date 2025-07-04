@@ -4,18 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Triad Basketball League</title>
+    <title>League Leaders - Triad Basketball League</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Example of some custom CSS if you need it, but try to stick to Tailwind */
-        body {
-            font-family: sans-serif;
-            /* Tailwind typically sets this, but for emphasis */
-        }
-    </style>
 </head>
 
 <body class="bg-gray-900 text-gray-200" style="font-family: 'Inter', sans-serif;">
@@ -27,6 +20,7 @@
                     <li><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
                     <li><a href="teams.html" class="text-gray-300 hover:text-white">Teams</a></li>
                     <li><a href="players.html" class="text-gray-300 hover:text-white">Players</a></li>
+                    <li><a href="leaders.html" class="text-gray-300 hover:text-white">Leaders</a></li>
                     <li><a href="schedule.html" class="text-gray-300 hover:text-white">Schedule</a></li>
                     <li><a href="player-stats.html" class="text-gray-300 hover:text-white">Player Stats</a></li>
                     <li><a href="team-stats.html" class="text-gray-300 hover:text-white">Team Stats</a></li>
@@ -42,19 +36,28 @@
     </header>
 
     <main class="container mx-auto p-4 mt-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-100">League Leaders</h2>
 
-            <div class="lg:col-span-1">
-                <div id="standings-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div id="ppg-leaders" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <p class="text-gray-400">Loading...</p>
             </div>
 
-            <div class="lg:col-span-2 space-y-6">
-                <div id="recent-results-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                </div>
+            <div id="rpg-leaders" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <p class="text-gray-400">Loading...</p>
+            </div>
 
-                <div id="next-games-widget-container" class="bg-gray-800 p-6 rounded-lg border border-ray-700">
-                </div>
+            <div id="apg-leaders" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <p class="text-gray-400">Loading...</p>
+            </div>
+
+            <div id="spg-leaders" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <p class="text-gray-400">Loading...</p>
+            </div>
+
+            <div id="bpg-leaders" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <p class="text-gray-400">Loading...</p>
             </div>
 
         </div>
@@ -65,9 +68,10 @@
             <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
         </div>
     </footer>
+
     <script src="config.js"></script>
     <script src="utils.js"></script>
-    <script src="index.js"></script>
+    <script src="leaders.js"></script>
 </body>
 
 </html>

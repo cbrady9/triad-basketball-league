@@ -9,32 +9,31 @@ window.initializePage = async function () {
     await initializePlayerStatsPage();
 };
 
-function renderPlayerStatsTable(data) {
+function renderPlayerStatsTable(statsData, playersData) {
     const container = document.getElementById('playerstats-data-container');
     if (!container) return;
     container.innerHTML = '';
 
-    if (!data || data.length === 0) {
+    if (!statsData || statsData.length === 0) {
         container.innerHTML = '<p class="text-gray-300">No player stats available for this season.</p>';
         return;
     }
 
-    const headers = Object.keys(data[0]);
-    console.log('The headers are:', headers);
+    // Create a quick lookup map for headshots
+    const headshotMap = new Map(playersData.map(p => [p['Player Name'], p['Headshot URL']]));
+
+    const headers = Object.keys(statsData[0]);
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800">';
     tableHTML += '<tr>';
-
     headers.forEach(header => {
         const isSortable = header.trim().toUpperCase() === 'PLAYER NAME' ? '' : 'sortable';
         tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
     });
-    tableHTML += '</tr></thead>';
+    tableHTML += '</tr></thead><tbody class="bg-gray-800 divide-y divide-gray-700">';
 
-    tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
-
-    data.forEach(row => {
+    statsData.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
@@ -42,7 +41,13 @@ function renderPlayerStatsTable(data) {
 
             if (header.trim().toUpperCase() === 'PLAYER NAME') {
                 const encodedPlayerName = encodeURIComponent(value);
-                displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${value}</a>`;
+                const headshotUrl = headshotMap.get(value) || 'https://i.imgur.com/8so6K5A.png';
+                displayValue = `
+                    <a href="player-detail.html?playerName=${encodedPlayerName}" class="flex items-center group">
+                        <img src="${headshotUrl}" class="w-8 h-8 rounded-full mr-3 object-cover">
+                        <span class="text-sky-400 group-hover:underline font-semibold">${value}</span>
+                    </a>
+                `;
             }
 
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
@@ -61,18 +66,27 @@ async function initializePlayerStatsPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
 
+    const playerStatsContainer = document.getElementById('playerstats-data-container');
+    playerStatsContainer.innerHTML = '<p class="text-gray-400">Loading player stats...</p>';
+
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
-    if (!playerStatsGID) {
-        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Error: Player stats data not configured.</p>';
+    const playersGID = getGID('PLAYERS_GID', currentSeason);
+
+    if (!playerStatsGID || !playersGID) {
+        playerStatsContainer.innerHTML = '<p class="text-red-500">Error: Player stats data not configured.</p>';
         return;
     }
 
-    document.getElementById('playerstats-data-container').innerHTML = '<p class="text-gray-600">Loading player stats...</p>';
+    // Fetch both stats and player info (for headshots) at the same time
+    const [statsData, playersData] = await Promise.all([
+        fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *'),
+        fetchGoogleSheetData(SHEET_ID, playersGID, 'SELECT A, B, C') // Select Player Name, Team Name, Headshot URL
+    ]);
 
-    const tableData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT A, B, C, P, Q, R, S, T, U, V, W, X');
-    if (tableData) {
-        renderPlayerStatsTable(tableData);
+    if (statsData) {
+        // Pass both datasets to the rendering function
+        renderPlayerStatsTable(statsData, playersData);
     } else {
-        document.getElementById('playerstats-data-container').innerHTML = '<p class="text-red-500">Failed to load player stats.</p>';
+        playerStatsContainer.innerHTML = '<p class="text-red-500">Failed to load player stats.</p>';
     }
 }

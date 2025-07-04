@@ -4,6 +4,7 @@ window.initializePage = initializeHomePage;
 // --- WIDGET RENDERING FUNCTIONS ---
 
 function renderStandingsWidget(data) {
+    console.log("Standings Widget Data:", data);
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 

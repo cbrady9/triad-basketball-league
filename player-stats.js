@@ -60,7 +60,7 @@ function renderPlayerStatsTable(data) {
     tableHTML += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
     data.forEach(row => {
-        tableHTML += '<tr>';
+        tableHTML += '<tr class="odd:bg-white even:bg-gray-50 hover:bg-blue-100">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;

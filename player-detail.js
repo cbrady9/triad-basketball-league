@@ -60,7 +60,7 @@ async function initializePlayerDetailPage() {
                 if (allPlayerStatsData && allPlayerStatsData.length > 0) {
                     // Find the specific player's stats using the 'A' column (Player Name)
                     playerStats = allPlayerStatsData.find(stats =>
-                        (stats['A'] && stats['A'].trim().toLowerCase()) === decodedPlayerName.trim().toLowerCase()
+                        (stats['Player Name'] && stats['Player Name'].trim().toLowerCase()) === decodedPlayerName.trim().toLowerCase()
                     );
                 }
             } catch (error) {
@@ -92,7 +92,7 @@ async function initializePlayerDetailPage() {
                 `;
 
                 // Get headers from playerStats object (excluding the player name column 'A')
-                const statsKeys = Object.keys(playerStats).filter(key => key !== 'A' && key !== 'g'); // 'g' is the 'gsx$' prefix Google appends for new format
+                const statsKeys = Object.keys(playerStats).filter(key => key !== 'Player Name' && key !== 'Team Name' && key !== 'g'); // 'g' is the 'gsx$' prefix Google appends for new format
 
                 statsKeys.forEach(key => {
                     // Make headers more readable (e.g., 'Games_Played' becomes 'Games Played')

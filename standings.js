@@ -31,7 +31,7 @@ window.initializePage = async function() {
     // await fetchDataAndRender(newSeason); // Call your data fetching/rendering function
 };
 
-const STANDINGS_QUERY = 'SELECT A, B, C, D, E, F, G'; // Select all columns for standings
+const STANDINGS_QUERY = 'SELECT A, B, C, D, E'; // Select all columns for standings
 
 function renderStandingsTable(data) {
     const container = document.getElementById('standings-data-container');

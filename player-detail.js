@@ -24,11 +24,19 @@ async function initializePlayerDetailPage() {
     const playerData = allPlayersData.find(p => p['Player Name']?.trim().toLowerCase() === decodedPlayerName.trim().toLowerCase());
 
     if (playerData) {
-        // Get team from 'Team Name' instead of column letter 'B'
         const playerTeam = playerData['Team Name'] || 'N/A';
-        document.getElementById('player-info').innerHTML = `<p><strong>Team:</strong> ${playerTeam}</p>`;
+        // Create the link for the team detail page
+        const teamLink = `team-detail.html?teamName=${encodeURIComponent(playerTeam)}`;
+
+        // Add the link to the player info HTML
+        document.getElementById('player-info').innerHTML = `
+        <p>
+            <strong>Team:</strong> 
+            <a href="${teamLink}" class="text-sky-400 hover:underline">${playerTeam}</a>
+        </p>
+    `;
     } else {
-        document.getElementById('player-info').innerHTML = '<p class="text-gray-700">Basic player info not available.</p>';
+        document.getElementById('player-info').innerHTML = '<p class="text-gray-300">Basic player info not available.</p>';
     }
 
     // --- Fetch Detailed Player Stats and Build Curated Table ---

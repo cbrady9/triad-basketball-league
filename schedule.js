@@ -4,12 +4,15 @@ function renderSchedule(data) {
     const container = document.getElementById('schedule-data-container');
     if (!container) return;
     container.innerHTML = '';
+
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No schedule or results available for this season.</p>';
+        container.innerHTML = `<div class="text-center py-12"><img src="https://images.undraw.co/undraw_calendar_re_ki49.svg" alt="No upcoming games" class="mx-auto w-32 h-32 opacity-40"><p class="text-gray-400 mt-4">No games scheduled yet.</p></div>`;
         return;
     }
+
     const scheduleGrid = document.createElement('div');
     scheduleGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+
     data.forEach(game => {
         const gameId = game['Game ID'];
         const team1 = game['Team 1'];
@@ -17,19 +20,19 @@ function renderSchedule(data) {
         const team1Score = game['Team 1 Score'];
         const team2Score = game['Team 2 Score'];
         const gameDate = game['Date'];
-        const gameTime = game['Time'];
-        const location = game['Location'];
+        // UPDATED: This now defaults to an empty string if location is missing
+        const location = game['Location'] || '';
         const hasBeenPlayed = (game['Winner'] !== null && game['Winner'] !== '');
+
         let scoreOrTime;
-        // Updated result bar colors
         let resultClass = 'bg-gray-700 text-gray-300';
         if (hasBeenPlayed) {
             scoreOrTime = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
             resultClass = 'bg-teal-900/50 text-teal-300';
         } else {
-            scoreOrTime = `<span>${gameDate} - ${gameTime}</span>`;
+            scoreOrTime = `<span>${gameDate}</span>`;
         }
-        // Updated main card colors
+
         const gameCard = `
             <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-800 border border-gray-700 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
                 <div class="p-4">
@@ -46,6 +49,7 @@ function renderSchedule(data) {
         `;
         scheduleGrid.innerHTML += gameCard;
     });
+
     container.appendChild(scheduleGrid);
 }
 

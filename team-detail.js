@@ -59,11 +59,21 @@ async function initializeTeamDetailPage() {
         const wins = teamData.Wins || 0;
         const losses = teamData.Losses || 0;
         const pd = teamData['Point Differential'] > 0 ? `+${teamData['Point Differential']}` : teamData['Point Differential'];
+        const logoUrl = teamData['Logo URL'] || 'https://i.imgur.com/p3nQp25.png';
+
+        // Add logo to the main page header
+        document.getElementById('team-name-display').innerHTML = `
+        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <img src="${logoUrl}" alt="${decodedTeamName}" class="w-24 h-24 object-contain">
+            <h1 class="text-4xl font-extrabold text-gray-100">${decodedTeamName}</h1>
+        </div>
+    `;
+
         document.getElementById('team-record-stats').innerHTML = `
-            <p><strong>Record:</strong> ${wins} - ${losses}</p>
-            <p><strong>Win %:</strong> ${teamData['Win %']}</p>
-            <p><strong>Point Diff:</strong> ${pd}</p>
-        `;
+        <p><strong>Record:</strong> ${wins} - ${losses}</p>
+        <p><strong>Win %:</strong> ${teamData['Win %']}</p>
+        <p><strong>Point Diff:</strong> ${pd}</p>
+    `;
     }
 
     if (teamData && teamStats && allTeamStatsData) {

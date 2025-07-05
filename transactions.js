@@ -57,10 +57,12 @@ function renderTransactionsTable(data) {
         tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
     });
     tableHTML += '</tr></thead><tbody class="bg-gray-800 divide-y divide-gray-700">';
+
     data.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
-            const value = row[header] !== undefined ? row[header] : '';
+            // UPDATED: This now handles null values correctly
+            const value = row[header] ?? ''; // Use the nullish coalescing operator
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
         });
         tableHTML += '</tr>';

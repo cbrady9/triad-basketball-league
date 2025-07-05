@@ -40,9 +40,9 @@
             <a href="index.html" class="text-xl font-bold text-gray-100">Triad Basketball League</a>
             <nav class="flex items-center">
                 <ul class="flex items-center space-x-6">
-                    <li class="pb-4"><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
+                    <li><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
 
-                    <li class="relative group pb-4">
+                    <li class="relative group">
                         <button class="text-gray-300 hover:text-white flex items-center">
                             <span>League</span>
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -51,8 +51,9 @@
                                     d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
+                        {/* The fix: Removed mt-2 and added top-full to eliminate the gap */}
                         <div
-                            class="absolute left-0 mt-2 w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
+                            class="absolute left-0 top-full w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
                             <a href="teams.html"
                                 class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Teams</a>
                             <a href="players.html"
@@ -64,7 +65,7 @@
                         </div>
                     </li>
 
-                    <li class="relative group pb-4">
+                    <li class="relative group">
                         <button class="text-gray-300 hover:text-white flex items-center">
                             <span>Stats</span>
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -73,8 +74,9 @@
                                     d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
+                        {/* The fix: Removed mt-2 and added top-full to eliminate the gap */}
                         <div
-                            class="absolute left-0 mt-2 w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
+                            class="absolute left-0 top-full w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
                             <a href="standings.html"
                                 class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Standings</a>
                             <a href="leaders.html"
@@ -89,8 +91,8 @@
                         </div>
                     </li>
 
-                    <li class="pb-4"><a href="https://discord.gg/Q6RGpkbMJn" class="text-gray-300 hover:text-white"
-                            target="_blank" rel="noopener noreferrer">Discord</a></li>
+                    <li><a href="https://discord.gg/Q6RGpkbMJn" class="text-gray-300 hover:text-white" target="_blank"
+                            rel="noopener noreferrer">Discord</a></li>
                 </ul>
                 <div id="season-selector-container" class="ml-6"></div>
             </nav>

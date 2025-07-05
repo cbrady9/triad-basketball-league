@@ -22,13 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <li><strong>Halftime:</strong> A brief halftime may be called when the first team reaches 7 points, if either team requests it.</li>
                 </ul>
 
-                <h3>Clearing the Ball</h3>
+                <h3 class="mt-8">Clearing the Ball</h3>
                 <ul>
                     <li>After a defensive rebound where the shot <li><strong>hits the rim</strong>, the ball must be taken back (cleared) behind the two-point line.</li>
                     <li>On a defensive rebound where the shot <li><strong>does not hit the rim</strong> (an "airball"), the ball does not need to be cleared and can be scored immediately.</li>
                 </ul>
 
-                <h3>Fouls & Disputes</h3>
+                <h3 class="mt-8">Fouls & Disputes</h3>
                 <ul>
                     <li><strong>Officiating:</strong> Players are expected to call their own fouls.</li>
                     <li><strong>Stoppages:</strong> Any other stoppage of play must be agreed upon by both teams.</li>

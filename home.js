@@ -22,7 +22,7 @@ function renderStandingsWidget(data) {
     });
 
     const topTeams = data.slice(0, 5);
-    let html = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
+    let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
 
     topTeams.forEach((team, index) => {
@@ -72,7 +72,7 @@ function renderScheduleWidgets(data) {
     const upcomingGames = data.filter(game => game['Team 1 Score'] === null || game['Team 1 Score'] === '');
 
     const recentGames = playedGames.slice(-3).reverse();
-    let recentHtml = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Recent Results</h3>';
+    let recentHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Recent Results</h3>';
     if (recentGames.length > 0) {
         recentHtml += '<div class="space-y-3">';
         recentGames.forEach(game => {
@@ -94,7 +94,7 @@ function renderScheduleWidgets(data) {
     recentResultsContainer.innerHTML = recentHtml;
 
     const nextGames = upcomingGames.slice(0, 3);
-    let nextHtml = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Upcoming Games</h3>';
+    let nextHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Upcoming Games</h3>';
     if (nextGames.length > 0) {
         nextHtml += '<div class="space-y-3">';
         nextGames.forEach(game => {

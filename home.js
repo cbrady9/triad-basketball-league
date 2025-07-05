@@ -7,22 +7,25 @@ function renderWeeklyAwardsWidget(data) {
     const container = document.getElementById('weekly-awards-container');
     if (!container || !data || data.length === 0) return;
 
-    // The query gets the latest week, which will be the first item in the array
     const latestAward = data[0];
+    const playerName = latestAward['Player of the Week'];
+    const teamName = latestAward['Team of the Week'];
+    const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
+    const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
 
     const html = `
         <div class="bg-gradient-to-r from-sky-500 to-indigo-500 p-6 rounded-lg border border-sky-400/50 shadow-lg">
-            <h3 class="text-2xl font-bold mb-4 text-white border-b border-white/20 pb-2">${latestAward.Week} Winners</h3>
+            <h3 class="text-2xl font-bold mb-4 text-white border-b border-white/20 pb-2">${latestAward.Week} Awards</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div>
                     <p class="text-sm font-bold uppercase tracking-wider text-sky-200">Player of the Week</p>
-                    <p class="text-xl font-semibold text-white mt-1">${latestAward['Player of the Week']}</p>
-                    <p class="text-sm text-sky-100 mt-1">${latestAward['Player Blurb']}</p>
+                    <a href="${playerLink}" class="text-xl font-semibold text-white mt-1 hover:underline inline-block">${playerName}</a>
+                    <p class="text-sm text-sky-100 mt-1 italic">"${latestAward['Player Blurb']}"</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold uppercase tracking-wider text-indigo-200">Team of the Week</p>
-                    <p class="text-xl font-semibold text-white mt-1">${latestAward['Team of the Week']}</p>
-                    <p class="text-sm text-indigo-100 mt-1">${latestAward['Team Blurb']}</p>
+                    <a href="${teamLink}" class="text-xl font-semibold text-white mt-1 hover:underline inline-block">${teamName}</a>
+                    <p class="text-sm text-indigo-100 mt-1 italic">"${latestAward['Team Blurb']}"</p>
                 </div>
             </div>
         </div>

@@ -17,15 +17,8 @@ function renderTeamStatsTable(data) {
     tableHTML += '<tr>';
 
     const headers = Object.keys(data[0]);
-    // --- CORRECTED: Headers are now in all uppercase to match the sheet ---
-    const statsToFormat = [
-        'POINTS FOR PER GAME',
-        'POINTS AGAINST PER GAME',
-        'REBOUNDS PER GAME',
-        'ASSISTS PER GAME',
-        'STEALS PER GAME',
-        'BLOCKS PER GAME'
-    ];
+    // --- CORRECTED: This now matches your sheet's exact headers ---
+    const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
     headers.forEach(header => {
         const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
@@ -41,7 +34,7 @@ function renderTeamStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // This check will now work correctly
+            // This check will now work correctly with the new header names
             if (statsToFormat.includes(header)) {
                 displayValue = formatStat(value);
             }

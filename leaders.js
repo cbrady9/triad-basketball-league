@@ -43,22 +43,31 @@ async function initializeLeadersPage() {
 
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
     if (!playerStatsGID) {
-        console.error('Player Stats GID not found for this season.');
+        document.querySelector('.grid').innerHTML = '<p class="text-red-500 col-span-full text-center">League Leaders not configured for this season.</p>';
         return;
     }
 
     const statsData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *');
 
-    if (statsData) {
-        // Most stats are descending (higher is better)
+    // --- NEW: Check for data BEFORE trying to render cards ---
+    if (statsData && statsData.length > 0) {
+        // If data exists, render all the leader cards
         renderLeaderCard('ppg-leaders', statsData, 'Points Per Game', 'PPG', 'desc');
         renderLeaderCard('rpg-leaders', statsData, 'Rebounds Per Game', 'RPG', 'desc');
         renderLeaderCard('apg-leaders', statsData, 'Assists Per Game', 'APG', 'desc');
         renderLeaderCard('spg-leaders', statsData, 'Steals Per Game', 'SPG', 'desc');
         renderLeaderCard('bpg-leaders', statsData, 'Blocks Per Game', 'BPG', 'desc');
-        // --- UPDATED: Turnovers are ascending (lower is better) ---
         renderLeaderCard('tpg-leaders', statsData, 'Turnovers Per Game', 'TPG', 'asc');
     } else {
-        console.error('Failed to load player stats for leaderboards.');
+        // If no data exists, show one single empty state message
+        const leadersGrid = document.querySelector('.grid');
+        if (leadersGrid) {
+            leadersGrid.innerHTML = `
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-gray-800 p-6 rounded-lg border border-gray-700 text-center py-12">
+                    <img src="https://images.undraw.co/undraw_analytics_re_dkf8.svg" alt="No stats available" class="mx-auto w-40 h-40 opacity-40">
+                    <p class="text-lg text-gray-400 mt-4">No stats available yet. Check back after the first games are played!</p>
+                </div>
+            `;
+        }
     }
 }

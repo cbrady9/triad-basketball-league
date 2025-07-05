@@ -5,14 +5,20 @@ function renderStandingsTable(data) {
     const container = document.getElementById('standings-data-container');
     if (!container) return;
 
-    // --- NEW: Filter out the "Reserve" team ---
     const filteredData = data.filter(team => team['Team Name'] !== 'Reserve');
 
+    // --- UPDATED Empty State ---
     if (!filteredData || filteredData.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No team standings available for this season.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <img src="https://images.undraw.co/undraw_people_re_8spw.svg" alt="No teams found" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No team standings available yet.</p>
+            </div>
+        `;
         return;
     }
 
+    // ... rest of the function remains the same ...
     filteredData.sort((a, b) => {
         const winPctA = parseFloat(a['Win %']) || 0;
         const winPctB = parseFloat(b['Win %']) || 0;
@@ -23,14 +29,8 @@ function renderStandingsTable(data) {
         return pdB - pdA;
     });
 
-    // --- CORRECTED: Renaming "Games Played" to "GP" ---
-    const headerMap = {
-        'Games Played': 'GP'
-    };
-
-    // --- CORRECTED: Looking for "Games Played" instead of "Games Played (Internal)" ---
+    const headerMap = { 'Games Played': 'GP' };
     const orderedHeaders = ['Rank', 'Team Name', 'Games Played', 'Wins', 'Losses', 'Win %', 'Point Differential'];
-
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800"><tr>';
 

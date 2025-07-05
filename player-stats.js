@@ -12,23 +12,25 @@ window.initializePage = async function () {
 function renderPlayerStatsTable(statsData, playersData) {
     const container = document.getElementById('playerstats-data-container');
     if (!container) return;
-    container.innerHTML = '';
 
     if (!statsData || statsData.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No player stats available for this season.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No stats available" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No player stats available yet.</p>
+            </div>
+        `;
         return;
     }
 
+    // ... rest of the function remains the same ...
     const headshotMap = new Map(playersData.map(p => [p['Player Name'], p['Headshot URL']]));
     const headers = Object.keys(statsData[0]);
     const statsToFormat = ['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
-    // --- NEW: Added max-height and vertical scroll to the wrapper div ---
     let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    tableHTML += '<thead class="bg-gray-800 sticky top-0">'; // Made header sticky
-    tableHTML += '<tr>';
+    tableHTML += '<thead class="bg-gray-800 sticky top-0"><tr>';
     headers.forEach(header => {
-        // --- CORRECTED: Sorting is now enabled ---
         const isSortable = header.trim().toUpperCase() !== 'PLAYER NAME' ? 'sortable' : '';
         tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${isSortable}">${header}</th>`;
     });
@@ -39,22 +41,15 @@ function renderPlayerStatsTable(statsData, playersData) {
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
-
             if (header.trim().toUpperCase() === 'PLAYER NAME') {
                 const encodedPlayerName = encodeURIComponent(value);
                 const headshotUrl = headshotMap.get(value) || 'https://i.imgur.com/8so6K5A.png';
-                displayValue = `
-                    <a href="player-detail.html?playerName=${encodedPlayerName}" class="flex items-center group">
-                        <img src="${headshotUrl}" class="w-8 h-8 rounded-full mr-3 object-cover">
-                        <span class="text-sky-400 group-hover:underline font-semibold">${value}</span>
-                    </a>
-                `;
+                displayValue = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="flex items-center group"><img src="${headshotUrl}" class="w-8 h-8 rounded-full mr-3 object-cover"><span class="text-sky-400 group-hover:underline font-semibold">${value}</span></a>`;
             } else {
                 if (statsToFormat.includes(header)) {
                     displayValue = formatStat(value);
                 }
             }
-
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
         });
         tableHTML += '</tr>';
@@ -62,7 +57,6 @@ function renderPlayerStatsTable(statsData, playersData) {
     tableHTML += '</tbody></table></div>';
     container.innerHTML = tableHTML;
 
-    // --- CORRECTED: Sorting event listener is now present ---
     container.querySelectorAll('th.sortable').forEach(header => {
         header.addEventListener('click', () => sortTable(header, container));
     });

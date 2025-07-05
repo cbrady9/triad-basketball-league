@@ -35,29 +35,28 @@ const TRANSACTIONS_QUERY = 'SELECT A, B, C, D'; // Select all columns for transa
 
 function renderTransactionsTable(data) {
     const container = document.getElementById('transactions-data-container');
-    if (!container) {
-        console.error("Transactions container not found.");
-        return;
-    }
-    container.innerHTML = '';
+    if (!container) return;
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No transactions available for this season.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <img src="https://images.undraw.co/undraw_transfer_money_re_6o1h.svg" alt="No transactions" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No transactions have been recorded yet.</p>
+            </div>
+        `;
         return;
     }
+
+    container.innerHTML = '';
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800">';
     tableHTML += '<tr>';
     const headers = Object.keys(data[0]);
-
     headers.forEach(header => {
         tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
     });
-    tableHTML += '</tr></thead>';
-
-    tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
-
+    tableHTML += '</tr></thead><tbody class="bg-gray-800 divide-y divide-gray-700">';
     data.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {

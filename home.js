@@ -103,6 +103,7 @@ function renderScheduleWidgets(data) {
     const playedGames = data.filter(game => game['Team 1 Score'] !== null && game['Team 1 Score'] !== '');
     const upcomingGames = data.filter(game => game['Team 1 Score'] === null || game['Team 1 Score'] === '');
 
+    // --- Render Recent Results ---
     const recentGames = playedGames.slice(-3).reverse();
     let recentHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Recent Results</h3>';
     if (recentGames.length > 0) {
@@ -113,19 +114,36 @@ function renderScheduleWidgets(data) {
             recentHtml += `<a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700"><div class="flex justify-between items-center"><span class="text-gray-300 text-sm">${game['Team 1']} vs ${game['Team 2']}</span><span class="font-bold text-gray-200 text-sm">${game['Team 1 Score']} - ${game['Team 2 Score']}</span></div></a>`;
         });
         recentHtml += '</div>';
-    } else { recentHtml += '<p class="text-gray-400">No results yet.</p>'; }
+    } else {
+        // --- UPDATED Empty State for Recent Results ---
+        recentHtml += `
+            <div class="text-center py-8">
+                <img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No results yet" class="mx-auto w-32 h-32 opacity-40">
+                <p class="text-gray-400 mt-4">No results yet.</p>
+            </div>
+        `;
+    }
     recentResultsContainer.innerHTML = recentHtml;
 
+    // --- Render Upcoming Games ---
     const nextGames = upcomingGames.slice(0, 3);
     let nextHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Upcoming Games</h3>';
     if (nextGames.length > 0) {
         nextHtml += '<div class="space-y-3">';
         nextGames.forEach(game => {
             const gameLink = `schedule.html`;
-            nextHtml += `<a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700"><div class="flex justify-between items-center"><span class="text-gray-300 text-sm">${game['Team 1']} vs ${game['Team 2']}</span><span class="text-gray-400 text-xs">${game['Date']} - ${game['Time']}</span></div></a>`;
+            nextHtml += `<a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700"><div class="flex justify-between items-center"><span class="text-gray-300 text-sm">${game['Team 1']} vs ${game['Team 2']}</span><span class="text-gray-400 text-xs">${game['Date']}</span></div></a>`;
         });
         nextHtml += '</div>';
-    } else { nextHtml += '<p class="text-gray-400">No upcoming games scheduled.</p>'; }
+    } else {
+        // --- UPDATED Empty State for Upcoming Games ---
+        nextHtml += `
+            <div class="text-center py-8">
+                <img src="https://images.undraw.co/undraw_calendar_re_ki49.svg" alt="No upcoming games" class="mx-auto w-32 h-32 opacity-40">
+                <p class="text-gray-400 mt-4">No upcoming games scheduled.</p>
+            </div>
+        `;
+    }
     nextGamesContainer.innerHTML = nextHtml;
 }
 

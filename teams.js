@@ -7,14 +7,19 @@ function renderTeamList(data) {
     const container = document.getElementById('team-list-container');
     if (!container) return;
 
-    // --- NEW: Filter out the "Reserve" team ---
     const filteredData = data.filter(team => team['Team Name'] !== 'Reserve');
 
-    container.innerHTML = '';
     if (!filteredData || filteredData.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No teams found for this season.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12 col-span-full">
+                <img src="https://images.undraw.co/undraw_people_re_8spw.svg" alt="No teams found" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No teams have been created yet.</p>
+            </div>
+        `;
         return;
     }
+
+    container.innerHTML = ''; // Clear loading message
 
     filteredData.forEach(team => {
         const teamName = team['Team Name'];

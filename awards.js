@@ -4,12 +4,18 @@ window.initializePage = initializeAwardsPage;
 function renderAwardsHistory(data) {
     const container = document.getElementById('awards-history-container');
     if (!container) return;
-    container.innerHTML = ''; // Clear loading message
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 text-center">No weekly awards have been given out yet.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <img src="https://images.undraw.co/undraw_winners_re_wr1l.svg" alt="No awards yet" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No weekly awards have been given out yet.</p>
+            </div>
+        `;
         return;
     }
+
+    container.innerHTML = ''; // Clear loading message
 
     data.forEach(award => {
         const playerName = award['Player of the Week'];

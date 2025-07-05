@@ -5,10 +5,14 @@ const TEAMSTATS_QUERY = 'SELECT *';
 function renderTeamStatsTable(data) {
     const container = document.getElementById('team-stats-data-container');
     if (!container) return;
-    container.innerHTML = '';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-300">No team stats available for this season.</p>';
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No stats available" class="mx-auto w-40 h-40 mb-4 opacity-50">
+                <p class="text-lg text-gray-400">No team stats available yet.</p>
+            </div>
+        `;
         return;
     }
 
@@ -17,7 +21,6 @@ function renderTeamStatsTable(data) {
     tableHTML += '<tr>';
 
     const headers = Object.keys(data[0]);
-    // --- CORRECTED: This now matches your sheet's exact headers ---
     const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
     headers.forEach(header => {
@@ -34,7 +37,6 @@ function renderTeamStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // This check will now work correctly with the new header names
             if (statsToFormat.includes(header)) {
                 displayValue = formatStat(value);
             }

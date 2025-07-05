@@ -39,23 +39,21 @@ async function initializeLeadersPage() {
 
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
     if (!playerStatsGID) {
-        // You can add an error message to the page here if you want
         console.error('Player Stats GID not found for this season.');
         return;
     }
 
-    // Fetch all player stats
     const statsData = await fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *');
 
     if (statsData) {
-        // Render a card for each stat category
         renderLeaderCard('ppg-leaders', statsData, 'Points Per Game', 'PPG');
         renderLeaderCard('rpg-leaders', statsData, 'Rebounds Per Game', 'RPG');
         renderLeaderCard('apg-leaders', statsData, 'Assists Per Game', 'APG');
         renderLeaderCard('spg-leaders', statsData, 'Steals Per Game', 'SPG');
         renderLeaderCard('bpg-leaders', statsData, 'Blocks Per Game', 'BPG');
+        // --- NEW line to render the TPG leaderboard ---
+        renderLeaderCard('tpg-leaders', statsData, 'Turnovers Per Game', 'TPG');
     } else {
-        // Handle case where data fails to load
         console.error('Failed to load player stats for leaderboards.');
     }
 }

@@ -15,7 +15,7 @@ function createBoxScoreTable(teamName, teamStats) {
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">AST</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">STL</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">BLK</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">TOV</th> {/* Added TOV header */}
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">TOV</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">1PM</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">2PM</th>
                         </tr>
@@ -41,7 +41,7 @@ function createBoxScoreTable(teamName, teamStats) {
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.assists] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.steals] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.blocks] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player['Turnovers'] || 0}</td> {/* Added TOV data cell */}
+                <td class="px-4 py-2 text-right text-gray-300">${player['Turnovers'] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player['1PM'] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player['2PM'] || 0}</td>
             </tr>

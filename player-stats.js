@@ -21,15 +21,16 @@ function renderPlayerStatsTable(statsData, playersData) {
 
     const headshotMap = new Map(playersData.map(p => [p['Player Name'], p['Headshot URL']]));
     const headers = Object.keys(statsData[0]);
-    // --- NEW: List of headers that need decimal formatting ---
     const statsToFormat = ['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
-    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    tableHTML += '<thead class="bg-gray-800">';
+    // --- NEW: Added max-height and vertical scroll to the wrapper div ---
+    let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
+    tableHTML += '<thead class="bg-gray-800 sticky top-0">'; // Made header sticky
     tableHTML += '<tr>';
     headers.forEach(header => {
-        const isSortable = header.trim().toUpperCase() === 'PLAYER NAME' ? '' : 'sortable';
-        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
+        // --- CORRECTED: Sorting is now enabled ---
+        const isSortable = header.trim().toUpperCase() !== 'PLAYER NAME' ? 'sortable' : '';
+        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${isSortable}">${header}</th>`;
     });
     tableHTML += '</tr></thead><tbody class="bg-gray-800 divide-y divide-gray-700">';
 
@@ -49,7 +50,6 @@ function renderPlayerStatsTable(statsData, playersData) {
                     </a>
                 `;
             } else {
-                // --- NEW: Apply formatting if the header is in our list ---
                 if (statsToFormat.includes(header)) {
                     displayValue = formatStat(value);
                 }
@@ -62,6 +62,7 @@ function renderPlayerStatsTable(statsData, playersData) {
     tableHTML += '</tbody></table></div>';
     container.innerHTML = tableHTML;
 
+    // --- CORRECTED: Sorting event listener is now present ---
     container.querySelectorAll('th.sortable').forEach(header => {
         header.addEventListener('click', () => sortTable(header, container));
     });

@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <h3>Clearing the Ball</h3>
                 <ul>
-                    <li>After a defensive rebound where the shot **hits the rim**, the ball must be taken back (cleared) behind the two-point line.</li>
-                    <li>On a defensive rebound where the shot **does not hit the rim** (an "airball"), the ball does not need to be cleared and can be scored immediately.</li>
+                    <li>After a defensive rebound where the shot <li><strong>hits the rim</strong>, the ball must be taken back (cleared) behind the two-point line.</li>
+                    <li>On a defensive rebound where the shot <li><strong>does not hit the rim</strong> (an "airball"), the ball does not need to be cleared and can be scored immediately.</li>
                 </ul>
 
                 <h3>Fouls & Disputes</h3>

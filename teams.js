@@ -1,11 +1,11 @@
-document.addEventListener('DOMContentLoaded', initializeTeamsPage);
-window.initializePage = initializeTeamsPage;
+// teams.js
 
 function renderTeamList(data) {
     const container = document.getElementById('team-list-container');
     if (!container) return;
 
-    // Filter out the "Reserve" team before displaying
+    // Filter out the "Reserve" team before displaying.
+    // We use 'A' because that's the column for the team name from our query.
     const filteredData = data.filter(team => team['A'] !== 'Reserve');
 
     if (!filteredData || filteredData.length === 0) {
@@ -16,7 +16,7 @@ function renderTeamList(data) {
     container.innerHTML = ''; // Clear loading message
 
     filteredData.forEach(team => {
-        // --- CORRECTED: Use column letters 'A' and 'H' ---
+        // Use column letters 'A' and 'H' because of our specific SELECT query
         const teamName = team['A'];
         const logoUrl = team['H'] || 'https://i.imgur.com/p3nQp25.png'; // Default placeholder
 
@@ -24,7 +24,7 @@ function renderTeamList(data) {
             const teamLink = document.createElement('a');
             teamLink.href = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
             teamLink.className = 'block p-4 bg-gray-800 border border-gray-700 rounded-lg shadow hover:bg-gray-700 transition duration-200 text-gray-200 font-semibold text-lg text-center';
-            teamLink.innerHTML = `<img src="${logoUrl}" alt="${teamName}" class="w-20 h-20 mx-auto mb-3 object-contain"><span class="block">${teamName}</span>`;
+            teamLink.innerHTML = `<img src="${logoUrl}" onerror="this.onerror=null; this.src='https://i.imgur.com/p3nQp25.png';" alt="${teamName}" class="w-20 h-20 mx-auto mb-3 object-contain bg-gray-700 rounded-md"><span class="block">${teamName}</span>`;
             container.appendChild(teamLink);
         }
     });
@@ -32,19 +32,27 @@ function renderTeamList(data) {
 
 async function initializeTeamsPage() {
     const currentSeason = getCurrentSeason();
-    createSeasonSelector(currentSeason);
+    createSeasonSelector(currentSeason); // This is now an empty function but is safe to call
     const teamsContainer = document.getElementById('team-list-container');
     teamsContainer.innerHTML = '<p class="text-gray-400">Loading teams...</p>';
+
     const teamsGID = getGID('TEAMS_GID', currentSeason);
     if (!teamsGID) {
         teamsContainer.innerHTML = '<p class="text-red-500">Error: Teams data not configured.</p>';
         return;
     }
-    // This query correctly fetches Team Name (A) and Logo URL (H)
+
+    // This specific query for columns A (Team Name) and H (Logo URL) is more reliable
+    // NOTE: If your Logo URL is not in Column H of the "Teams S01" sheet, change 'H' to the correct letter.
     const teamData = await fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H');
+
     if (teamData) {
         renderTeamList(teamData);
     } else {
         teamsContainer.innerHTML = '<p class="text-red-500">Failed to load team list.</p>';
     }
 }
+
+// These lines initialize the page
+document.addEventListener('DOMContentLoaded', initializeTeamsPage);
+window.initializePage = initializeTeamsPage;

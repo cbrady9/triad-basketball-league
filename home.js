@@ -36,28 +36,61 @@ function renderWeeklyAwardsWidget(data) {
 function renderStandingsWidget(data) {
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
-    data.sort((a, b) => (a['Rank'] || 99) - (b['Rank'] || 99));
+
+    // --- CORRECTED: Using the same robust sorting as the main standings page ---
+    data.sort((a, b) => {
+        // First, sort by Win % descending
+        const winPctA = parseFloat(a['Win %']) || 0;
+        const winPctB = parseFloat(b['Win %']) || 0;
+        const winPctDiff = winPctB - winPctA;
+        if (winPctDiff !== 0) {
+            return winPctDiff;
+        }
+
+        // If Win % is tied, sort by Point Differential descending
+        const pdA = parseFloat(a['Point Differential']) || 0;
+        const pdB = parseFloat(b['Point Differential']) || 0;
+        return pdB - pdA;
+    });
+
     const topTeams = data.slice(0, 5);
     let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
+
     topTeams.forEach((team, index) => {
-        const rank = team['Rank'] || '-';
+        const rank = index + 1; // Rank is now based on the sorted position
         const teamName = team['Team Name'];
         const wins = team['Wins'];
         const losses = team['Losses'];
-        const gamesPlayed = team['Games Played (Internal)'];
+        const gamesPlayed = team['Games Played'];
         const pointDiff = team['Point Differential'];
+
         let statsParts = [];
-        if (gamesPlayed !== undefined) { statsParts.push(`(${gamesPlayed} GP)`); }
-        if (wins !== undefined && losses !== undefined) { statsParts.push(`${wins}-${losses}`); }
+        if (gamesPlayed !== undefined) {
+            statsParts.push(`(${gamesPlayed} GP)`);
+        }
+        if (wins !== undefined && losses !== undefined) {
+            statsParts.push(`${wins}-${losses}`);
+        }
         if (pointDiff !== undefined) {
             const diffSign = pointDiff > 0 ? '+' : '';
             statsParts.push(`${diffSign}${pointDiff} PD`);
         }
         const statsString = statsParts.join(' ');
+
         const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
-        html += `<li class="p-2 rounded-md hover:bg-gray-700/50"><a href="${teamLink}" class="flex items-center text-sm"><span class="text-center font-bold text-gray-400 w-5">${rank}</span><span class="ml-4 flex-grow font-semibold text-gray-300">${teamName}</span><span class="text-gray-400 text-xs whitespace-nowrap">${statsString}</span></a></li>`;
+
+        html += `
+            <li class="p-2 rounded-md hover:bg-gray-700/50">
+                <a href="${teamLink}" class="flex items-center text-sm">
+                    <span class="text-center font-bold text-gray-400 w-5">${rank}</span>
+                    <span class="ml-4 flex-grow font-semibold text-gray-300">${teamName}</span>
+                    <span class="text-gray-400 text-xs whitespace-nowrap">${statsString}</span>
+                </a>
+            </li>
+        `;
     });
+
     html += '</ol>';
     container.innerHTML = html;
 }

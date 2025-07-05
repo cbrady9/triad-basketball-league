@@ -4,43 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Stats - Triad Basketball League</title>
+    <title>Season Awards - Triad Basketball League</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-
-        /* Styles for sortable headers */
-        th.sortable {
-            cursor: pointer;
-            position: relative;
-        }
-
-        th.sortable::after {
-            content: '';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 4px solid transparent;
-        }
-
-        th.sortable.asc::after {
-            border-bottom-color: #333;
-            /* Up arrow */
-            margin-top: -4px;
-        }
-
-        th.sortable.desc::after {
-            border-top-color: #333;
-            /* Down arrow */
-            margin-top: 4px;
-        }
-    </style>
 </head>
 
 <body class="bg-gray-900 text-gray-200" style="font-family: 'Inter', sans-serif;">
@@ -159,16 +127,13 @@
             </ul>
         </div>
     </header>
-    <main class="container mx-auto p-4 mt-4">
-        <section class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-            <h2 class="text-3xl font-bold mb-2 text-gray-100">Player
-                Stats</h2>
-            <p class="text-lg text-gray-400 mb-6">Data for all league player stats will appear here.</p>
-            <div class="overflow-x-auto">
-                <div id="playerstats-data-container" class="mt-4">
-                </div>
-            </div>
-        </section>
+
+    <main class="container mx-auto p-4 mt-6">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-100">Season Awards</h2>
+
+        <div id="season-awards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-gray-400 col-span-full">Loading awards...</p>
+        </div>
     </main>
 
     <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">
@@ -176,9 +141,10 @@
             <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
         </div>
     </footer>
+
     <script src="config.js"></script>
     <script src="utils.js"></script>
-    <script src="player-stats.js"></script>
+    <script src="season-awards.js"></script>
 </body>
 
 </html>

@@ -4,10 +4,7 @@ const TEAMSTATS_QUERY = 'SELECT *';
 
 function renderTeamStatsTable(data) {
     const container = document.getElementById('team-stats-data-container');
-    if (!container) {
-        console.error("Team stats container not found. Check ID in HTML and JS.");
-        return;
-    }
+    if (!container) return;
     container.innerHTML = '';
 
     if (!data || data.length === 0) {
@@ -20,6 +17,8 @@ function renderTeamStatsTable(data) {
     tableHTML += '<tr>';
 
     const headers = Object.keys(data[0]);
+    // --- NEW: List of headers that need decimal formatting ---
+    const statsToFormat = ['Points For Per Game', 'Points Against Per Game', 'Rebounds Per Game', 'Assists Per Game', 'Steals Per Game', 'Blocks Per Game'];
 
     headers.forEach(header => {
         const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
@@ -33,7 +32,14 @@ function renderTeamStatsTable(data) {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
+            let displayValue = value;
+
+            // --- NEW: Apply formatting if the header is in our list ---
+            if (statsToFormat.includes(header)) {
+                displayValue = formatStat(value);
+            }
+
+            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
         });
         tableHTML += '</tr>';
     });

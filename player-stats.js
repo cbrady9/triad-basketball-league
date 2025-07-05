@@ -19,10 +19,10 @@ function renderPlayerStatsTable(statsData, playersData) {
         return;
     }
 
-    // Create a quick lookup map for headshots
     const headshotMap = new Map(playersData.map(p => [p['Player Name'], p['Headshot URL']]));
-
     const headers = Object.keys(statsData[0]);
+    // --- NEW: List of headers that need decimal formatting ---
+    const statsToFormat = ['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800">';
@@ -48,6 +48,11 @@ function renderPlayerStatsTable(statsData, playersData) {
                         <span class="text-sky-400 group-hover:underline font-semibold">${value}</span>
                     </a>
                 `;
+            } else {
+                // --- NEW: Apply formatting if the header is in our list ---
+                if (statsToFormat.includes(header)) {
+                    displayValue = formatStat(value);
+                }
             }
 
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;

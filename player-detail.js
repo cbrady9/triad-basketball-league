@@ -52,17 +52,26 @@ async function initializePlayerDetailPage() {
             { header: 'Games Played', key: 'Games Played' }, { header: 'PPG', key: 'PPG' }, { header: 'RPG', key: 'RPG' }, { header: 'APG', key: 'APG' },
             { header: 'SPG', key: 'SPG' }, { header: 'BPG', key: 'BPG' }, { header: 'TPG', key: 'TPG' }, { header: 'FG%', key: 'FG%' }
         ];
+        // --- NEW: List of stats that need decimal formatting ---
+        const statsToFormat = ['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
+
         let statsHtml = `<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full"><thead class="bg-gray-800"><tr>`;
         desiredStats.forEach(stat => { statsHtml += `<th class="py-2 px-4 border-b border-gray-600 text-left text-sm font-semibold text-gray-300">${stat.header}</th>`; });
         statsHtml += `</tr></thead><tbody class="divide-y divide-gray-700"><tr>`;
+
         desiredStats.forEach(stat => {
-            const value = playerStats[stat.key] !== undefined ? playerStats[stat.key] : 'N/A';
+            let value = playerStats[stat.key] !== undefined ? playerStats[stat.key] : 'N/A';
+            // --- NEW: Apply formatting if the stat is in our list ---
+            if (statsToFormat.includes(stat.key)) {
+                value = formatStat(value);
+            }
             statsHtml += `<td class="py-2 px-4 text-sm text-gray-300">${value}</td>`;
         });
+
         statsHtml += `</tr></tbody></table></div>`;
-        playerStatsContainer.innerHTML = statsHtml;
+        document.getElementById('player-stats-container').innerHTML = statsHtml;
     } else {
-        playerStatsContainer.innerHTML = '<p class="text-gray-300">Detailed player stats not found.</p>';
+        document.getElementById('player-stats-container').innerHTML = '<p class="text-gray-300">Detailed player stats not found.</p>';
     }
 }
 document.addEventListener('DOMContentLoaded', initializePlayerDetailPage);

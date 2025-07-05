@@ -187,3 +187,11 @@ function initializeMobileMenu() {
 
 // Ensure the mobile menu is initialized on every page load
 document.addEventListener('DOMContentLoaded', initializeMobileMenu);
+// Formats a number to one decimal place (e.g., 15 -> "15.0")
+function formatStat(value) {
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+        return value; // Return original value if it's not a number (like 'N/A')
+    }
+    return num.toFixed(1);
+}

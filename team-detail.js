@@ -30,19 +30,16 @@ async function initializeTeamDetailPage() {
     document.getElementById('page-title').textContent = `${decodedTeamName} - Team Details`;
     document.getElementById('team-name-display').textContent = decodedTeamName;
 
-    // Set loading states
     document.getElementById('team-record-stats').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-rankings').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-400">Loading...</p>';
 
-    // Get GIDs
     const teamsGID = getGID('TEAMS_GID', currentSeason);
     const playersGID = getGID('PLAYERS_GID', currentSeason);
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
     const teamStatsGID = getGID('TEAM_STATS_GID', currentSeason);
 
-    // Fetch all data
     const [
         allTeamsData,
         allPlayersData,
@@ -55,12 +52,9 @@ async function initializeTeamDetailPage() {
         fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *')
     ]);
 
-    // --- RENDER WIDGETS (with checks to make sure data exists) ---
-
     const teamData = allTeamsData ? allTeamsData.find(t => t['Team Name'] === decodedTeamName) : null;
     const teamStats = allTeamStatsData ? allTeamStatsData.find(ts => ts['Team Name'] === decodedTeamName) : null;
 
-    // 1. Render Record & Stats Widget
     if (teamData) {
         const wins = teamData.Wins || 0;
         const losses = teamData.Losses || 0;
@@ -72,9 +66,7 @@ async function initializeTeamDetailPage() {
         `;
     }
 
-    // 2. Render Rankings Widget
     if (teamData && teamStats && allTeamStatsData) {
-        // --- CORRECTED: Using 'PPG For' (lowercase 'or') to match your sheet ---
         const ppgValue = formatStat(teamStats['PPG For']);
         const rpgValue = formatStat(teamStats['RPG']);
         const apgValue = formatStat(teamStats['APG']);
@@ -86,14 +78,31 @@ async function initializeTeamDetailPage() {
         `;
     }
 
-    // 3. Render Roster Widget with Headshots
+    // --- THIS IS THE CORRECTED ROSTER SECTION ---
     if (allPlayersData) {
         const teamRoster = allPlayersData.filter(p => p['Team Name'] === decodedTeamName);
-        // ... (roster rendering logic remains the same)
+        if (teamRoster.length > 0) {
+            let rosterHtml = '<div class="space-y-3">';
+            teamRoster.forEach(player => {
+                const playerName = player['Player Name'];
+                const headshotUrl = player['Headshot URL'] || 'https://i.imgur.com/8so6K5A.png';
+                const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
+                rosterHtml += `
+                    <a href="${playerLink}" class="flex items-center group p-2 rounded-md hover:bg-gray-700">
+                        <img src="${headshotUrl}" onerror="this.onerror=null; this.src='https://i.imgur.com/8so6K5A.png';" class="w-10 h-10 rounded-full mr-3 object-cover bg-gray-600">
+                        <span class="text-sky-400 group-hover:underline font-medium">${playerName}</span>
+                    </a>
+                `;
+            });
+            rosterHtml += '</div>';
+            document.getElementById('team-roster-container').innerHTML = rosterHtml;
+        } else {
+            document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-300">No players found.</p>';
+        }
     }
+    // --- END ROSTER SECTION ---
 
-    // 4. Render Schedule Widget
-    // --- CORRECTED: Added a check to make sure scheduleData exists before filtering ---
+    // --- THIS IS THE CORRECTED SCHEDULE SECTION ---
     if (scheduleData && Array.isArray(scheduleData)) {
         const teamSchedule = scheduleData.filter(g => g['Team 1'] === decodedTeamName || g['Team 2'] === decodedTeamName);
         if (teamSchedule.length > 0) {
@@ -122,7 +131,7 @@ async function initializeTeamDetailPage() {
             document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-300">No schedule found for this team.</p>';
         }
     } else {
-        // If scheduleData failed to load, show an error message instead of crashing
         document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Could not load schedule data.</p>';
     }
+    // --- END SCHEDULE SECTION ---
 }

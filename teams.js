@@ -6,17 +6,21 @@ const TEAMS_QUERY = 'SELECT A';
 function renderTeamList(data) {
     const container = document.getElementById('team-list-container');
     if (!container) return;
+
+    // --- NEW: Filter out the "Reserve" team ---
+    const filteredData = data.filter(team => team['Team Name'] !== 'Reserve');
+
     container.innerHTML = '';
-    if (!data || data.length === 0) {
+    if (!filteredData || filteredData.length === 0) {
         container.innerHTML = '<p class="text-gray-300">No teams found for this season.</p>';
         return;
     }
-    data.forEach(team => {
+
+    filteredData.forEach(team => {
         const teamName = team['Team Name'];
         if (teamName) {
             const teamLink = document.createElement('a');
             teamLink.href = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
-            // Changed card colors and text
             teamLink.className = 'block p-4 bg-gray-800 border border-gray-700 rounded-lg shadow hover:bg-gray-700 transition duration-200 text-gray-200 font-semibold text-lg text-center';
             teamLink.textContent = teamName;
             container.appendChild(teamLink);

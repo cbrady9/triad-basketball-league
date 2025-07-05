@@ -7,28 +7,18 @@ function renderStandingsWidget(data) {
     const container = document.getElementById('standings-widget-container');
     if (!container) return;
 
-    // --- CORRECTED: Final, robust sorting logic ---
-    data.sort((a, b) => {
-        // Convert Win % string to a number for comparison
-        const winPctA = parseFloat(a['Win %']) || 0;
-        const winPctB = parseFloat(b['Win %']) || 0;
-        const winPctDiff = winPctB - winPctA;
-        if (winPctDiff !== 0) {
-            return winPctDiff;
-        }
+    // --- NEW: Filter out the "Reserve" team ---
+    const filteredData = data.filter(team => team['Team Name'] !== 'Reserve');
 
-        // Convert Point Differential string to a number for tiebreakers
-        const pdA = parseFloat(a['Point Differential']) || 0;
-        const pdB = parseFloat(b['Point Differential']) || 0;
-        return pdB - pdA;
-    });
+    // Sort the filtered data by Rank
+    filteredData.sort((a, b) => (a['Rank'] || 99) - (b['Rank'] || 99));
 
-    const topTeams = data.slice(0, 5);
+    const topTeams = filteredData.slice(0, 5);
     let html = '<h3 class="text-xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
     html += '<ol class="space-y-2">';
 
     topTeams.forEach((team, index) => {
-        const rank = index + 1; // Generate rank based on new sorted order
+        const rank = team['Rank'] || '-';
         const teamName = team['Team Name'];
         const wins = team['Wins'];
         const losses = team['Losses'];
@@ -47,7 +37,6 @@ function renderStandingsWidget(data) {
             statsParts.push(`${diffSign}${pointDiff} PD`);
         }
         const statsString = statsParts.join(' ');
-
         const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
 
         html += `

@@ -17,7 +17,7 @@ const SEASON_CONFIGS = {
         "GAME_LOG_GID": "306053944",
         "TRANSACTIONS_GID": "548202372"
     },
-    "S02": { // Your newly duplicated second season
+    /*"S02": { // Your newly duplicated second season
         "PLAYER_STATS_GID": "1449243249",
         "TEAM_STATS_GID": "636058703",
         "SCHEDULE_GID": "2096810957",
@@ -27,7 +27,7 @@ const SEASON_CONFIGS = {
         "GAME_LOG_GID": "1933650257",
         "TRANSACTIONS_GID": "680517263"
     }
-    // Add more seasons as you create them
+    // Add more seasons as you create them*/
 };
 // Function to get the current season from localStorage or default
 

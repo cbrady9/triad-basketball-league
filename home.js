@@ -115,7 +115,7 @@ function renderScheduleWidgets(data) {
                 <a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-300 text-sm">${game['Team 1']} vs ${game['Team 2']}</span>
-                        <span class="font-bold text-gray-200 text-sm">${game['Team 1 Score']} - ${game['Team 2 Score']}</span>
+                        <span class="text-gray-400 text-xs">${game['Team 1 Score']} - ${game['Team 2 Score']}</span>
                     </div>
                 </a>
             `;
@@ -137,7 +137,7 @@ function renderScheduleWidgets(data) {
                  <a href="${gameLink}" class="block p-3 bg-gray-700/50 rounded-md hover:bg-gray-700">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-300 text-sm">${game['Team 1']} vs ${game['Team 2']}</span>
-                        <span class="font-bold text-gray-200 text-sm">${game['Date']}</span>
+                        <span class="text-gray-400 text-xs">${game['Date']}</span>
                     </div>
                 </a>
             `;

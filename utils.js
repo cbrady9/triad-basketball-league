@@ -64,65 +64,6 @@ function getGID(tabName, season) {
 
 // createSeasonSelector: Creates and appends a season dropdown to the header, showing only S01 for now.
 function createSeasonSelector(currentSeason) {
-    if (typeof SEASON_CONFIGS === 'undefined') {
-        console.error("SEASON_CONFIGS is not defined.");
-        return;
-    }
-
-    // Since we're enforcing 'S01', we don't need to get all season keys
-    // const seasons = Object.keys(SEASON_CONFIGS).sort(); // REMOVED THIS LINE
-
-    let selector = document.getElementById('season-selector');
-
-    if (!selector) {
-        selector = document.createElement('select');
-        selector.id = 'season-selector';
-        selector.className = 'ml-4 p-2 rounded bg-gray-700 text-white'; // Tailwind classes
-        selector.disabled = true; // Make the selector unclickable
-
-        // Manually add only the 'S01' option
-        const option = document.createElement('option');
-        option.value = 'S01'; // The internal key for Season 1
-        option.textContent = 'Season 1'; // What the user sees
-        selector.appendChild(option);
-
-        selector.value = 'S01'; // Ensure the single option is selected
-
-        // The change event listener is still present, but won't fire if disabled.
-        // Keeping it might be useful if you later want to enable it with minimal changes.
-        selector.addEventListener('change', (event) => {
-            const newSeason = event.target.value;
-            localStorage.setItem('selectedSeason', newSeason);
-            // This assumes initializePage is a global function in each specific page's JS
-            if (window.initializePage && typeof window.initializePage === 'function') {
-                window.initializePage(); // Re-initialize the current page with new season data
-            } else {
-                console.error("window.initializePage not found. Cannot re-initialize page on season change.");
-                // Fallback: Reload the page if initializePage is not defined globally
-                // window.location.reload();
-            }
-        });
-
-        // Find where to append the selector (e.g., inside the header nav)
-        const headerNav = document.querySelector('header nav');
-        const selectorContainer = document.getElementById('season-selector-container');
-
-        if (selectorContainer) {
-            selectorContainer.appendChild(selector);
-        } else {
-            console.warn("Could not find #season-selector-container to append season selector.");
-        }
-    } else {
-        // If selector already exists (e.g., on re-initialization), just update its value and disable
-        selector.value = 'S01';
-        selector.disabled = true;
-        // If there were other options previously, you might want to clear them:
-        // selector.innerHTML = '';
-        // const option = document.createElement('option');
-        // option.value = 'S01';
-        // option.textContent = 'Season 1';
-        // selector.appendChild(option);
-    }
 }
 
 

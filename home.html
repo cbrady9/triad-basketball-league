@@ -4,11 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Players - Triad Basketball League</title>
+    <title>Triad Basketball League</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Example of some custom CSS if you need it, but try to stick to Tailwind */
+        body {
+            font-family: sans-serif;
+            /* Tailwind typically sets this, but for emphasis */
+        }
+    </style>
 </head>
 
 <body class="bg-gray-900 text-gray-200" style="font-family: 'Inter', sans-serif;">
@@ -138,16 +145,23 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 mt-6 space-y-8">
-        <section id="rostered-players-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 text-gray-200">League Players</h2>
-            <p class="text-gray-400">Loading...</p>
-        </section>
+    <main class="container mx-auto p-4 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <section id="reserve-players-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 text-gray-200">Reserve Players</h2>
-            <p class="text-gray-400">Loading...</p>
-        </section>
+            <div class="lg:col-span-1">
+                <div id="standings-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div id="recent-results-widget-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                </div>
+
+                <div id="next-games-widget-container" class="bg-gray-800 p-6 rounded-lg border border-ray-700">
+                </div>
+            </div>
+
+        </div>
     </main>
 
     <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">
@@ -155,10 +169,9 @@
             <p>&copy; 2025 Triad Basketball League. All rights reserved.</p>
         </div>
     </footer>
-
     <script src="config.js"></script>
     <script src="utils.js"></script>
-    <script src="players.js"></script>
+    <script src="home.js"></script>
 </body>
 
 </html>

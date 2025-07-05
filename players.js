@@ -1,40 +1,16 @@
 document.addEventListener('DOMContentLoaded', initializePlayersPage);
 window.initializePage = initializePlayersPage;
 
-// Sets up the live search filter functionality
-function setupSearchFilter() {
-    const searchInput = document.getElementById('player-search-input');
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-
-        // Select all player links from both sections
-        const allPlayerLinks = document.querySelectorAll('#rostered-players-grid a, #reserve-players-grid a');
-
-        allPlayerLinks.forEach(link => {
-            const playerName = link.textContent.toLowerCase();
-            if (playerName.includes(searchTerm)) {
-                link.style.display = 'block'; // Show link if it matches
-            } else {
-                link.style.display = 'none'; // Hide link if it doesn't match
-            }
-        });
-    });
-}
-
 // A reusable function to render a list of players into a specific container
-function renderPlayerSection(containerId, players, title) {
+function renderPlayerSection(containerId, players) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
+    // Sort players alphabetically
     players.sort((a, b) => a['Player Name'].localeCompare(b['Player Name']));
 
-    let html = ''; // Start with an empty string, the title is now in the HTML
-
     if (!players || players.length === 0) {
-        html += '<p class="text-gray-400">No players in this category.</p>';
-        container.innerHTML = html;
+        container.innerHTML = '<p class="text-gray-400">No players in this category.</p>';
         return;
     }
 
@@ -77,11 +53,9 @@ async function initializePlayersPage() {
         const rosteredPlayers = allPlayersData.filter(p => p['Team Name'] !== 'Reserve');
         const reservePlayers = allPlayersData.filter(p => p['Team Name'] === 'Reserve');
 
+        // Pass the container ID and the list of players to the rendering function
         renderPlayerSection('rostered-players-grid', rosteredPlayers);
         renderPlayerSection('reserve-players-grid', reservePlayers);
-
-        // --- NEW: Set up the search filter after players are rendered ---
-        setupSearchFilter();
     } else {
         console.error('Failed to load players data.');
         rosteredContainer.innerHTML = '<p class="text-red-500">Failed to load players data.</p>';

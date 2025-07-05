@@ -42,6 +42,7 @@
             <nav class="hidden md:flex items-center">
                 <ul class="flex items-center space-x-6">
                     <li><a href="index.html" class="text-gray-300 hover:text-white">Home</a></li>
+
                     <li class="relative group">
                         <button class="text-gray-300 hover:text-white flex items-center">
                             <span>League</span>
@@ -85,8 +86,24 @@
                                 Stats</a>
                         </div>
                     </li>
-                    <li><a href="https://discord.gg/Q6RGpkbMJn" class="text-gray-300 hover:text-white" target="_blank"
-                            rel="noopener noreferrer">Discord</a></li>
+
+                    <li class="relative group">
+                        <button class="text-gray-300 hover:text-white flex items-center">
+                            <span>Socials</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div
+                            class="absolute right-0 top-full w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
+                            <a href="https://discord.gg/Q6RGpkbMJn" target="_blank" rel="noopener noreferrer"
+                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Discord</a>
+                            <a href="https://www.youtube.com/@TriadBasketLeague" target="_blank"
+                                rel="noopener noreferrer"
+                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">YouTube</a>
+                        </div>
+                    </li>
                 </ul>
                 <div id="season-selector-container" class="ml-6"></div>
             </nav>
@@ -133,9 +150,13 @@
                 <li><a href="team-stats.html"
                         class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Team
                         Stats</a></li>
-                <li class="pt-4"><a href="https://discord.gg/Q6RGpkbMJn"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
+                <li class="font-semibold text-white px-3 pt-4 pb-2">Socials</li>
+                <li><a href="https://discord.gg/Q6RGpkbMJn"
+                        class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
                         target="_blank" rel="noopener noreferrer">Discord</a></li>
+                <li><a href="https://www.youtube.com/@TriadBasketLeague"
+                        class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
+                        target="_blank" rel="noopener noreferrer">YouTube</a></li>
             </ul>
         </div>
     </header>

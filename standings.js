@@ -62,8 +62,8 @@ async function initializeStandingsPage() {
 
     document.getElementById('standings-data-container').innerHTML = '<p class="text-gray-300">Loading standings...</p>';
 
-    // --- UPDATED to select all columns for a complete table ---
-    const tableData = await fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT *');
+    // UPDATED to select all columns for reliability
+    const tableData = await fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D, E, F, G');
     if (tableData) {
         renderStandingsTable(tableData);
     }

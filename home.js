@@ -120,8 +120,9 @@ async function initializeHomePage() {
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
 
     try {
+        // UPDATED to select all necessary columns including Win % (F) and Rank (G)
         const [standingsData, scheduleData] = await Promise.all([
-            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT *'),
+            fetchGoogleSheetData(SHEET_ID, standingsGID, 'SELECT A, B, C, D, E, F, G'),
             fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT A, B, C, D, E, F, G, H')
         ]);
 

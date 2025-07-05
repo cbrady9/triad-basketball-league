@@ -159,13 +159,20 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 mt-4">
-        <section class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-            <h2 class="text-3xl font-bold mb-2 text-gray-100">
-                Schedule & Results</h2>
-            <p class="text-lg text-gray-400 mb-6">League schedule & results will appear here.</p>
-            <div class="overflow-x-auto">
-                <div id="schedule-data-container" class="mt-4"> </div>
+    <main class="container mx-auto p-4 mt-6 space-y-8">
+        <section id="upcoming-games-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-3xl font-bold mb-2 text-gray-100">Upcoming Games</h2>
+            <p class="text-lg text-gray-400 mb-6">The next scheduled games for the league.</p>
+            <div id="upcoming-games-grid">
+                <p class="text-gray-400">Loading...</p>
+            </div>
+        </section>
+
+        <section id="results-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-3xl font-bold mb-2 text-gray-100">Results</h2>
+            <p class="text-lg text-gray-400 mb-6">Results from all completed games.</p>
+            <div id="results-grid">
+                <p class="text-gray-400">Loading...</p>
             </div>
         </section>
     </main>

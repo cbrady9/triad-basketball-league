@@ -35,7 +35,9 @@ async function initializeTeamsPage() {
         teamsContainer.innerHTML = '<p class="text-red-500">Error: Teams data not configured.</p>';
         return;
     }
-    const teamData = await fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT *'); // Fetch all columns
+    // UPDATED: This now specifically requests the columns we need for reliability.
+    // Assumes Team Name is in Col A and Logo URL is in Col H. Adjust if needed.
+    const teamData = await fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H');
     if (teamData) {
         renderTeamList(teamData);
     } else {

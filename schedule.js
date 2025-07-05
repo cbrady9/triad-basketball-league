@@ -1,32 +1,33 @@
-// schedule.js
+document.addEventListener('DOMContentLoaded', initializeSchedulePage);
+window.initializePage = initializeSchedulePage;
 
-function renderSchedule(data) {
-    const container = document.getElementById('schedule-data-container');
+// Renders a grid of game cards into a specific container
+function renderGameGrid(containerId, games, isUpcoming) {
+    const container = document.getElementById(containerId);
     if (!container) return;
-    container.innerHTML = '';
 
-    if (!data || data.length === 0) {
-        container.innerHTML = `<div class="text-center py-12"><img src="https://images.undraw.co/undraw_calendar_re_ki49.svg" alt="No upcoming games" class="mx-auto w-32 h-32 opacity-40"><p class="text-gray-400 mt-4">No games scheduled yet.</p></div>`;
+    if (!games || games.length === 0) {
+        const message = isUpcoming ? "No upcoming games scheduled." : "No results yet.";
+        container.innerHTML = `<p class="text-gray-400">${message}</p>`;
         return;
     }
 
-    const scheduleGrid = document.createElement('div');
-    scheduleGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
 
-    data.forEach(game => {
+    games.forEach(game => {
         const gameId = game['Game ID'];
         const team1 = game['Team 1'];
         const team2 = game['Team 2'];
         const team1Score = game['Team 1 Score'];
         const team2Score = game['Team 2 Score'];
         const gameDate = game['Date'];
-        // UPDATED: This now defaults to an empty string if location is missing
         const location = game['Location'] || '';
-        const hasBeenPlayed = (game['Winner'] !== null && game['Winner'] !== '');
 
         let scoreOrTime;
-        let resultClass = 'bg-gray-700 text-gray-300';
-        if (hasBeenPlayed) {
+        let resultClass = 'bg-gray-700 text-gray-300'; // Default for upcoming games
+
+        if (!isUpcoming) {
             scoreOrTime = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
             resultClass = 'bg-teal-900/50 text-teal-300';
         } else {
@@ -34,9 +35,9 @@ function renderSchedule(data) {
         }
 
         const gameCard = `
-            <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-800 border border-gray-700 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
+            <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-700/50 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
                 <div class="p-4">
-                    <p class="text-sm text-gray-400 text-center mb-2">${location}</p>
+                    <p class="text-sm text-gray-400 text-center mb-2 h-4">${location}</p>
                     <div class="flex justify-between items-center text-lg text-gray-200">
                         <span class="font-semibold">${team1}</span>
                         <span class="font-semibold">${team2}</span>
@@ -47,36 +48,37 @@ function renderSchedule(data) {
                 </div>
             </a>
         `;
-        scheduleGrid.innerHTML += gameCard;
+        grid.innerHTML += gameCard;
     });
 
-    container.appendChild(scheduleGrid);
+    container.innerHTML = '';
+    container.appendChild(grid);
 }
 
 async function initializeSchedulePage() {
     const currentSeason = getCurrentSeason();
-    createSeasonSelector(currentSeason); // Initialize season selector
+    createSeasonSelector(currentSeason);
 
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
-
     if (!scheduleGID) {
-        console.error("Schedule GID not found for current season:", currentSeason);
-        document.getElementById('schedule-data-container').innerHTML = '<p class="text-red-500">Error: Schedule data not configured for this season.</p>';
+        // Handle error
         return;
     }
 
-    document.getElementById('schedule-data-container').innerHTML = '<p class="text-gray-600">Loading schedule...</p>';
+    const allGamesData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT *');
 
-    // IMPORTANT: We now select specific columns, including 'Game ID' (column A) for linking
-    const SCHEDULE_QUERY = 'SELECT A, B, C, D, E, F, G, H, I';
-    const tableData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, SCHEDULE_QUERY);
+    if (allGamesData) {
+        // Filter out any rows that don't have a Game ID, which are likely blank
+        const validGames = allGamesData.filter(game => game['Game ID'] && game['Game ID'].trim() !== '');
 
-    if (tableData) {
-        renderSchedule(tableData);
+        // Separate games into two lists
+        const upcomingGames = validGames.filter(game => !game.Winner || game.Winner.trim() === '');
+        const results = validGames.filter(game => game.Winner && game.Winner.trim() !== '').reverse(); // Show most recent first
+
+        // Render each section
+        renderGameGrid('upcoming-games-grid', upcomingGames, true);
+        renderGameGrid('results-grid', results, false);
     } else {
-        document.getElementById('schedule-data-container').innerHTML = '<p class="text-red-500">Failed to load schedule. Please try again later.</p>';
+        // Handle error
     }
 }
-
-document.addEventListener('DOMContentLoaded', initializeSchedulePage);
-window.initializePage = initializeSchedulePage; // For season selector

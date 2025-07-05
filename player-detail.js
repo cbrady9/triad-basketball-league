@@ -48,21 +48,20 @@ async function initializePlayerDetailPage() {
 
     // Display Curated Player Stats
     if (playerStats) {
+        // --- UPDATED: Removed FG% from this list ---
         const desiredStats = [
             { header: 'Games Played', key: 'Games Played' }, { header: 'PPG', key: 'PPG' }, { header: 'RPG', key: 'RPG' }, { header: 'APG', key: 'APG' },
-            { header: 'SPG', key: 'SPG' }, { header: 'BPG', key: 'BPG' }, { header: 'TPG', key: 'TPG' }, { header: 'FG%', key: 'FG%' }
+            { header: 'SPG', key: 'SPG' }, { header: 'BPG', key: 'BPG' }, { header: 'TPG', key: 'TPG' }
         ];
-        // --- NEW: List of stats that need decimal formatting ---
-        const statsToFormat = ['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
         let statsHtml = `<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full"><thead class="bg-gray-800"><tr>`;
-        desiredStats.forEach(stat => { statsHtml += `<th class="py-2 px-4 border-b border-gray-600 text-left text-sm font-semibold text-gray-300">${stat.header}</th>`; });
+        desiredStats.forEach(stat => { statsHtml += `<th class="py-2 px-4 border-b border-gray-600 text-left text-sm font-semibold text-gray-300 uppercase">${stat.header}</th>`; });
         statsHtml += `</tr></thead><tbody class="divide-y divide-gray-700"><tr>`;
 
         desiredStats.forEach(stat => {
             let value = playerStats[stat.key] !== undefined ? playerStats[stat.key] : 'N/A';
-            // --- NEW: Apply formatting if the stat is in our list ---
-            if (statsToFormat.includes(stat.key)) {
+            // Apply decimal formatting to the per-game stats
+            if (['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'].includes(stat.key)) {
                 value = formatStat(value);
             }
             statsHtml += `<td class="py-2 px-4 text-sm text-gray-300">${value}</td>`;

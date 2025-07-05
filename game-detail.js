@@ -2,7 +2,6 @@
 
 // This function creates a single box score table for one team
 function createBoxScoreTable(teamName, teamStats) {
-    // Updated main div classes
     let tableHtml = `
         <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
             <h3 class="text-xl font-semibold mb-3 text-gray-200">${teamName}</h3>
@@ -16,6 +15,7 @@ function createBoxScoreTable(teamName, teamStats) {
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">AST</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">STL</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">BLK</th>
+                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">TOV</th> {/* Added TOV header */}
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">1PM</th>
                             <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">2PM</th>
                         </tr>
@@ -32,7 +32,6 @@ function createBoxScoreTable(teamName, teamStats) {
     teamStats.forEach(player => {
         const playerName = player['Player'];
         const encodedPlayerName = encodeURIComponent(playerName);
-        // Updated link color
         const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${playerName}</a>`;
         tableHtml += `
             <tr class="hover:bg-gray-700">
@@ -42,6 +41,7 @@ function createBoxScoreTable(teamName, teamStats) {
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.assists] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.steals] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.blocks] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${player['Turnovers'] || 0}</td> {/* Added TOV data cell */}
                 <td class="px-4 py-2 text-right text-gray-300">${player['1PM'] || 0}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${player['2PM'] || 0}</td>
             </tr>

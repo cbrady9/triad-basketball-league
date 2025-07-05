@@ -15,7 +15,8 @@ const SEASON_CONFIGS = {
         "PLAYERS_GID": "0",
         "TEAMS_GID": "2001178505",
         "GAME_LOG_GID": "306053944",
-        "TRANSACTIONS_GID": "548202372"
+        "TRANSACTIONS_GID": "548202372",
+        "WEEKLY_AWARDS_GID": "1562174280"
     },
     /*"S02": { // Your newly duplicated second season
         "PLAYER_STATS_GID": "1449243249",

@@ -17,8 +17,15 @@ function renderTeamStatsTable(data) {
     tableHTML += '<tr>';
 
     const headers = Object.keys(data[0]);
-    // --- NEW: List of headers that need decimal formatting ---
-    const statsToFormat = ['Points For Per Game', 'Points Against Per Game', 'Rebounds Per Game', 'Assists Per Game', 'Steals Per Game', 'Blocks Per Game'];
+    // --- CORRECTED: Headers are now in all uppercase to match the sheet ---
+    const statsToFormat = [
+        'POINTS FOR PER GAME',
+        'POINTS AGAINST PER GAME',
+        'REBOUNDS PER GAME',
+        'ASSISTS PER GAME',
+        'STEALS PER GAME',
+        'BLOCKS PER GAME'
+    ];
 
     headers.forEach(header => {
         const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
@@ -34,7 +41,7 @@ function renderTeamStatsTable(data) {
             let value = row[header] !== undefined ? row[header] : '';
             let displayValue = value;
 
-            // --- NEW: Apply formatting if the header is in our list ---
+            // This check will now work correctly
             if (statsToFormat.includes(header)) {
                 displayValue = formatStat(value);
             }

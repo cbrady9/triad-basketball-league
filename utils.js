@@ -173,3 +173,17 @@ function sortTable(header, container) {
     // Re-append sorted rows to the tbody
     rows.forEach(row => tbody.appendChild(row));
 }
+
+function initializeMobileMenu() {
+    const menuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (menuButton && mobileMenu) {
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+}
+
+// Ensure the mobile menu is initialized on every page load
+document.addEventListener('DOMContentLoaded', initializeMobileMenu);

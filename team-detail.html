@@ -99,7 +99,8 @@
                             class="absolute right-0 top-full w-48 bg-gray-700 border border-gray-600 rounded-md shadow-lg p-2 hidden group-hover:block">
                             <a href="https://discord.gg/Q6RGpkbMJn" target="_blank" rel="noopener noreferrer"
                                 class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">Discord</a>
-                            <a href="#" target="_blank" rel="noopener noreferrer"
+                            <a href="https://www.youtube.com/@TriadBasketLeague" target="_blank"
+                                rel="noopener noreferrer"
                                 class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 rounded-md">YouTube</a>
                         </div>
                     </li>
@@ -154,50 +155,43 @@
                 <li><a href="https://discord.gg/Q6RGpkbMJn"
                         class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
                         target="_blank" rel="noopener noreferrer">Discord</a></li>
-                <li><a href="#"
+                <li><a href="https://www.youtube.com/@TriadBasketLeague"
                         class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
                         target="_blank" rel="noopener noreferrer">YouTube</a></li>
             </ul>
         </div>
     </header>
 
-    <main class="container mx-auto p-6 mt-4">
-        <h1 class="text-4xl font-extrabold mb-8 text-blue-700" id="team-name-display">Loading Team...</h1>
-        <p class="text-xl text-gray-300 mb-6">
-            <span id="current-season-display" class="ml-2 text-lg text-gray-400"></span>
-        </p>
+    <main class="container mx-auto p-4 mt-6">
+        <h1 id="team-name-display" class="text-4xl font-extrabold mb-8 text-gray-100">Loading Team...</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"></div> <h2
-                class="text-xl font-semibold mb-4 text-blue-600">Record & Stats</h2>
-                <div id="team-record-stats" class="text-lg space-y-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-gray-100">Record & Stats</h2>
+                <div id="team-record-stats" class="text-lg space-y-2 text-gray-300">
                     <p class="text-gray-400">Loading record and stats...</p>
                 </div>
             </div>
-
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"></div> <h2
-                class="text-xl font-semibold mb-4 text-blue-600">Rankings</h2>
-                <div id="team-rankings" class="text-lg space-y-2">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-gray-100">Rankings</h2>
+                <div id="team-rankings" class="text-lg space-y-2 text-gray-300">
                     <p class="text-gray-400">Loading rankings...</p>
                 </div>
             </div>
-
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"></div> <h2
-                class="text-xl font-semibold mb-4 text-blue-600">Roster</h2>
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-gray-100">Roster</h2>
                 <div id="team-roster-container" class="mt-4">
                     <p class="text-gray-400">Loading roster...</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700"></div> <h2
-            class="text-2xl font-semibold mb-4 text-blue-600">Schedule</h2>
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <h2 class="text-2xl font-bold mb-4 text-gray-100">Schedule</h2>
             <div id="team-schedule-container" class="overflow-x-auto">
                 <p class="text-gray-400">Loading schedule...</p>
             </div>
         </div>
-
     </main>
 
     <footer class="bg-gray-800 text-gray-400 p-4 mt-8 text-center text-sm">

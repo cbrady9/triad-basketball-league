@@ -1,53 +1,43 @@
 document.addEventListener('DOMContentLoaded', initializeTeamStatsPage);
 window.initializePage = initializeTeamStatsPage;
 
-// --- UPDATED: This function now accepts the main team data to get logo URLs ---
-function renderTeamStatsTable(statsData, teamsData) {
+function renderTeamStatsTable(data) {
     const container = document.getElementById('team-stats-data-container');
     if (!container) return;
 
-    if (!statsData || statsData.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-12">
-                <img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No stats available" class="mx-auto w-40 h-40 mb-4 opacity-50">
-                <p class="text-lg text-gray-400">No team stats available yet.</p>
-            </div>
-        `;
+    if (!data || data.length === 0) {
+        container.innerHTML = `<div class="text-center py-12"><img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No stats available" class="mx-auto w-40 h-40 mb-4 opacity-50"><p class="text-lg text-gray-400">No team stats available yet.</p></div>`;
         return;
     }
 
+    // A map to rename headers for a cleaner display
+    const headerMap = {
+        'Games Played (Internal)': 'GP',
+        'Point Differential': 'PD'
+    };
+
+    // Define the exact order and headers to display
+    const orderedHeaders = ['Team Name', 'Games Played (Internal)', 'Wins', 'Losses', 'Win %', 'Point Differential'];
+
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    tableHTML += '<thead class="bg-gray-800">';
-    tableHTML += '<tr>';
+    tableHTML += '<thead class="bg-gray-800"><tr>';
 
-    const headers = Object.keys(statsData[0]);
-    const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
-
-    headers.forEach(header => {
-        const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
-        tableHTML += `<th scope="col" class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${isSortable}">${header}</th>`;
+    orderedHeaders.forEach(header => {
+        const displayHeader = headerMap[header] || header;
+        tableHTML += `<th scope="col" class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-300 uppercase tracking-wider sortable">${displayHeader}</th>`;
     });
     tableHTML += '</tr></thead>';
 
     tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
-    statsData.forEach(row => {
+    data.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
-        headers.forEach(header => {
-            let value = row[header] !== undefined ? row[header] : '';
-            let displayValue = value;
-
-            if (statsToFormat.includes(header)) {
-                displayValue = formatStat(value);
-            }
+        orderedHeaders.forEach(header => {
+            let displayValue = '';
 
             if (header.toUpperCase() === 'TEAM NAME') {
-                const teamName = value;
-
-                // --- NEW: Using a direct .find() method for a more robust lookup ---
-                const teamInfo = teamsData.find(t => t['Team Name'] === teamName);
-                const logoUrl = teamInfo ? teamInfo['Logo URL'] : 'https://i.imgur.com/p3nQp25.png';
-
+                const teamName = row[header] || '';
+                const logoUrl = row['Logo URL'] || 'https://i.imgur.com/p3nQp25.png'; // Get logo from the same row
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">
@@ -55,6 +45,9 @@ function renderTeamStatsTable(statsData, teamsData) {
                         <span class="text-sky-400 group-hover:underline font-semibold">${teamName}</span>
                     </a>
                 `;
+            } else {
+                const value = row[header] !== undefined ? row[header] : '';
+                displayValue = value;
             }
 
             tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayValue}</td>`;
@@ -71,36 +64,28 @@ function renderTeamStatsTable(statsData, teamsData) {
     });
 }
 
-// --- UPDATED: This now fetches data from two sheets ---
 async function initializeTeamStatsPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
     document.getElementById('team-stats-data-container').innerHTML = '<p class="text-gray-400">Loading team stats...</p>';
 
-    const teamStatsGID = getGID('TEAM_STATS_GID', currentSeason);
+    // --- UPDATED: Now uses TEAMS_GID as the single source of data ---
     const teamsGID = getGID('TEAMS_GID', currentSeason);
 
-    if (!teamStatsGID || !teamsGID) {
+    if (!teamsGID) {
         document.getElementById('team-stats-data-container').innerHTML = '<p class="text-red-500">Error: Page not configured correctly.</p>';
         return;
     }
 
     try {
-        const [teamStatsData, teamsData] = await Promise.all([
-            fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *'),
-            fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H')
-        ]);
+        const teamData = await fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT *');
 
-        if (teamStatsData && teamsData) {
-            // --- UPDATED: This now trims spaces from the team name for a reliable match ---
-            const renamedTeamsData = teamsData.map(team => ({
-                'Team Name': team['A'] ? team['A'].trim() : '', // Trim whitespace here
-                'Logo URL': team['H']
-            }));
-
-            renderTeamStatsTable(teamStatsData, renamedTeamsData);
+        if (teamData) {
+            // Filter out the "Reserve" team before rendering
+            const filteredTeams = teamData.filter(team => team['Team Name'] !== 'Reserve');
+            renderTeamStatsTable(filteredTeams);
         } else {
-            throw new Error("One or more datasets failed to load.");
+            throw new Error("Team data failed to load.");
         }
     } catch (error) {
         console.error("Failed to initialize team stats page:", error);

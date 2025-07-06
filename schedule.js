@@ -24,14 +24,20 @@ function renderGameGrid(containerId, games, isUpcoming) {
         const gameDate = game['Date'];
         const location = game['Location'] || '';
 
-        let scoreOrTime;
-        let resultClass = 'bg-gray-700 text-gray-300'; // Default for upcoming games
+        let scoreDisplay;
+        let resultClass = 'bg-gray-700 text-gray-300';
 
         if (!isUpcoming) {
-            scoreOrTime = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
+            // --- UPDATED: Result card now includes the date ---
+            scoreDisplay = `
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-400 text-xs">${gameDate}</span>
+                    <span class="font-bold">${team1Score} - ${team2Score}</span>
+                </div>
+            `;
             resultClass = 'bg-teal-900/50 text-teal-300';
         } else {
-            scoreOrTime = `<span>${gameDate}</span>`;
+            scoreDisplay = `<span>${gameDate}</span>`;
         }
 
         const gameCard = `
@@ -43,8 +49,8 @@ function renderGameGrid(containerId, games, isUpcoming) {
                         <span class="font-semibold">${team2}</span>
                     </div>
                 </div>
-                <div class="px-4 py-2 text-center text-sm ${resultClass}">
-                    ${scoreOrTime}
+                <div class="px-4 py-2 text-center text-sm font-semibold ${resultClass}">
+                    ${scoreDisplay}
                 </div>
             </a>
         `;

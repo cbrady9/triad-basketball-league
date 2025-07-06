@@ -10,11 +10,11 @@ function renderTeamStatsTable(statsData, teamsData) {
         return;
     }
 
-    // This lookup map will now be created with the correct data
+    // Create a robust lookup map for logos from the full teamsData
     const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
 
     const headers = Object.keys(statsData[0]);
-    const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
+    const statsToFormat = ['PPG For', 'PPG Against', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
     let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800 sticky top-0"><tr>';
@@ -39,7 +39,9 @@ function renderTeamStatsTable(statsData, teamsData) {
 
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = value;
+                // Trim the team name from this sheet before looking it up in the map
                 const logoUrl = logoMap.get(teamName.trim()) || 'https://i.imgur.com/p3nQp25.png';
+
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">
@@ -79,20 +81,14 @@ async function initializeTeamStatsPage() {
     try {
         const [teamStatsData, teamsData] = await Promise.all([
             fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *'),
-            fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H')
+            // --- UPDATED: Fetch all columns from the Teams sheet for reliability ---
+            fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT *')
         ]);
 
         if (teamStatsData && teamsData) {
-            const renamedTeamsData = teamsData.map(team => ({
-                'Team Name': team['A'] ? team['A'].trim() : '',
-                'Logo URL': team['H']
-            }));
-
+            // No need to rename data when using SELECT *
             const filteredStatsData = teamStatsData.filter(team => team['Team Name'] !== 'Reserve');
-
-            // --- THIS IS THE CORRECTED LINE ---
-            // It now passes the correctly renamed logo data to the rendering function.
-            renderTeamStatsTable(filteredStatsData, renamedTeamsData);
+            renderTeamStatsTable(filteredStatsData, teamsData);
         } else {
             throw new Error("One or more datasets failed to load.");
         }

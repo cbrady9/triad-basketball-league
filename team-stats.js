@@ -10,18 +10,19 @@ function renderTeamStatsTable(statsData, teamsData) {
         return;
     }
 
+    // Create a robust lookup map for logos
     const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
-    const headers = Object.keys(statsData[0]);
-    // UPDATED: Added PPG For and PPG Against to the formatting list
-    const statsToFormat = ['PPG For', 'PPG Against', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
-    // UPDATED: Added classes for better scrolling
+    // List of stat headers that need decimal formatting
+    const statsToFormat = ['PPG For', 'PPG Against', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
+    const headers = Object.keys(statsData[0]);
+
+    // Added classes for better scrolling with a sticky header
     let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    // UPDATED: Made table header sticky
     tableHTML += '<thead class="bg-gray-800 sticky top-0"><tr>';
 
     headers.forEach(header => {
-        const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
+        const isSortable = ['TEAM NAME'].includes(header.toUpperCase()) ? '' : 'sortable';
         tableHTML += `<th scope="col" class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${isSortable}">${header}</th>`;
     });
     tableHTML += '</tr></thead>';
@@ -31,16 +32,19 @@ function renderTeamStatsTable(statsData, teamsData) {
     statsData.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
-            let value = row[header] !== undefined ? row[header] : '';
+            let value = row[header] ?? ''; // Use ?? to handle null/undefined
             let displayValue = value;
 
+            // Apply decimal formatting to all average stats
             if (statsToFormat.includes(header)) {
-                displayValue = formatStat(value);
+                displayValue = formatStat(value); // formatStat() will show '-' for non-numbers
             }
 
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = value;
-                const logoUrl = logoMap.get(teamName) || 'https://i.imgur.com/p3nQp25.png';
+                // Trim the team name from this sheet before looking it up in the map
+                const logoUrl = logoMap.get(teamName.trim()) || 'https://i.imgur.com/p3nQp25.png';
+
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">

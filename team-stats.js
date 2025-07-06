@@ -10,14 +10,12 @@ function renderTeamStatsTable(statsData, teamsData) {
         return;
     }
 
-    // Create a robust lookup map for logos
+    // This lookup map will now be created with the correct data
     const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
 
-    // List of stat headers that need decimal formatting
-    const statsToFormat = ['PPG For', 'PPG Against', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
     const headers = Object.keys(statsData[0]);
+    const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
 
-    // Added classes for better scrolling with a sticky header
     let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800 sticky top-0"><tr>';
 
@@ -32,19 +30,16 @@ function renderTeamStatsTable(statsData, teamsData) {
     statsData.forEach(row => {
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
-            let value = row[header] ?? ''; // Use ?? to handle null/undefined
+            let value = row[header] ?? '';
             let displayValue = value;
 
-            // Apply decimal formatting to all average stats
             if (statsToFormat.includes(header)) {
-                displayValue = formatStat(value); // formatStat() will show '-' for non-numbers
+                displayValue = formatStat(value);
             }
 
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = value;
-                // Trim the team name from this sheet before looking it up in the map
                 const logoUrl = logoMap.get(teamName.trim()) || 'https://i.imgur.com/p3nQp25.png';
-
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">
@@ -94,6 +89,9 @@ async function initializeTeamStatsPage() {
             }));
 
             const filteredStatsData = teamStatsData.filter(team => team['Team Name'] !== 'Reserve');
+
+            // --- THIS IS THE CORRECTED LINE ---
+            // It now passes the correctly renamed logo data to the rendering function.
             renderTeamStatsTable(filteredStatsData, renamedTeamsData);
         } else {
             throw new Error("One or more datasets failed to load.");

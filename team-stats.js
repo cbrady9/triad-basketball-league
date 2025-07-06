@@ -16,7 +16,7 @@ function renderTeamStatsTable(statsData, teamsData) {
         return;
     }
 
-    // --- NEW: Create a map for easy logo lookup ---
+    // --- CORRECTED: Uses the correct 'teamsData' variable ---
     const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
@@ -44,7 +44,6 @@ function renderTeamStatsTable(statsData, teamsData) {
                 displayValue = formatStat(value);
             }
 
-            // --- NEW: Special handling for the "Team Name" column to add logo and link ---
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = value;
                 const logoUrl = logoMap.get(teamName) || 'https://i.imgur.com/p3nQp25.png';

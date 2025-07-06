@@ -16,11 +16,6 @@ function renderTeamStatsTable(statsData, teamsData) {
         return;
     }
 
-    const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
-
-    // --- DEBUGGING STEP 1: See what's in our lookup map ---
-    console.log("Logo Map created:", logoMap);
-
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
     tableHTML += '<thead class="bg-gray-800">';
     tableHTML += '<tr>';
@@ -37,9 +32,6 @@ function renderTeamStatsTable(statsData, teamsData) {
     tableHTML += '<tbody class="bg-gray-800 divide-y divide-gray-700">';
 
     statsData.forEach(row => {
-        // --- DEBUGGING STEP 2: See what name we are trying to look up ---
-        console.log("Processing row for team:", row['TEAM NAME']);
-
         tableHTML += '<tr class="hover:bg-gray-700">';
         headers.forEach(header => {
             let value = row[header] !== undefined ? row[header] : '';
@@ -51,7 +43,11 @@ function renderTeamStatsTable(statsData, teamsData) {
 
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = value;
-                const logoUrl = logoMap.get(teamName) || 'https://i.imgur.com/p3nQp25.png';
+
+                // --- NEW: Using a direct .find() method for a more robust lookup ---
+                const teamInfo = teamsData.find(t => t['Team Name'] === teamName);
+                const logoUrl = teamInfo ? teamInfo['Logo URL'] : 'https://i.imgur.com/p3nQp25.png';
+
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">

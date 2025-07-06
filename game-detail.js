@@ -29,21 +29,26 @@ function createBoxScoreTable(teamName, teamStats) {
         steals: 'Steals',
         blocks: 'Blocks'
     };
+
     teamStats.forEach(player => {
         const playerName = player['Player'];
         const encodedPlayerName = encodeURIComponent(playerName);
         const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${playerName}</a>`;
+
+        // --- NEW: Helper function to display '-' for blank stats ---
+        const getStat = (stat) => (stat === null || stat === undefined || stat === '') ? '-' : stat;
+
         tableHtml += `
             <tr class="hover:bg-gray-700">
                 <td class="px-4 py-2 whitespace-nowrap">${playerLink}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.points] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.rebounds] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.assists] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.steals] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player[statColumns.blocks] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player['Turnovers'] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player['1PM'] || 0}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${player['2PM'] || 0}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.points])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.rebounds])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.assists])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.steals])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.blocks])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Turnovers'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['1PM'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['2PM'])}</td>
             </tr>
         `;
     });

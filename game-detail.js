@@ -57,15 +57,14 @@ function createBoxScoreTable(teamName, teamStats) {
 }
 async function initializeGameDetailPage() {
     const currentSeason = getCurrentSeason();
-    createSeasonSelector(currentSeason); // Initialize the season selector
+    createSeasonSelector(currentSeason);
 
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('gameId');
 
-    const gameInfoContainer = document.getElementById('game-info-container');
-    const boxScoreContainer = document.getElementById('box-score-container');
     const gameHeader = document.getElementById('game-header');
     const pageTitle = document.getElementById('page-title');
+    const boxScoreContainer = document.getElementById('box-score-container');
 
     if (!gameId) {
         gameHeader.textContent = 'Error: No Game ID provided.';
@@ -78,7 +77,6 @@ async function initializeGameDetailPage() {
         return;
     }
 
-    // Fetch all game log data for the specific game
     const GAME_LOG_QUERY = `SELECT * WHERE A = '${gameId}'`;
     const gameLogData = await fetchGoogleSheetData(SHEET_ID, gameLogGID, GAME_LOG_QUERY);
 
@@ -87,7 +85,6 @@ async function initializeGameDetailPage() {
         return;
     }
 
-    // Separate player stats by team
     const teams = {};
     gameLogData.forEach(playerRow => {
         const teamName = playerRow['Team'];
@@ -103,18 +100,16 @@ async function initializeGameDetailPage() {
         return;
     }
 
-    // Update headers and page title
     const team1Name = teamNames[0];
     const team2Name = teamNames[1];
     gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
-    // Get total scores to display in the sub-header
-    const team1Score = teams[team1Name].reduce((total, player) => total + Number(player['Points'] || 0), 0);
-    const team2Score = teams[team2Name].reduce((total, player) => total + Number(player['Points'] || 0), 0);
+    // --- UPDATED: This section now looks for 'Points' instead of 'PTS' ---
+    const team1Score = teams[team1Name].reduce((total, player) => total + (Number(player['Points']) || 0), 0);
+    const team2Score = teams[team2Name].reduce((total, player) => total + (Number(player['Points']) || 0), 0);
     document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
 
-    // Create and display the box score tables
     const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
     const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
 

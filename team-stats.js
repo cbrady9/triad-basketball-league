@@ -78,7 +78,7 @@ async function initializeTeamStatsPage() {
     document.getElementById('team-stats-data-container').innerHTML = '<p class="text-gray-400">Loading team stats...</p>';
 
     const teamStatsGID = getGID('TEAM_STATS_GID', currentSeason);
-    const teamsGID = getGID('TEAMS_GID', currentSeason); // GID for the main teams sheet
+    const teamsGID = getGID('TEAMS_GID', currentSeason);
 
     if (!teamStatsGID || !teamsGID) {
         document.getElementById('team-stats-data-container').innerHTML = '<p class="text-red-500">Error: Page not configured correctly.</p>';
@@ -88,15 +88,16 @@ async function initializeTeamStatsPage() {
     try {
         const [teamStatsData, teamsData] = await Promise.all([
             fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *'),
-            fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H') // Fetch Team Name (A) and Logo URL (H)
+            fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H')
         ]);
 
         if (teamStatsData && teamsData) {
-            // Rename columns from the SELECT A, H query for easier use
+            // --- UPDATED: This now trims spaces from the team name for a reliable match ---
             const renamedTeamsData = teamsData.map(team => ({
-                'Team Name': team['A'],
+                'Team Name': team['A'] ? team['A'].trim() : '', // Trim whitespace here
                 'Logo URL': team['H']
             }));
+
             renderTeamStatsTable(teamStatsData, renamedTeamsData);
         } else {
             throw new Error("One or more datasets failed to load.");

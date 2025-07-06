@@ -11,12 +11,14 @@ function renderTeamStatsTable(statsData, teamsData) {
     }
 
     const logoMap = new Map(teamsData.map(team => [team['Team Name'], team['Logo URL']]));
-
-    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    tableHTML += '<thead class="bg-gray-800"><tr>';
-
     const headers = Object.keys(statsData[0]);
-    const statsToFormat = ['PPG FOR', 'PPG AGAINST', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
+    // UPDATED: Added PPG For and PPG Against to the formatting list
+    const statsToFormat = ['PPG For', 'PPG Against', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'];
+
+    // UPDATED: Added classes for better scrolling
+    let tableHTML = '<div class="overflow-x-auto max-h-[75vh] overflow-y-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
+    // UPDATED: Made table header sticky
+    tableHTML += '<thead class="bg-gray-800 sticky top-0"><tr>';
 
     headers.forEach(header => {
         const isSortable = ['TEAM NAME', 'GAMES PLAYED'].includes(header.toUpperCase()) ? '' : 'sortable';
@@ -76,22 +78,18 @@ async function initializeTeamStatsPage() {
     }
 
     try {
-        // Fetch data from BOTH sheets again
         const [teamStatsData, teamsData] = await Promise.all([
             fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *'),
             fetchGoogleSheetData(SHEET_ID, teamsGID, 'SELECT A, H')
         ]);
 
         if (teamStatsData && teamsData) {
-            // Rename columns from the SELECT A, H query for an accurate match
             const renamedTeamsData = teamsData.map(team => ({
                 'Team Name': team['A'] ? team['A'].trim() : '',
                 'Logo URL': team['H']
             }));
 
-            // Filter out Reserve team from the stats data
             const filteredStatsData = teamStatsData.filter(team => team['Team Name'] !== 'Reserve');
-
             renderTeamStatsTable(filteredStatsData, renamedTeamsData);
         } else {
             throw new Error("One or more datasets failed to load.");

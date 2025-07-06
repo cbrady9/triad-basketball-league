@@ -6,12 +6,9 @@ function renderLeaderCard(containerId, data, title, statKey, sortOrder = 'desc')
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Sort the data based on the desired order
     const sortedData = [...data].sort((a, b) => {
         const valA = parseFloat(a[statKey]) || 0;
         const valB = parseFloat(b[statKey]) || 0;
-
-        // Use 'asc' for ascending (lowest is best), 'desc' for descending (highest is best)
         return sortOrder === 'asc' ? valA - valB : valB - valA;
     });
 
@@ -21,7 +18,10 @@ function renderLeaderCard(containerId, data, title, statKey, sortOrder = 'desc')
 
     top5.forEach((player, index) => {
         const playerName = player['Player Name'];
-        const statValue = parseFloat(player[statKey]).toFixed(1);
+        // --- UPDATED: This now checks if the stat is a valid number ---
+        const statValueNum = parseFloat(player[statKey]);
+        const statValue = !isNaN(statValueNum) ? statValueNum.toFixed(1) : '-'; // Show a dash if not a number
+
         const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
 
         html += `

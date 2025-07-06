@@ -10,13 +10,11 @@ function renderTeamStatsTable(data) {
         return;
     }
 
-    // A map to rename headers for a cleaner display
     const headerMap = {
         'Games Played (Internal)': 'GP',
         'Point Differential': 'PD'
     };
 
-    // Define the exact order and headers to display
     const orderedHeaders = ['Team Name', 'Games Played (Internal)', 'Wins', 'Losses', 'Win %', 'Point Differential'];
 
     let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
@@ -37,7 +35,7 @@ function renderTeamStatsTable(data) {
 
             if (header.toUpperCase() === 'TEAM NAME') {
                 const teamName = row[header] || '';
-                const logoUrl = row['Logo URL'] || 'https://i.imgur.com/p3nQp25.png'; // Get logo from the same row
+                const logoUrl = row['Logo URL'] || 'https://i.imgur.com/p3nQp25.png';
                 const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
                 displayValue = `
                     <a href="${teamLink}" class="flex items-center group">
@@ -46,7 +44,13 @@ function renderTeamStatsTable(data) {
                     </a>
                 `;
             } else {
-                const value = row[header] !== undefined ? row[header] : '';
+                let value = row[header] !== undefined ? row[header] : '';
+
+                // --- NEW: This block ensures '0' is displayed for blank Games Played ---
+                if (header === 'Games Played (Internal)' && (value === '' || value === null)) {
+                    value = 0;
+                }
+
                 displayValue = value;
             }
 

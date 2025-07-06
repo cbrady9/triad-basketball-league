@@ -15,7 +15,6 @@ function renderTransactions(data) {
         return;
     }
 
-    // Group all movements by their Transaction ID
     const groupedTransactions = data.reduce((acc, row) => {
         const id = row['Transaction ID'];
         if (!acc[id]) {
@@ -29,30 +28,25 @@ function renderTransactions(data) {
         return acc;
     }, {});
 
-    container.innerHTML = ''; // Clear loading message
+    container.innerHTML = '';
 
-    // Loop through each grouped transaction and build a card
     for (const id in groupedTransactions) {
         const transaction = groupedTransactions[id];
         const teamsInvolved = {};
 
-        // Figure out which players each team acquired and lost
         transaction.moves.forEach(move => {
             const oldTeam = move['Old Team'];
             const newTeam = move['New Team'];
-            const playerName = move['Player Name'];
-
             if (oldTeam) {
                 if (!teamsInvolved[oldTeam]) teamsInvolved[oldTeam] = { acquired: [], lost: [] };
-                teamsInvolved[oldTeam].lost.push(playerName);
+                teamsInvolved[oldTeam].lost.push(move['Player Name']);
             }
             if (newTeam) {
                 if (!teamsInvolved[newTeam]) teamsInvolved[newTeam] = { acquired: [], lost: [] };
-                teamsInvolved[newTeam].acquired.push(playerName);
+                teamsInvolved[newTeam].acquired.push(move['Player Name']);
             }
         });
 
-        // Build the HTML for the card
         let transactionCard = `
             <div class="border border-gray-700 rounded-lg p-4">
                 <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
@@ -64,21 +58,28 @@ function renderTransactions(data) {
 
         for (const teamName in teamsInvolved) {
             const moves = teamsInvolved[teamName];
+            // --- NEW: Team name is now a link ---
+            const teamLink = `team-detail.html?teamName=${encodeURIComponent(teamName)}`;
+
             transactionCard += `
                 <div class="bg-gray-700/50 p-3 rounded-md">
-                    <h4 class="font-semibold text-gray-200 mb-2">${teamName}</h4>
+                    <a href="${teamLink}" class="font-semibold text-gray-200 mb-2 inline-block hover:underline">${teamName}</a>
                     <div class="text-sm space-y-1">
             `;
             if (moves.acquired.length > 0) {
                 transactionCard += `<p class="text-gray-400">Acquired:</p>`;
                 moves.acquired.forEach(player => {
-                    transactionCard += `<p class="text-green-400 ml-2">&#x25B2; ${player}</p>`;
+                    // --- NEW: Player name is now a link ---
+                    const playerLink = `player-detail.html?playerName=${encodeURIComponent(player)}`;
+                    transactionCard += `<p class="text-green-400 ml-2">&#x25B2; <a href="${playerLink}" class="hover:underline">${player}</a></p>`;
                 });
             }
             if (moves.lost.length > 0) {
                 transactionCard += `<p class="text-gray-400 ${moves.acquired.length > 0 ? 'mt-2' : ''}">Lost:</p>`;
                 moves.lost.forEach(player => {
-                    transactionCard += `<p class="text-red-400 ml-2">&#x25BC; ${player}</p>`;
+                    // --- NEW: Player name is now a link ---
+                    const playerLink = `player-detail.html?playerName=${encodeURIComponent(player)}`;
+                    transactionCard += `<p class="text-red-400 ml-2">&#x25BC; <a href="${playerLink}" class="hover:underline">${player}</a></p>`;
                 });
             }
             transactionCard += `</div></div>`;

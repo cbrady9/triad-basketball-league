@@ -1,40 +1,8 @@
-// transactions.js
+document.addEventListener('DOMContentLoaded', initializeTransactionsPage);
+window.initializePage = initializeTransactionsPage;
 
-// transactions.js (example - do this for each relevant page's JS file)
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Get the current season (will now correctly come from utils.js)
-    const currentSeason = getCurrentSeason();
-
-    // Initialize the season selector dropdown
-    createSeasonSelector(currentSeason);
-
-    // Call your page-specific initialization function here
-    // This function should then use 'currentSeason' to fetch and display data
-    // For example:
-    // initializeHomePage(currentSeason); // If you have a specific function
-    // Or if the page just loads data based on getCurrentSeason()
-    // loadPageData();
-});
-
-// OPTIONAL: If you want the page to re-render data immediately when season changes
-// You must make your page's main initialization function globally accessible.
-// Replace 'initializeHomePage' with the actual name of your main page function.
-// If you don't have a specific `initializePage` function for this page,
-// you might need to structure your page's data loading inside this global function.
-window.initializePage = async function () {
-    console.log('Re-initializing page for new season...');
-    const newSeason = getCurrentSeason(); // Get the updated season
-    // Add code here to clear existing data and reload content for the newSeason
-    // For example:
-    // document.getElementById('data-container').innerHTML = 'Loading...';
-    // await fetchDataAndRender(newSeason); // Call your data fetching/rendering function
-};
-
-const TRANSACTIONS_QUERY = 'SELECT A, B, C, D'; // Select all columns for transactions
-
-function renderTransactionsTable(data) {
-    const container = document.getElementById('transactions-data-container');
+function renderTransactions(data) {
+    const container = document.getElementById('transactions-container');
     if (!container) return;
 
     if (!data || data.length === 0) {
@@ -47,48 +15,96 @@ function renderTransactionsTable(data) {
         return;
     }
 
-    container.innerHTML = '';
+    // Group all movements by their Transaction ID
+    const groupedTransactions = data.reduce((acc, row) => {
+        const id = row['Transaction ID'];
+        if (!acc[id]) {
+            acc[id] = {
+                date: row['Date'],
+                type: row['Type'],
+                moves: []
+            };
+        }
+        acc[id].moves.push(row);
+        return acc;
+    }, {});
 
-    let tableHTML = '<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full divide-y divide-gray-700">';
-    tableHTML += '<thead class="bg-gray-800">';
-    tableHTML += '<tr>';
-    const headers = Object.keys(data[0]);
-    headers.forEach(header => {
-        tableHTML += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">${header}</th>`;
-    });
-    tableHTML += '</tr></thead><tbody class="bg-gray-800 divide-y divide-gray-700">';
+    container.innerHTML = ''; // Clear loading message
 
-    data.forEach(row => {
-        tableHTML += '<tr class="hover:bg-gray-700">';
-        headers.forEach(header => {
-            // UPDATED: This now handles null values correctly
-            const value = row[header] ?? ''; // Use the nullish coalescing operator
-            tableHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${value}</td>`;
+    // Loop through each grouped transaction and build a card
+    for (const id in groupedTransactions) {
+        const transaction = groupedTransactions[id];
+        const teamsInvolved = {};
+
+        // Figure out which players each team acquired and lost
+        transaction.moves.forEach(move => {
+            const oldTeam = move['Old Team'];
+            const newTeam = move['New Team'];
+            const playerName = move['Player Name'];
+
+            if (oldTeam) {
+                if (!teamsInvolved[oldTeam]) teamsInvolved[oldTeam] = { acquired: [], lost: [] };
+                teamsInvolved[oldTeam].lost.push(playerName);
+            }
+            if (newTeam) {
+                if (!teamsInvolved[newTeam]) teamsInvolved[newTeam] = { acquired: [], lost: [] };
+                teamsInvolved[newTeam].acquired.push(playerName);
+            }
         });
-        tableHTML += '</tr>';
-    });
-    tableHTML += '</tbody></table></div>';
-    container.innerHTML = tableHTML;
+
+        // Build the HTML for the card
+        let transactionCard = `
+            <div class="border border-gray-700 rounded-lg p-4">
+                <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
+                    <h3 class="font-bold text-lg text-sky-400">${transaction.type}</h3>
+                    <p class="text-sm text-gray-400">${transaction.date}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        `;
+
+        for (const teamName in teamsInvolved) {
+            const moves = teamsInvolved[teamName];
+            transactionCard += `
+                <div class="bg-gray-700/50 p-3 rounded-md">
+                    <h4 class="font-semibold text-gray-200 mb-2">${teamName}</h4>
+                    <div class="text-sm space-y-1">
+            `;
+            if (moves.acquired.length > 0) {
+                transactionCard += `<p class="text-gray-400">Acquired:</p>`;
+                moves.acquired.forEach(player => {
+                    transactionCard += `<p class="text-green-400 ml-2">&#x25B2; ${player}</p>`;
+                });
+            }
+            if (moves.lost.length > 0) {
+                transactionCard += `<p class="text-gray-400 ${moves.acquired.length > 0 ? 'mt-2' : ''}">Lost:</p>`;
+                moves.lost.forEach(player => {
+                    transactionCard += `<p class="text-red-400 ml-2">&#x25BC; ${player}</p>`;
+                });
+            }
+            transactionCard += `</div></div>`;
+        }
+
+        transactionCard += `</div></div>`;
+        container.innerHTML += transactionCard;
+    }
 }
+
 
 async function initializeTransactionsPage() {
     const currentSeason = getCurrentSeason();
-    const transactionsGID = getGID('TRANSACTIONS_GID', currentSeason);
+    createSeasonSelector(currentSeason);
 
+    const transactionsGID = getGID('TRANSACTIONS_GID', currentSeason);
     if (!transactionsGID) {
-        console.error("Transactions GID not found for current season:", currentSeason);
-        document.getElementById('transactions-data-container').innerHTML = '<p class="text-red-500">Error: Transactions data not configured for this season. Please ensure the correct GID is in config.js.</p>';
+        document.getElementById('transactions-container').innerHTML = '<p class="text-red-500">Transactions not configured for this season.</p>';
         return;
     }
 
-    document.getElementById('transactions-data-container').innerHTML = '<p class="text-gray-600">Loading transactions...</p>';
+    const transactionsData = await fetchGoogleSheetData(SHEET_ID, transactionsGID, 'SELECT * WHERE B IS NOT NULL ORDER BY B DESC');
 
-    const tableData = await fetchGoogleSheetData(SHEET_ID, transactionsGID, TRANSACTIONS_QUERY);
-    if (tableData) {
-        renderTransactionsTable(tableData);
+    if (transactionsData) {
+        renderTransactions(transactionsData);
+    } else {
+        document.getElementById('transactions-container').innerHTML = '<p class="text-red-500">Failed to load transactions.</p>';
     }
-    createSeasonSelector(currentSeason);
 }
-
-document.addEventListener('DOMContentLoaded', initializeTransactionsPage);
-window.initializePage = initializeTransactionsPage;

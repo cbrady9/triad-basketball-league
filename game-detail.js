@@ -72,13 +72,18 @@ async function initializeGameDetailPage() {
     }
 
     const gameLogGID = getGID('GAME_LOG_GID', currentSeason);
-    if (!gameLogGID) {
-        gameHeader.textContent = 'Error: Game Log data not configured for this season.';
+    const scheduleGID = getGID('SCHEDULE_GID', currentSeason); // GID for the schedule
+
+    if (!gameLogGID || !scheduleGID) {
+        gameHeader.textContent = 'Error: Page not configured correctly.';
         return;
     }
 
-    const GAME_LOG_QUERY = `SELECT * WHERE A = '${gameId}'`;
-    const gameLogData = await fetchGoogleSheetData(SHEET_ID, gameLogGID, GAME_LOG_QUERY);
+    // Fetch data from BOTH the Game Log and the Schedule
+    const [gameLogData, scheduleData] = await Promise.all([
+        fetchGoogleSheetData(SHEET_ID, gameLogGID, `SELECT * WHERE A = '${gameId}'`),
+        fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT * WHERE A = '${gameId}'`)
+    ]);
 
     if (!gameLogData || gameLogData.length === 0) {
         gameHeader.textContent = 'Error: Could not find stats for this game.';
@@ -105,14 +110,16 @@ async function initializeGameDetailPage() {
     gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
-    // --- UPDATED: This section now looks for 'Points' instead of 'PTS' ---
-    const team1Score = teams[team1Name].reduce((total, player) => total + (Number(player['Points']) || 0), 0);
-    const team2Score = teams[team2Name].reduce((total, player) => total + (Number(player['Points']) || 0), 0);
-    document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
+    // --- UPDATED: This now gets the score from the more reliable schedule data ---
+    if (scheduleData && scheduleData.length > 0) {
+        const gameInfo = scheduleData[0];
+        const team1Score = gameInfo['Team 1'] === team1Name ? gameInfo['Team 1 Score'] : gameInfo['Team 2 Score'];
+        const team2Score = gameInfo['Team 2'] === team2Name ? gameInfo['Team 2 Score'] : gameInfo['Team 1 Score'];
+        document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
+    }
 
     const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
     const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
-
     boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
 }
 

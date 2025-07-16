@@ -95,40 +95,41 @@ async function initializeGameDetailPage() {
         </div>
     `;
         }
-
-        if (!gameLogData || gameLogData.length === 0) {
-            gameHeader.textContent = 'Error: Could not find stats for this game.';
-            // Also clear the sub-header in case a score was displayed before this error
-            document.getElementById('game-sub-header').textContent = '';
-            return;
-        }
-
-        const teams = {};
-        gameLogData.forEach(playerRow => {
-            const teamName = playerRow['Team'];
-            if (!teams[teamName]) teams[teamName] = [];
-            teams[teamName].push(playerRow);
-        });
-        const teamNames = Object.keys(teams);
-        if (teamNames.length < 2) {
-            gameHeader.textContent = 'Error: Game data is incomplete.';
-            return;
-        }
-        const team1Name = teamNames[0];
-        const team2Name = teamNames[1];
-        gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
-        pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
-
-        // This is the full and correct block for displaying the box scores
-        const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
-        const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
-        boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
-
-        // This logic to get the score from the schedule remains
-        if (scheduleData && scheduleData[0]) {
-            const gameInfo = scheduleData[0];
-            const score1 = gameInfo['Team 1 Score'];
-            const score2 = gameInfo['Team 2 Score'];
-            document.getElementById('game-sub-header').textContent = `Final Score: ${score1} - ${score2}`;
-        }
     }
+
+    if (!gameLogData || gameLogData.length === 0) {
+        gameHeader.textContent = 'Error: Could not find stats for this game.';
+        // Also clear the sub-header in case a score was displayed before this error
+        document.getElementById('game-sub-header').textContent = '';
+        return;
+    }
+
+    const teams = {};
+    gameLogData.forEach(playerRow => {
+        const teamName = playerRow['Team'];
+        if (!teams[teamName]) teams[teamName] = [];
+        teams[teamName].push(playerRow);
+    });
+    const teamNames = Object.keys(teams);
+    if (teamNames.length < 2) {
+        gameHeader.textContent = 'Error: Game data is incomplete.';
+        return;
+    }
+    const team1Name = teamNames[0];
+    const team2Name = teamNames[1];
+    gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
+    pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
+
+    // This is the full and correct block for displaying the box scores
+    const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
+    const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
+    boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
+
+    // This logic to get the score from the schedule remains
+    if (scheduleData && scheduleData[0]) {
+        const gameInfo = scheduleData[0];
+        const score1 = gameInfo['Team 1 Score'];
+        const score2 = gameInfo['Team 2 Score'];
+        document.getElementById('game-sub-header').textContent = `Final Score: ${score1} - ${score2}`;
+    }
+}

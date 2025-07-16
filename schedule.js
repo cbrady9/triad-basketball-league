@@ -1,14 +1,13 @@
 document.addEventListener('DOMContentLoaded', initializeSchedulePage);
 window.initializePage = initializeSchedulePage;
 
-// Renders a grid of game cards into a specific container
-function renderGameGrid(containerId, games, isUpcoming) {
-    const container = document.getElementById(containerId);
+// Renders a grid of completed game cards
+function renderResultsGrid(games) {
+    const container = document.getElementById('results-grid');
     if (!container) return;
 
     if (!games || games.length === 0) {
-        const message = isUpcoming ? "No upcoming games scheduled." : "No results yet.";
-        container.innerHTML = `<p class="text-gray-400">${message}</p>`;
+        container.innerHTML = `<div class="text-center py-12"><img src="https://images.undraw.co/undraw_no_data_re_kwbl.svg" alt="No results yet" class="mx-auto w-32 h-32 opacity-40"><p class="text-gray-400 mt-4">No results yet.</p></div>`;
         return;
     }
 
@@ -24,21 +23,8 @@ function renderGameGrid(containerId, games, isUpcoming) {
         const gameDate = game['Date'];
         const location = game['Location'] || '';
 
-        let scoreDisplay;
-        let resultClass = 'bg-gray-700 text-gray-300';
-
-        if (!isUpcoming) {
-            // --- UPDATED: Result card now includes the date ---
-            scoreDisplay = `
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-400 text-xs">${gameDate}</span>
-                    <span class="font-bold">${team1Score} - ${team2Score}</span>
-                </div>
-            `;
-            resultClass = 'bg-teal-900/50 text-teal-300';
-        } else {
-            scoreDisplay = `<span>${gameDate}</span>`;
-        }
+        const scoreDisplay = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
+        const resultClass = 'bg-teal-900/50 text-teal-300';
 
         const gameCard = `
             <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-700/50 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
@@ -50,7 +36,10 @@ function renderGameGrid(containerId, games, isUpcoming) {
                     </div>
                 </div>
                 <div class="px-4 py-2 text-center text-sm font-semibold ${resultClass}">
-                    ${scoreDisplay}
+                    <div class="flex items-center justify-center space-x-4">
+                        <span class="text-gray-400 text-xs">${gameDate}</span>
+                        ${scoreDisplay}
+                    </div>
                 </div>
             </a>
         `;
@@ -66,25 +55,16 @@ async function initializeSchedulePage() {
     createSeasonSelector(currentSeason);
 
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
-    if (!scheduleGID) {
-        // Handle error
-        return;
-    }
+    if (!scheduleGID) { return; }
 
     const allGamesData = await fetchGoogleSheetData(SHEET_ID, scheduleGID, 'SELECT *');
 
     if (allGamesData) {
-        // Filter out any rows that don't have a Game ID, which are likely blank
-        const validGames = allGamesData.filter(game => game['Game ID'] && game['Game ID'].trim() !== '');
+        // Filter for valid games that have a winner, and sort by date descending
+        const results = allGamesData
+            .filter(game => game['Game ID'] && game.Winner && game.Winner.trim() !== '')
+            .sort((a, b) => new Date(b.Date) - new Date(a.Date)); // Show most recent first
 
-        // Separate games into two lists
-        const upcomingGames = validGames.filter(game => !game.Winner || game.Winner.trim() === '');
-        const results = validGames.filter(game => game.Winner && game.Winner.trim() !== '').reverse(); // Show most recent first
-
-        // Render each section
-        renderGameGrid('upcoming-games-grid', upcomingGames, true);
-        renderGameGrid('results-grid', results, false);
-    } else {
-        // Handle error
+        renderResultsGrid(results);
     }
 }

@@ -12,7 +12,7 @@ function renderResultsGrid(games) {
     }
 
     const grid = document.createElement('div');
-    grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4'; // Changed to 2 columns for better spacing
 
     games.forEach(game => {
         const gameId = game['Game ID'];
@@ -21,25 +21,21 @@ function renderResultsGrid(games) {
         const team1Score = game['Team 1 Score'];
         const team2Score = game['Team 2 Score'];
         const gameDate = game['Date'];
-        const location = game['Location'] || '';
 
-        const scoreDisplay = `<span class="font-bold">${team1Score} - ${team2Score}</span>`;
-        const resultClass = 'bg-teal-900/50 text-teal-300';
+        // Build the new score display
+        const scoreDisplay = `
+            <div class="text-center w-1/4">
+                <span class="font-bold text-xl text-gray-200">${team1Score} - ${team2Score}</span>
+            </div>
+        `;
 
         const gameCard = `
-            <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-700/50 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden">
-                <div class="p-4">
-                    <p class="text-sm text-gray-400 text-center mb-2 h-4">${location}</p>
-                    <div class="flex justify-between items-center text-lg text-gray-200">
-                        <span class="font-semibold">${team1}</span>
-                        <span class="font-semibold">${team2}</span>
-                    </div>
-                </div>
-                <div class="px-4 py-2 text-center text-sm font-semibold ${resultClass}">
-                    <div class="flex items-center justify-center space-x-4">
-                        <span class="text-gray-400 text-xs">${gameDate}</span>
-                        ${scoreDisplay}
-                    </div>
+            <a href="game-detail.html?gameId=${gameId}" class="block bg-gray-700/50 rounded-lg shadow-md hover:shadow-lg hover:border-gray-600 transition-all duration-200 overflow-hidden p-4">
+                <p class="text-xs text-gray-400 text-center mb-2">${gameDate}</p>
+                <div class="flex justify-between items-center text-lg text-gray-200">
+                    <span class="font-semibold text-right w-2/5 truncate">${team1}</span>
+                    ${scoreDisplay}
+                    <span class="font-semibold text-left w-2/5 truncate">${team2}</span>
                 </div>
             </a>
         `;

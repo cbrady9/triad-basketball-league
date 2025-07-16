@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', initializeLeadersPage);
 window.initializePage = initializeLeadersPage;
 
-// Renders a leaderboard card for per-game averages
+// Renders a leaderboard card for per-game averages OR totals
 function renderLeaderCard(containerId, data, title, statKey, sortOrder = 'desc') {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -16,34 +16,36 @@ function renderLeaderCard(containerId, data, title, statKey, sortOrder = 'desc')
     top5.forEach((player, index) => {
         const playerName = player['Player Name'];
         const statValueNum = parseFloat(player[statKey]);
-        const statValue = !isNaN(statValueNum) ? statValueNum.toFixed(1) : '-';
+        // Show decimal for averages, whole number for totals
+        const statValue = statKey.includes('PG') ? statValueNum.toFixed(1) : statValueNum;
+        const displayStat = !isNaN(statValueNum) ? statValue : '-';
         const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
-        html += `<li class="flex items-center text-sm"><span class="text-center font-semibold text-gray-400 w-5">${index + 1}.</span><a href="${playerLink}" class="ml-3 flex-grow font-medium text-sky-400 hover:underline">${playerName}</a><span class="font-bold text-gray-200">${statValue}</span></li>`;
+        html += `<li class="flex items-center text-sm"><span class="text-center font-semibold text-gray-400 w-5">${index + 1}.</span><a href="${playerLink}" class="ml-3 flex-grow font-medium text-sky-400 hover:underline">${playerName}</a><span class="font-bold text-gray-200">${displayStat}</span></li>`;
     });
     html += '</ol>';
     container.innerHTML = html;
 }
 
-// --- NEW: Renders the cards for single-game season highs ---
+// Renders the cards for single-game season highs
 function renderSeasonHighs(gameLogData) {
     const container = document.getElementById('season-highs-container');
     if (!container || !gameLogData || gameLogData.length === 0) {
         container.innerHTML = '<p class="text-gray-400 col-span-full text-center">No game data available to determine season highs.</p>';
         return;
     }
-    container.innerHTML = ''; // Clear loading message
+    container.innerHTML = '';
 
+    // UPDATED: Replaced Turnovers with 2-Pointers Made
     const statCategories = [
         { title: 'Most Points in a Game', key: 'Points' },
         { title: 'Most Rebounds in a Game', key: 'Rebounds' },
         { title: 'Most Assists in a Game', key: 'Assists' },
         { title: 'Most Steals in a Game', key: 'Steals' },
         { title: 'Most Blocks in a Game', key: 'Blocks' },
-        { title: 'Most Turnovers in a Game', key: 'Turnovers' }
+        { title: 'Most 2-Pointers Made', key: '2PM' }
     ];
 
     statCategories.forEach(category => {
-        // Find the single best performance for the current stat category
         const topPerformance = gameLogData.reduce((max, current) => {
             return (parseFloat(current[category.key]) || 0) > (parseFloat(max[category.key]) || 0) ? current : max;
         });
@@ -52,16 +54,20 @@ function renderSeasonHighs(gameLogData) {
         const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
         const statValue = topPerformance[category.key];
         const gameDate = topPerformance['Date'];
+        // --- NEW: Get the Game ID for the link ---
+        const gameId = topPerformance['Game ID'];
+        const gameLink = `game-detail.html?gameId=${gameId}`;
 
+        // --- NEW: The entire card is now a clickable link ---
         const cardHTML = `
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <a href="${gameLink}" class="block bg-gray-800 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 hover:border-gray-600 transition-colors">
                 <p class="text-sm text-gray-400">${category.title}</p>
                 <p class="text-3xl font-bold text-sky-400 my-1">${statValue}</p>
                 <div class="text-sm text-gray-300">
-                    by <a href="${playerLink}" class="font-semibold hover:underline">${playerName}</a>
+                    by <span class="font-semibold">${playerName}</span>
                     <span class="text-gray-500">on ${gameDate}</span>
                 </div>
-            </div>
+            </a>
         `;
         container.innerHTML += cardHTML;
     });
@@ -72,17 +78,16 @@ async function initializeLeadersPage() {
     createSeasonSelector(currentSeason);
 
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
-    const gameLogGID = getGID('GAME_LOG_GID', currentSeason); // GID for Game Log
+    const gameLogGID = getGID('GAME_LOG_GID', currentSeason);
 
     if (!playerStatsGID || !gameLogGID) {
         console.error('Page GIDs not configured for this season.');
         return;
     }
 
-    // Fetch data from BOTH player stats (for averages) and game log (for highs)
     const [statsData, gameLogData] = await Promise.all([
         fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *'),
-        fetchGoogleSheetData(SHEET_ID, gameLogGID, 'SELECT * WHERE G IS NOT NULL') // Ensure player name exists
+        fetchGoogleSheetData(SHEET_ID, gameLogGID, 'SELECT * WHERE G IS NOT NULL')
     ]);
 
     if (statsData) {
@@ -91,12 +96,12 @@ async function initializeLeadersPage() {
         renderLeaderCard('apg-leaders', statsData, 'Assists Per Game', 'APG', 'desc');
         renderLeaderCard('spg-leaders', statsData, 'Steals Per Game', 'SPG', 'desc');
         renderLeaderCard('bpg-leaders', statsData, 'Blocks Per Game', 'BPG', 'desc');
-        renderLeaderCard('tpg-leaders', statsData, 'Turnovers Per Game', 'TPG', 'asc');
+        // UPDATED: Changed from TPG to Total 2PM
+        renderLeaderCard('2pm-leaders', statsData, 'Total 2-Pointers Made', 'Total 2PM', 'desc');
     } else {
         console.error('Failed to load player stats for leaderboards.');
     }
 
-    // Render the new Season Highs section
     if (gameLogData) {
         renderSeasonHighs(gameLogData);
     } else {

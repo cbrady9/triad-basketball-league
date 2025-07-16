@@ -57,6 +57,7 @@ function renderPlayerGameLog(data) {
 }
 
 // Renders a Season Highs card
+// Renders a Season Highs card
 function renderSeasonHighs(containerId, gameLogData, title) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -76,13 +77,14 @@ function renderSeasonHighs(containerId, gameLogData, title) {
         }, 0);
     };
 
+    // --- UPDATED: Replaced Turnovers with 2PM ---
     const seasonHighs = [
         { label: 'Points', value: findMax('Points') },
         { label: 'Rebounds', value: findMax('Rebounds') },
         { label: 'Assists', value: findMax('Assists') },
         { label: 'Steals', value: findMax('Steals') },
         { label: 'Blocks', value: findMax('Blocks') },
-        { label: 'Turnovers', value: findMax('Turnovers') },
+        { label: '2PM', value: findMax('2PM') }
     ];
 
     content += '<div class="grid grid-cols-3 gap-4 text-center">';

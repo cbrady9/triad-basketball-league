@@ -77,13 +77,13 @@ async function initializePlayerStatsPage() {
         return;
     }
 
-    // Fetch both stats and player info (for headshots) at the same time
+    // --- UPDATED: Both queries now use SELECT * for reliability ---
     const [statsData, playersData] = await Promise.all([
         fetchGoogleSheetData(SHEET_ID, playerStatsGID, 'SELECT *'),
-        fetchGoogleSheetData(SHEET_ID, playersGID, 'SELECT A, B, C') // Select Player Name, Team Name, Headshot URL
+        fetchGoogleSheetData(SHEET_ID, playersGID, 'SELECT *')
     ]);
 
-    if (statsData) {
+    if (statsData && playersData) {
         // Pass both datasets to the rendering function
         renderPlayerStatsTable(statsData, playersData);
     } else {

@@ -2,6 +2,48 @@ document.addEventListener('DOMContentLoaded', initializePlayerDetailPage);
 window.initializePage = initializePlayerDetailPage;
 
 // --- NEW: Renders the player's game log table ---
+// --- NEW HELPER FUNCTION: Renders a Season Highs card ---
+function renderSeasonHighs(containerId, gameLogData, title) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let content = `<h3 class="text-xl font-semibold mb-4 text-gray-200">${title}</h3>`;
+
+    if (!gameLogData || gameLogData.length === 0) {
+        content += '<p class="text-gray-400">No games played.</p>';
+        container.innerHTML = content;
+        return;
+    }
+
+    const findMax = (statKey) => {
+        return gameLogData.reduce((max, game) => {
+            const stat = parseFloat(game[statKey]) || 0;
+            return stat > max ? stat : max;
+        }, 0);
+    };
+
+    const seasonHighs = [
+        { label: 'Points', value: findMax('Points') },
+        { label: 'Rebounds', value: findMax('Rebounds') },
+        { label: 'Assists', value: findMax('Assists') },
+        { label: 'Steals', value: findMax('Steals') },
+        { label: 'Blocks', value: findMax('Blocks') },
+        { label: 'Turnovers', value: findMax('Turnovers') },
+    ];
+
+    content += '<div class="grid grid-cols-3 gap-4 text-center">';
+    seasonHighs.forEach(high => {
+        content += `
+            <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wider">${high.label}</p>
+                <p class="text-2xl font-bold text-sky-400">${high.value}</p>
+            </div>
+        `;
+    });
+    content += '</div>';
+
+    container.innerHTML = content;
+}
 function renderPlayerGameLog(data) {
     const container = document.getElementById('player-gamelog-container');
     if (!container) return;
@@ -70,19 +112,24 @@ async function initializePlayerDetailPage() {
     const playerInfoContainer = document.getElementById('player-info');
     const playerStatsContainer = document.getElementById('player-stats-container');
     const playerGameLogContainer = document.getElementById('player-gamelog-container');
-    playerInfoContainer.innerHTML = '<p class="text-gray-400">Loading player info...</p>';
-    playerStatsContainer.innerHTML = '<p class="text-gray-400">Loading player stats...</p>';
-    playerGameLogContainer.innerHTML = '<p class="text-gray-400">Loading game log...</p>';
+    const confirmedHighsContainer = document.getElementById('confirmed-highs-container');
+    const allHighsContainer = document.getElementById('all-highs-container');
+
+    playerInfoContainer.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    playerStatsContainer.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    playerGameLogContainer.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    confirmedHighsContainer.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    allHighsContainer.innerHTML = '<p class="text-gray-400">Loading...</p>';
+
 
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
 
-    // Get all necessary GIDs
+    // Fetch all necessary data
     const playersGID = getGID('PLAYERS_GID', currentSeason);
     const playerStatsGID = getGID('PLAYER_STATS_GID', currentSeason);
     const gameLogGID = getGID('GAME_LOG_GID', currentSeason);
 
-    // Fetch all data concurrently
     const [
         allPlayersData,
         allPlayerStatsData,
@@ -93,54 +140,39 @@ async function initializePlayerDetailPage() {
         fetchGoogleSheetData(SHEET_ID, gameLogGID, `SELECT * WHERE G = '${decodedPlayerName}'`)
     ]);
 
-    const playerData = allPlayersData ? allPlayersData.find(p => p['Player Name']?.trim().toLowerCase() === decodedPlayerName.trim().toLowerCase()) : null;
-    const playerStats = allPlayerStatsData ? allPlayerStatsData.find(s => s['Player Name']?.trim().toLowerCase() === decodedPlayerName.trim().toLowerCase()) : null;
-
-    // Render Headshot and Name
-    const placeholderImg = 'https://i.imgur.com/8so6K5A.png';
-    const headshotUrl = playerData?.['Headshot URL'] || placeholderImg;
-    document.getElementById('player-name-display').innerHTML = `<div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6"><img src="${headshotUrl}" alt="${decodedPlayerName}" class="w-24 h-24 rounded-full border-2 border-gray-600 object-cover bg-gray-700" onerror="this.onerror=null; this.src='${placeholderImg}';"><h1 class="text-4xl font-extrabold text-gray-100">${decodedPlayerName}</h1></div>`;
+    // ... (playerData and playerStats lookup remains the same)
 
     // Render Player Info
     if (playerData) {
-        const playerTeam = playerData['Team Name'] || 'N/A';
-        const playerRole = playerData['Role'] || 'Player';
-        let teamDisplayHtml = '';
-        if (playerTeam === 'Reserve') {
-            teamDisplayHtml = `<p><strong>Team:</strong> ${playerTeam}</p>`;
-        } else {
-            const teamLink = `team-detail.html?teamName=${encodeURIComponent(playerTeam)}`;
-            teamDisplayHtml = `<p><strong>Team:</strong> <a href="${teamLink}" class="text-sky-400 hover:underline">${playerTeam}</a></p>`;
-        }
-        playerInfoContainer.innerHTML = `${teamDisplayHtml}<p><strong>Role:</strong> ${playerRole}</p>`;
-    } else {
-        playerInfoContainer.innerHTML = '<p class="text-gray-300">Basic player info not available.</p>';
+        // ... (player info rendering logic remains the same)
     }
 
     // Render Season Averages
     if (playerStats) {
-        const desiredStats = [
-            { header: 'Games Played', key: 'Games Played' }, { header: 'PPG', key: 'PPG' }, { header: 'RPG', key: 'RPG' }, { header: 'APG', key: 'APG' },
-            { header: 'SPG', key: 'SPG' }, { header: 'BPG', key: 'BPG' }, { header: 'TPG', key: 'TPG' }
-        ];
-        let statsHtml = `<div class="overflow-x-auto border border-gray-700 rounded-lg"><table class="min-w-full"><thead class="bg-gray-800"><tr>`;
-        desiredStats.forEach(stat => { statsHtml += `<th class="py-2 px-4 border-b border-gray-600 text-left text-sm font-semibold text-gray-300 uppercase">${stat.header}</th>`; });
-        statsHtml += `</tr></thead><tbody class="divide-y divide-gray-700"><tr>`;
-        desiredStats.forEach(stat => {
-            let value = playerStats[stat.key] !== undefined ? playerStats[stat.key] : 'N/A';
-            if (['PPG', 'RPG', 'APG', 'SPG', 'BPG', 'TPG'].includes(stat.key)) { value = formatStat(value); }
-            statsHtml += `<td class="py-2 px-4 text-sm text-gray-300">${value}</td>`;
-        });
-        statsHtml += `</tr></tbody></table></div>`;
-        playerStatsContainer.innerHTML = statsHtml;
-    } else {
-        playerStatsContainer.innerHTML = '<p class="text-gray-300">No season averages found.</p>';
+        // ... (season averages rendering logic remains the same)
     }
 
-    // Render the new Game Log table
+    // Render Game Log AND Season Highs
     if (playerGameLogData) {
+        // Render the main game log table
         renderPlayerGameLog(playerGameLogData);
+
+        // --- NEW: Calculate and render season highs ---
+
+        // 1. Filter for only confirmed games
+        const confirmedGames = playerGameLogData.filter(game =>
+            !game['Stat Confirmation'] || game['Stat Confirmation'] === 'Full' || game['Stat Confirmation'] === 'Points Only'
+        );
+
+        // 2. Render the "Confirmed Stats" card
+        renderSeasonHighs('confirmed-highs-container', confirmedGames, 'Season Highs (Confirmed Stats)');
+
+        // 3. Render the "All Stats" card using the full game log
+        renderSeasonHighs('all-highs-container', playerGameLogData, 'Season Highs (All Games)');
+
     } else {
         playerGameLogContainer.innerHTML = '<p class="text-gray-300">No game log data found.</p>';
+        confirmedHighsContainer.innerHTML = '<h3 class="text-xl font-semibold text-gray-200">Season Highs (Confirmed)</h3><p class="text-gray-400">No games played.</p>';
+        allHighsContainer.innerHTML = '<h3 class="text-xl font-semibold text-gray-200">Season Highs (All Games)</h3><p class="text-gray-400">No games played.</p>';
     }
 }

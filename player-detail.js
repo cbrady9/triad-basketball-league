@@ -41,19 +41,23 @@ async function initializePlayerDetailPage() {
     // Display Player Info
     if (playerData) {
         const playerTeam = playerData['Team Name'] || 'N/A';
-        let teamDisplayHtml = '';
+        const teamLink = `team-detail.html?teamName=${encodeURIComponent(playerTeam)}`;
 
-        // --- NEW: Conditional logic for the team link ---
+        // --- NEW: Get the player's role ---
+        const playerRole = playerData['Role'] || 'Player';
+
+        let teamDisplayHtml = '';
         if (playerTeam === 'Reserve') {
-            // If the team is "Reserve", display plain text
             teamDisplayHtml = `<p><strong>Team:</strong> ${playerTeam}</p>`;
         } else {
-            // For any other team, create the clickable link
-            const teamLink = `team-detail.html?teamName=${encodeURIComponent(playerTeam)}`;
             teamDisplayHtml = `<p><strong>Team:</strong> <a href="${teamLink}" class="text-sky-400 hover:underline">${playerTeam}</a></p>`;
         }
-        playerInfoContainer.innerHTML = teamDisplayHtml;
 
+        // Add the Role to the display
+        playerInfoContainer.innerHTML = `
+            ${teamDisplayHtml}
+            <p><strong>Role:</strong> ${playerRole}</p>
+        `;
     } else {
         playerInfoContainer.innerHTML = '<p class="text-gray-300">Basic player info not available.</p>';
     }

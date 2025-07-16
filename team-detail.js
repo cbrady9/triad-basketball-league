@@ -28,13 +28,15 @@ async function initializeTeamDetailPage() {
 
     createSeasonSelector(currentSeason);
     document.getElementById('page-title').textContent = `${decodedTeamName} - Team Details`;
-    document.getElementById('team-name-display').textContent = decodedTeamName;
 
+    // Set loading states
+    document.getElementById('team-name-display').innerHTML = `<h1 class="text-4xl font-extrabold text-gray-100">${decodedTeamName}</h1>`;
     document.getElementById('team-record-stats').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-rankings').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-400">Loading...</p>';
     document.getElementById('team-schedule-container').innerHTML = '<p class="text-gray-400">Loading...</p>';
 
+    // Fetch all necessary data
     const teamsGID = getGID('TEAMS_GID', currentSeason);
     const playersGID = getGID('PLAYERS_GID', currentSeason);
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
@@ -52,30 +54,24 @@ async function initializeTeamDetailPage() {
         fetchGoogleSheetData(SHEET_ID, teamStatsGID, 'SELECT *')
     ]);
 
+    // --- RENDER WIDGETS ---
+
     const teamData = allTeamsData ? allTeamsData.find(t => t['Team Name'] === decodedTeamName) : null;
     const teamStats = allTeamStatsData ? allTeamStatsData.find(ts => ts['Team Name'] === decodedTeamName) : null;
 
+    // 1. Render Record & Stats Widget
     if (teamData) {
         const wins = teamData.Wins || 0;
         const losses = teamData.Losses || 0;
         const pd = teamData['Point Differential'] > 0 ? `+${teamData['Point Differential']}` : teamData['Point Differential'];
-        const logoUrl = teamData['Logo URL'] || 'https://i.imgur.com/p3nQp25.png';
-
-        // Add logo to the main page header
-        document.getElementById('team-name-display').innerHTML = `
-        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <img src="${logoUrl}" alt="${decodedTeamName}" class="w-24 h-24 object-contain">
-            <h1 class="text-4xl font-extrabold text-gray-100">${decodedTeamName}</h1>
-        </div>
-    `;
-
         document.getElementById('team-record-stats').innerHTML = `
-        <p><strong>Record:</strong> ${wins} - ${losses}</p>
-        <p><strong>Win %:</strong> ${teamData['Win %']}</p>
-        <p><strong>Point Diff:</strong> ${pd}</p>
-    `;
+            <p><strong>Record:</strong> ${wins} - ${losses}</p>
+            <p><strong>Win %:</strong> ${teamData['Win %']}</p>
+            <p><strong>Point Diff:</strong> ${pd}</p>
+        `;
     }
 
+    // 2. Render Rankings Widget
     if (teamData && teamStats && allTeamStatsData) {
         const ppgValue = formatStat(teamStats['PPG For']);
         const rpgValue = formatStat(teamStats['RPG']);
@@ -88,7 +84,7 @@ async function initializeTeamDetailPage() {
         `;
     }
 
-    // --- THIS IS THE CORRECTED ROSTER SECTION ---
+    // 3. Render Roster Widget with Headshots and Role
     if (allPlayersData) {
         const teamRoster = allPlayersData.filter(p => p['Team Name'] === decodedTeamName);
         if (teamRoster.length > 0) {
@@ -97,11 +93,23 @@ async function initializeTeamDetailPage() {
                 const playerName = player['Player Name'];
                 const headshotUrl = player['Headshot URL'] || 'https://i.imgur.com/8so6K5A.png';
                 const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
+
+                // --- NEW: Check for the player's role ---
+                const playerRole = player['Role'];
+                let roleBadge = '';
+                if (playerRole === 'Captain') {
+                    // This is the badge that will appear for captains
+                    roleBadge = '<span class="ml-auto text-xs font-bold uppercase tracking-wider text-amber-400">Captain</span>';
+                }
+
                 rosterHtml += `
-                    <a href="${playerLink}" class="flex items-center group p-2 rounded-md hover:bg-gray-700">
-                        <img src="${headshotUrl}" onerror="this.onerror=null; this.src='https://i.imgur.com/8so6K5A.png';" class="w-10 h-10 rounded-full mr-3 object-cover bg-gray-600">
-                        <span class="text-sky-400 group-hover:underline font-medium">${playerName}</span>
-                    </a>
+                    <div class="flex items-center p-2 rounded-md hover:bg-gray-700">
+                        <a href="${playerLink}" class="flex items-center group flex-grow">
+                            <img src="${headshotUrl}" onerror="this.onerror=null; this.src='https://i.imgur.com/8so6K5A.png';" class="w-10 h-10 rounded-full mr-3 object-cover bg-gray-600">
+                            <span class="text-sky-400 group-hover:underline font-medium">${playerName}</span>
+                        </a>
+                        ${roleBadge}
+                    </div>
                 `;
             });
             rosterHtml += '</div>';
@@ -110,9 +118,8 @@ async function initializeTeamDetailPage() {
             document.getElementById('team-roster-container').innerHTML = '<p class="text-gray-300">No players found.</p>';
         }
     }
-    // --- END ROSTER SECTION ---
 
-    // --- THIS IS THE CORRECTED SCHEDULE SECTION ---
+    // 4. Render Schedule Widget
     if (scheduleData && Array.isArray(scheduleData)) {
         const teamSchedule = scheduleData.filter(g => g['Team 1'] === decodedTeamName || g['Team 2'] === decodedTeamName);
         if (teamSchedule.length > 0) {
@@ -143,5 +150,4 @@ async function initializeTeamDetailPage() {
     } else {
         document.getElementById('team-schedule-container').innerHTML = '<p class="text-red-500">Could not load schedule data.</p>';
     }
-    // --- END SCHEDULE SECTION ---
 }

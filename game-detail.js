@@ -1,6 +1,7 @@
-// game-detail.js
+document.addEventListener('DOMContentLoaded', initializeGameDetailPage);
+window.initializePage = initializeGameDetailPage;
 
-// This function creates a single box score table for one team
+// Creates a single box score table for one team
 function createBoxScoreTable(teamName, teamStats) {
     let tableHtml = `
         <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
@@ -22,30 +23,19 @@ function createBoxScoreTable(teamName, teamStats) {
                     </thead>
                     <tbody class="divide-y divide-gray-700">
     `;
-    const statColumns = {
-        points: 'Points',
-        rebounds: 'Rebounds',
-        assists: 'Assists',
-        steals: 'Steals',
-        blocks: 'Blocks'
-    };
-
     teamStats.forEach(player => {
         const playerName = player['Player'];
         const encodedPlayerName = encodeURIComponent(playerName);
         const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${playerName}</a>`;
-
-        // --- NEW: Helper function to display '-' for blank stats ---
         const getStat = (stat) => (stat === null || stat === undefined || stat === '') ? '-' : stat;
-
         tableHtml += `
             <tr class="hover:bg-gray-700">
                 <td class="px-4 py-2 whitespace-nowrap">${playerLink}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.points])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.rebounds])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.assists])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.steals])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStat(player[statColumns.blocks])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Points'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Rebounds'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Assists'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Steals'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Blocks'])}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Turnovers'])}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${getStat(player['1PM'])}</td>
                 <td class="px-4 py-2 text-right text-gray-300">${getStat(player['2PM'])}</td>
@@ -55,6 +45,8 @@ function createBoxScoreTable(teamName, teamStats) {
     tableHtml += `</tbody></table></div></div>`;
     return tableHtml;
 }
+
+
 async function initializeGameDetailPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
@@ -65,6 +57,7 @@ async function initializeGameDetailPage() {
     const gameHeader = document.getElementById('game-header');
     const pageTitle = document.getElementById('page-title');
     const boxScoreContainer = document.getElementById('box-score-container');
+    const videoContainer = document.getElementById('video-container');
 
     if (!gameId) {
         gameHeader.textContent = 'Error: No Game ID provided.';
@@ -72,18 +65,36 @@ async function initializeGameDetailPage() {
     }
 
     const gameLogGID = getGID('GAME_LOG_GID', currentSeason);
-    const scheduleGID = getGID('SCHEDULE_GID', currentSeason); // GID for the schedule
+    const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
 
     if (!gameLogGID || !scheduleGID) {
         gameHeader.textContent = 'Error: Page not configured correctly.';
         return;
     }
 
-    // Fetch data from BOTH the Game Log and the Schedule
     const [gameLogData, scheduleData] = await Promise.all([
         fetchGoogleSheetData(SHEET_ID, gameLogGID, `SELECT * WHERE A = '${gameId}'`),
         fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT * WHERE A = '${gameId}'`)
     ]);
+
+    // Display the video if a URL exists
+    if (scheduleData && scheduleData[0] && scheduleData[0]['Video URL']) {
+        const videoUrl = scheduleData[0]['Video URL'];
+        let videoId = '';
+        if (videoUrl.includes('http://googleusercontent.com/youtube.com/9')) {
+            videoId = new URL(videoUrl).searchParams.get('v');
+        } else if (videoUrl.includes('https://www.youtube.com/watch?v=VIDEO_ID0')) {
+            videoId = new URL(videoUrl).pathname.slice(1);
+        }
+
+        if (videoId) {
+            videoContainer.innerHTML = `
+                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border border-gray-700">
+                    <iframe src="https://www.youtube.com/watch?v=VIDEO_ID1{videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
+        }
+    }
 
     if (!gameLogData || gameLogData.length === 0) {
         gameHeader.textContent = 'Error: Could not find stats for this game.';
@@ -93,35 +104,29 @@ async function initializeGameDetailPage() {
     const teams = {};
     gameLogData.forEach(playerRow => {
         const teamName = playerRow['Team'];
-        if (!teams[teamName]) {
-            teams[teamName] = [];
-        }
+        if (!teams[teamName]) teams[teamName] = [];
         teams[teamName].push(playerRow);
     });
-
     const teamNames = Object.keys(teams);
     if (teamNames.length < 2) {
         gameHeader.textContent = 'Error: Game data is incomplete.';
         return;
     }
-
     const team1Name = teamNames[0];
     const team2Name = teamNames[1];
     gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
-    // --- UPDATED: This now gets the score from the more reliable schedule data ---
-    if (scheduleData && scheduleData.length > 0) {
-        const gameInfo = scheduleData[0];
-        const team1Score = gameInfo['Team 1'] === team1Name ? gameInfo['Team 1 Score'] : gameInfo['Team 2 Score'];
-        const team2Score = gameInfo['Team 2'] === team2Name ? gameInfo['Team 2 Score'] : gameInfo['Team 1 Score'];
-        document.getElementById('game-sub-header').textContent = `Final Score: ${team1Score} - ${team2Score}`;
-    }
-
+    // This is the full and correct block that was missing logic in the previous version
     const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
     const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
     boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
-}
 
-document.addEventListener('DOMContentLoaded', initializeGameDetailPage);
-window.initializePage = initializeGameDetailPage; // For season selector
+    // This logic to get the score from the schedule remains
+    if (scheduleData && scheduleData[0]) {
+        const gameInfo = scheduleData[0];
+        const score1 = gameInfo['Team 1 Score'];
+        const score2 = gameInfo['Team 2 Score'];
+        document.getElementById('game-sub-header').textContent = `Final Score: ${score1} - ${score2}`;
+    }
+}

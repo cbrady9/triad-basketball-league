@@ -28,7 +28,8 @@ function renderStandingsWidget(data) {
         return pdB - pdA;
     });
     const topTeams = data.slice(0, 5);
-    let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Top 5 Standings</h3>';
+    // UPDATED: Title is now a link
+    let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200"><a href="standings.html" class="hover:underline">Top 5 Standings</a></h3>';
     html += '<ol class="space-y-2">';
     topTeams.forEach((team, index) => {
         const rank = index + 1;
@@ -57,7 +58,8 @@ function renderResultsWidget(data) {
     if (!container) return;
     const playedGames = data.filter(game => game['Team 1 Score'] !== null && game['Team 1 Score'] !== '');
     const recentGames = playedGames.slice(-3).reverse();
-    let recentHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">Recent Results</h3>';
+    // UPDATED: Title is now a link
+    let recentHtml = '<h3 class="text-2xl font-semibold mb-4 text-gray-200"><a href="schedule.html" class="hover:underline">Recent Results</a></h3>';
     if (recentGames.length > 0) {
         recentHtml += '<div class="space-y-3">';
         recentGames.forEach(game => {
@@ -72,7 +74,6 @@ function renderResultsWidget(data) {
     container.innerHTML = recentHtml;
 }
 
-// NEW: Function to render the league leaders widget
 function renderLeadersWidget(data) {
     const container = document.getElementById('leaders-widget-container');
     if (!container || !data || data.length === 0) {
@@ -81,15 +82,15 @@ function renderLeadersWidget(data) {
     }
 
     const findLeader = (statKey) => {
-        const sorted = [...data].sort((a, b) => (parseFloat(b[statKey]) || 0) - (parseFloat(a[statKey]) || 0));
-        return sorted[0];
+        return [...data].sort((a, b) => (parseFloat(b[statKey]) || 0) - (parseFloat(a[statKey]) || 0))[0];
     };
 
     const ppgLeader = findLeader('PPG');
     const rpgLeader = findLeader('RPG');
     const apgLeader = findLeader('APG');
 
-    let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200">League Leaders</h3>';
+    // UPDATED: Title is now a link
+    let html = '<h3 class="text-2xl font-semibold mb-4 text-gray-200"><a href="leaders.html" class="hover:underline">League Leaders</a></h3>';
     html += '<div class="space-y-4">';
 
     const leaderCategories = [

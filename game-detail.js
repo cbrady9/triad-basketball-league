@@ -21,63 +21,44 @@ function calculateRecordUpToGame(teamName, game, allScheduleData) {
 }
 
 function createBoxScoreTable(teamName, teamStats) {
-    let tableHtml = `
-        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-            <h3 class="text-xl font-semibold mb-3 text-gray-200">${teamName}</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-700">
-                        <tr>
-                            <th class="px-4 py-2 text-left font-medium text-gray-300 uppercase tracking-wider">Player</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">PTS</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">REB</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">AST</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">STL</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">BLK</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">TOV</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">1PM</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">2PM</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-700">
-    `;
+    let tableHtml = `<div class="bg-gray-800 p-4 rounded-lg border border-gray-700"><h3 class="text-xl font-semibold mb-3 text-gray-200">${teamName}</h3><div class="overflow-x-auto"><table class="min-w-full text-sm"><thead class="bg-gray-700"><tr><th class="px-4 py-2 text-left font-medium text-gray-300 uppercase tracking-wider">Player</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">PTS</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">REB</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">AST</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">STL</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">BLK</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">TOV</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">1PM</th><th class="px-4 py-2 text-right font-medium text-gray-300 uppercase tracking-wider">2PM</th></tr></thead><tbody class="divide-y divide-gray-700">`;
 
     teamStats.forEach(player => {
         const playerName = player['Player'];
         const encodedPlayerName = encodeURIComponent(playerName);
         const playerLink = `<a href="player-detail.html?playerName=${encodedPlayerName}" class="text-sky-400 hover:underline font-semibold">${playerName}</a>`;
 
-        // --- NEW: More advanced logic to handle different estimation levels ---
-        const confirmationStatus = player['Stat Confirmation'];
+        // This function displays a dash for any stat that is blank
+        const getStat = (stat) => (stat === null || stat === undefined || stat === '') ? '-' : stat;
 
-        const getStatDisplay = (statName, statValue) => {
-            const value = (statValue === null || statValue === undefined || statValue === '') ? '-' : statValue;
-            let asterisk = '';
-
+        // --- NEW: A simple function to decide if a stat needs an asterisk ---
+        const getAsterisk = (statName) => {
+            const confirmationStatus = player['Stat Confirmation'];
             if (confirmationStatus === 'Estimated') {
-                asterisk = '<sup class="text-amber-400">*</sup>';
-            } else if (confirmationStatus === 'Points Only' && statName !== 'Points') {
-                asterisk = '<sup class="text-amber-400">*</sup>';
+                return '<sup class="text-amber-400">*</sup>';
             }
-
-            return `${value}${asterisk}`;
+            if (confirmationStatus === 'Points Only' && statName !== 'Points') {
+                return '<sup class="text-amber-400">*</sup>';
+            }
+            return ''; // Return no asterisk if the stat is confirmed
         };
 
         tableHtml += `
             <tr class="hover:bg-gray-700">
                 <td class="px-4 py-2 whitespace-nowrap">${playerLink}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Points', player['Points'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Rebounds', player['Rebounds'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Assists', player['Assists'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Steals', player['Steals'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Blocks', player['Blocks'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('Turnovers', player['Turnovers'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('1PM', player['1PM'])}</td>
-                <td class="px-4 py-2 text-right text-gray-300">${getStatDisplay('2PM', player['2PM'])}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Points'])}${getAsterisk('Points')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Rebounds'])}${getAsterisk('Rebounds')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Assists'])}${getAsterisk('Assists')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Steals'])}${getAsterisk('Steals')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Blocks'])}${getAsterisk('Blocks')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['Turnovers'])}${getAsterisk('Turnovers')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['1PM'])}${getAsterisk('1PM')}</td>
+                <td class="px-4 py-2 text-right text-gray-300">${getStat(player['2PM'])}${getAsterisk('2PM')}</td>
             </tr>
         `;
     });
-    tableHTML += `</tbody></table></div></div>`;
+
+    tableHtml += `</tbody></table></div></div>`;
     return tableHtml;
 }
 

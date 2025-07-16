@@ -96,8 +96,8 @@ async function initializeLeadersPage() {
         renderLeaderCard('apg-leaders', statsData, 'Assists Per Game', 'APG', 'desc');
         renderLeaderCard('spg-leaders', statsData, 'Steals Per Game', 'SPG', 'desc');
         renderLeaderCard('bpg-leaders', statsData, 'Blocks Per Game', 'BPG', 'desc');
-        // UPDATED: Changed from TPG to Total 2PM
-        renderLeaderCard('2pm-leaders', statsData, 'Total 2-Pointers Made', 'Total 2PM', 'desc');
+        // UPDATED: This now renders the 2PMPG leaderboard instead of TPG
+        renderLeaderCard('2pmpg-leaders', statsData, '2-Pointers Per Game', '2PMPG', 'desc');
     } else {
         console.error('Failed to load player stats for leaderboards.');
     }

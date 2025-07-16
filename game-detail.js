@@ -89,10 +89,10 @@ async function initializeGameDetailPage() {
 
         if (videoId) {
             videoContainer.innerHTML = `
-                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border border-gray-700">
-                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            `;
+        <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border border-gray-700">
+            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    `;
         }
     }
 

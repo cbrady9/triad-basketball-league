@@ -35,7 +35,6 @@ function renderSeasonHighs(gameLogData) {
     }
     container.innerHTML = '';
 
-    // UPDATED: Replaced Turnovers with 2-Pointers Made
     const statCategories = [
         { title: 'Most Points in a Game', key: 'Points' },
         { title: 'Most Rebounds in a Game', key: 'Rebounds' },
@@ -46,29 +45,55 @@ function renderSeasonHighs(gameLogData) {
     ];
 
     statCategories.forEach(category => {
-        const topPerformance = gameLogData.reduce((max, current) => {
-            return (parseFloat(current[category.key]) || 0) > (parseFloat(max[category.key]) || 0) ? current : max;
-        });
+        // --- NEW: Filter for only confirmed stats before finding the leader ---
+        let confirmedGames;
+        if (category.key === 'Points') {
+            // For points, we accept "Full", "Points Only", or blank as confirmed
+            confirmedGames = gameLogData.filter(game =>
+                !game['Stat Confirmation'] || game['Stat Confirmation'] === 'Full' || game['Stat Confirmation'] === 'Points Only'
+            );
+        } else {
+            // For all other stats, only accept "Full" or blank as confirmed
+            confirmedGames = gameLogData.filter(game =>
+                !game['Stat Confirmation'] || game['Stat Confirmation'] === 'Full'
+            );
+        }
 
-        const playerName = topPerformance['Player'];
-        const playerLink = `player-detail.html?playerName=${encodeURIComponent(playerName)}`;
-        const statValue = topPerformance[category.key];
-        const gameDate = topPerformance['Date'];
-        // --- NEW: Get the Game ID for the link ---
-        const gameId = topPerformance['Game ID'];
-        const gameLink = `game-detail.html?gameId=${gameId}`;
+        let cardHTML = '';
+        // If we have any games with confirmed stats for this category, find the top performer
+        if (confirmedGames.length > 0) {
+            const topPerformance = confirmedGames.reduce((max, current) => {
+                return (parseFloat(current[category.key]) || 0) > (parseFloat(max[category.key]) || 0) ? current : max;
+            });
 
-        // --- NEW: The entire card is now a clickable link ---
-        const cardHTML = `
-            <a href="${gameLink}" class="block bg-gray-800 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 hover:border-gray-600 transition-colors">
-                <p class="text-sm text-gray-400">${category.title}</p>
-                <p class="text-3xl font-bold text-sky-400 my-1">${statValue}</p>
-                <div class="text-sm text-gray-300">
-                    by <span class="font-semibold">${playerName}</span>
-                    <span class="text-gray-500">on ${gameDate}</span>
+            const playerName = topPerformance['Player'];
+            const gameId = topPerformance['Game ID'];
+            const gameLink = `game-detail.html?gameId=${gameId}`;
+            const statValue = topPerformance[category.key];
+            const gameDate = topPerformance['Date'];
+
+            cardHTML = `
+                <a href="${gameLink}" class="block bg-gray-800 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 hover:border-gray-600 transition-colors">
+                    <p class="text-sm text-gray-400">${category.title}</p>
+                    <p class="text-3xl font-bold text-sky-400 my-1">${statValue}</p>
+                    <div class="text-sm text-gray-300">
+                        by <span class="font-semibold">${playerName}</span>
+                        <span class="text-gray-500">on ${gameDate}</span>
+                    </div>
+                </a>
+            `;
+        } else {
+            // Otherwise, show a card indicating no confirmed data
+            cardHTML = `
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <p class="text-sm text-gray-400">${category.title}</p>
+                    <p class="text-3xl font-bold text-gray-600 my-1">-</p>
+                    <div class="text-sm text-gray-500">
+                        No confirmed stats recorded yet.
+                    </div>
                 </div>
-            </a>
-        `;
+            `;
+        }
         container.innerHTML += cardHTML;
     });
 }

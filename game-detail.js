@@ -54,13 +54,15 @@ async function initializeGameDetailPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('gameId');
 
-    const gameHeader = document.getElementById('game-header');
-    const pageTitle = document.getElementById('page-title');
+    // Get all necessary containers
+    const scoreDisplayContainer = document.getElementById('score-display');
     const boxScoreContainer = document.getElementById('box-score-container');
     const videoContainer = document.getElementById('video-container');
 
-    if (!gameId) {
-        gameHeader.textContent = 'Error: No Game ID provided.';
+    if (!gameId || !scoreDisplayContainer) {
+        if (scoreDisplayContainer) {
+            scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: No Game ID provided.</p>';
+        }
         return;
     }
 
@@ -68,16 +70,17 @@ async function initializeGameDetailPage() {
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
 
     if (!gameLogGID || !scheduleGID) {
-        gameHeader.textContent = 'Error: Page not configured correctly.';
+        scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Page not configured correctly.</p>';
         return;
     }
 
+    // Fetch data from both sheets
     const [gameLogData, scheduleData] = await Promise.all([
         fetchGoogleSheetData(SHEET_ID, gameLogGID, `SELECT * WHERE A = '${gameId}'`),
         fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT * WHERE A = '${gameId}'`)
     ]);
 
-    // Display the video if a URL exists
+    // Render Video
     if (scheduleData && scheduleData[0] && scheduleData[0]['Video URL']) {
         const videoUrl = scheduleData[0]['Video URL'];
         let videoId = '';
@@ -88,48 +91,50 @@ async function initializeGameDetailPage() {
         }
 
         if (videoId) {
-            // UPDATED: This now uses our new custom 'video-wrapper' class
             videoContainer.innerHTML = `
-        <div class="video-wrapper rounded-lg overflow-hidden border border-gray-700">
-            <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-    `;
+                <div class="video-wrapper rounded-lg overflow-hidden border border-gray-700">
+                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
         }
     }
 
-    if (!gameLogData || gameLogData.length === 0) {
-        gameHeader.textContent = 'Error: Could not find stats for this game.';
-        // Also clear the sub-header in case a score was displayed before this error
-        document.getElementById('game-sub-header').textContent = '';
-        return;
-    }
+    // Render Box Scores
+    if (gameLogData && gameLogData.length > 0) {
+        const teams = {};
+        gameLogData.forEach(playerRow => {
+            const teamName = playerRow['Team'];
+            if (!teams[teamName]) teams[teamName] = [];
+            teams[teamName].push(playerRow);
+        });
 
-    const teams = {};
-    gameLogData.forEach(playerRow => {
-        const teamName = playerRow['Team'];
-        if (!teams[teamName]) teams[teamName] = [];
-        teams[teamName].push(playerRow);
-    });
-    const teamNames = Object.keys(teams);
-    if (teamNames.length < 2) {
-        gameHeader.textContent = 'Error: Game data is incomplete.';
-        return;
-    }
-    const team1Name = teamNames[0];
-    const team2Name = teamNames[1];
-    gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
-    pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
+        const teamNames = Object.keys(teams);
+        if (teamNames.length >= 2) {
+            const team1Name = teamNames[0];
+            const team2Name = teamNames[1];
 
-    // This is the full and correct block for displaying the box scores
-    const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
-    const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
-    boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
+            // Render the box score tables
+            const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
+            const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
+            boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
 
-    // This logic to get the score from the schedule remains
-    if (scheduleData && scheduleData[0]) {
-        const gameInfo = scheduleData[0];
-        const score1 = gameInfo['Team 1 Score'];
-        const score2 = gameInfo['Team 2 Score'];
-        document.getElementById('game-sub-header').textContent = `Final Score: ${score1} - ${score2}`;
+            // Render the new score display
+            if (scheduleData && scheduleData[0]) {
+                const gameInfo = scheduleData[0];
+                const score1 = gameInfo['Team 1 Score'];
+                const score2 = gameInfo['Team 2 Score'];
+                scoreDisplayContainer.innerHTML = `
+                    <span class="font-semibold text-2xl text-right w-2/5 truncate">${gameInfo['Team 1']}</span>
+                    <div class="text-center w-1/5">
+                        <span class="font-bold text-3xl text-gray-200">${score1} - ${score2}</span>
+                    </div>
+                    <span class="font-semibold text-2xl text-left w-2/5 truncate">${gameInfo['Team 2']}</span>
+                `;
+            }
+        } else {
+            scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Game data is incomplete.</p>';
+        }
+    } else {
+        scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Could not find stats for this game.</p>';
     }
 }

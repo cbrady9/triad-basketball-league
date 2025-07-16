@@ -194,8 +194,13 @@
 
     <main class="container mx-auto p-4 mt-6">
         <section id="game-info-container" class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-md mb-6">
-            <h2 class="text-3xl font-bold text-center" id="game-header">Loading Game Details...</h2>
-            <p class="text-center text-gray-300 mt-2" id="game-sub-header"></p>
+            <div id="score-display" class="flex justify-between items-center text-lg text-gray-200">
+                <span class="font-semibold text-right w-2/5 truncate">Loading...</span>
+                <div class="text-center w-1/4">
+                    <span class="font-bold text-2xl text-gray-200">-</span>
+                </div>
+                <span class="font-semibold text-left w-2/5 truncate">Loading...</span>
+            </div>
         </section>
 
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="box-score-container">

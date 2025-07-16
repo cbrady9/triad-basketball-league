@@ -46,6 +46,7 @@ function createBoxScoreTable(teamName, teamStats) {
     return tableHtml;
 }
 
+
 async function initializeGameDetailPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
@@ -76,23 +77,20 @@ async function initializeGameDetailPage() {
         fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT * WHERE A = '${gameId}'`)
     ]);
 
-    // --- This is the debugging line, now correctly placed ---
-    console.log("Game Schedule Data:", scheduleData);
-
     // Display the video if a URL exists
     if (scheduleData && scheduleData[0] && scheduleData[0]['Video URL']) {
         const videoUrl = scheduleData[0]['Video URL'];
         let videoId = '';
-        if (videoUrl.includes('https://www.youtube.com/watch?v=VIDEO_ID1')) {
+        if (videoUrl.includes('watch?v=')) {
             videoId = new URL(videoUrl).searchParams.get('v');
-        } else if (videoUrl.includes('https://www.youtube.com/watch?v=VIDEO_ID2')) {
+        } else if (videoUrl.includes('youtu.be/')) {
             videoId = new URL(videoUrl).pathname.slice(1);
         }
 
         if (videoId) {
             videoContainer.innerHTML = `
                 <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border border-gray-700">
-                    <iframe src="https://www.youtube.com/watch?v=VIDEO_ID3{videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             `;
         }
@@ -100,6 +98,8 @@ async function initializeGameDetailPage() {
 
     if (!gameLogData || gameLogData.length === 0) {
         gameHeader.textContent = 'Error: Could not find stats for this game.';
+        // Also clear the sub-header in case a score was displayed before this error
+        document.getElementById('game-sub-header').textContent = '';
         return;
     }
 
@@ -119,10 +119,12 @@ async function initializeGameDetailPage() {
     gameHeader.textContent = `${team1Name} vs. ${team2Name}`;
     pageTitle.textContent = `${team1Name} vs. ${team2Name} - Game Details`;
 
+    // This is the full and correct block for displaying the box scores
     const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
     const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
     boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
 
+    // This logic to get the score from the schedule remains
     if (scheduleData && scheduleData[0]) {
         const gameInfo = scheduleData[0];
         const score1 = gameInfo['Team 1 Score'];

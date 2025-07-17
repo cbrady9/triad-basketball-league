@@ -113,11 +113,31 @@ async function initializeGameDetailPage() {
             const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
             boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
             if (currentGame) {
+                const team1Name = currentGame['Team 1'];
+                const team2Name = currentGame['Team 2'];
+
                 const team1Record = calculateRecordUpToGame(team1Name, currentGame, scheduleData);
                 const team2Record = calculateRecordUpToGame(team2Name, currentGame, scheduleData);
+
                 const score1 = currentGame['Team 1 Score'];
                 const score2 = currentGame['Team 2 Score'];
-                scoreDisplayContainer.innerHTML = `<div class="w-2/5 text-right"><span class="font-semibold text-2xl truncate">${team1Name}</span><p class="text-sm text-gray-400">${team1Record}</p></div><div class="text-center w-1/5"><span class="font-bold text-3xl text-gray-200">${score1} - ${score2}</span></div><div class="w-2/5 text-left"><span class="font-semibold text-2xl truncate">${team2Name}</span><p class="text-sm text-gray-400">${team2Record}</p></div>`;
+
+                // UPDATED: This now uses flex-col on small screens to stack elements
+                scoreDisplayContainer.innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-center text-lg text-gray-200 space-y-4 sm:space-y-0">
+            <div class="w-full sm:w-2/5 text-center sm:text-right">
+                <span class="font-semibold text-2xl truncate">${team1Name}</span>
+                <p class="text-sm text-gray-400">${team1Record}</p>
+            </div>
+            <div class="w-full sm:w-1/5 text-center">
+                <span class="font-bold text-3xl text-gray-200">${score1} - ${score2}</span>
+            </div>
+            <div class="w-full sm:w-2/5 text-center sm:text-left">
+                <span class="font-semibold text-2xl truncate">${team2Name}</span>
+                <p class="text-sm text-gray-400">${team2Record}</p>
+            </div>
+        </div>
+    `;
             }
         } else {
             scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Game data is incomplete.</p>';

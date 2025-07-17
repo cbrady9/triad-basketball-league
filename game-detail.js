@@ -65,17 +65,23 @@ function createBoxScoreTable(teamName, teamStats) {
 async function initializeGameDetailPage() {
     const currentSeason = getCurrentSeason();
     createSeasonSelector(currentSeason);
+
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('gameId');
+
+    // Get containers
     const scoreDisplayContainer = document.getElementById('score-display');
     const boxScoreContainer = document.getElementById('box-score-container');
     const videoContainer = document.getElementById('video-container');
+
     if (!gameId || !scoreDisplayContainer) {
-        if (scoreDisplayContainer) { scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: No Game ID provided.</p>'; }
+        if (scoreDisplayContainer) scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: No Game ID provided.</p>';
         return;
     }
+
     const gameLogGID = getGID('GAME_LOG_GID', currentSeason);
     const scheduleGID = getGID('SCHEDULE_GID', currentSeason);
+
     if (!gameLogGID || !scheduleGID) {
         scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Page not configured correctly.</p>';
         return;
@@ -83,22 +89,28 @@ async function initializeGameDetailPage() {
 
     const [gameLogData, scheduleData] = await Promise.all([
         fetchGoogleSheetData(SHEET_ID, gameLogGID, `SELECT * WHERE A = '${gameId}'`),
-        fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT *`)
+        fetchGoogleSheetData(SHEET_ID, scheduleGID, `SELECT * WHERE A = '${gameId}'`)
     ]);
 
-    const currentGame = scheduleData.find(g => g['Game ID'] === gameId);
+    const currentGame = scheduleData ? scheduleData.find(g => g['Game ID'] === gameId) : null;
 
+    // Render Video
     if (currentGame && currentGame['Video URL']) {
         const videoUrl = currentGame['Video URL'];
         let videoId = '';
         if (videoUrl.includes('watch?v=')) { videoId = new URL(videoUrl).searchParams.get('v'); }
         else if (videoUrl.includes('youtu.be/')) { videoId = new URL(videoUrl).pathname.slice(1); }
         if (videoId) {
-            videoContainer.innerHTML = `<div class="video-wrapper rounded-lg overflow-hidden border border-gray-700"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+            videoContainer.innerHTML = `
+                <div class="video-wrapper rounded-lg overflow-hidden border border-gray-700">
+                    <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
         }
     }
 
-    if (gameLogData && gameLogData.length > 0) {
+    // Render Header and Box Scores
+    if (gameLogData && gameLogData.length > 0 && currentGame) {
         const teams = {};
         gameLogData.forEach(playerRow => {
             const teamName = playerRow['Team'];
@@ -106,39 +118,37 @@ async function initializeGameDetailPage() {
             teams[teamName].push(playerRow);
         });
         const teamNames = Object.keys(teams);
+
         if (teamNames.length >= 2) {
-            const team1Name = teamNames[0];
-            const team2Name = teamNames[1];
-            const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name]);
-            const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name]);
+            const team1Name = currentGame['Team 1'];
+            const team2Name = currentGame['Team 2'];
+            const team1Record = calculateRecordUpToGame(team1Name, currentGame, scheduleData);
+            const team2Record = calculateRecordUpToGame(team2Name, currentGame, scheduleData);
+            const score1 = currentGame['Team 1 Score'];
+            const score2 = currentGame['Team 2 Score'];
+
+            // --- UPDATED: New structure for the score display ---
+            scoreDisplayContainer.innerHTML = `
+                <div class="grid grid-cols-3 items-center text-gray-200 gap-2">
+                    <div class="text-right">
+                        <span class="font-semibold text-lg sm:text-2xl truncate">${team1Name}</span>
+                        <p class="text-sm text-gray-400">${team1Record}</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="font-bold text-2xl sm:text-4xl">${score1} - ${score2}</span>
+                    </div>
+                    <div class="text-left">
+                        <span class="font-semibold text-lg sm:text-2xl truncate">${team2Name}</span>
+                        <p class="text-sm text-gray-400">${team2Record}</p>
+                    </div>
+                </div>
+            `;
+
+            // Render box scores
+            const team1BoxScoreHtml = createBoxScoreTable(team1Name, teams[team1Name] || []);
+            const team2BoxScoreHtml = createBoxScoreTable(team2Name, teams[team2Name] || []);
             boxScoreContainer.innerHTML = team1BoxScoreHtml + team2BoxScoreHtml;
-            if (currentGame) {
-                const team1Name = currentGame['Team 1'];
-                const team2Name = currentGame['Team 2'];
 
-                const team1Record = calculateRecordUpToGame(team1Name, currentGame, scheduleData);
-                const team2Record = calculateRecordUpToGame(team2Name, currentGame, scheduleData);
-
-                const score1 = currentGame['Team 1 Score'];
-                const score2 = currentGame['Team 2 Score'];
-
-                // UPDATED: This now uses flex-col on small screens to stack elements
-                scoreDisplayContainer.innerHTML = `
-        <div class="flex flex-col sm:flex-row justify-between items-center text-lg text-gray-200 space-y-4 sm:space-y-0">
-            <div class="w-full sm:w-2/5 text-center sm:text-right">
-                <span class="font-semibold text-2xl truncate">${team1Name}</span>
-                <p class="text-sm text-gray-400">${team1Record}</p>
-            </div>
-            <div class="w-full sm:w-1/5 text-center">
-                <span class="font-bold text-3xl text-gray-200">${score1} - ${score2}</span>
-            </div>
-            <div class="w-full sm:w-2/5 text-center sm:text-left">
-                <span class="font-semibold text-2xl truncate">${team2Name}</span>
-                <p class="text-sm text-gray-400">${team2Record}</p>
-            </div>
-        </div>
-    `;
-            }
         } else {
             scoreDisplayContainer.innerHTML = '<p class="text-center text-red-500">Error: Game data is incomplete.</p>';
         }
